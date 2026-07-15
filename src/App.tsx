@@ -19,6 +19,7 @@ import { FavoritesProvider, useFavorites } from './components/FavoritesContext';
 import { FavoritesDrawer } from './components/FavoritesDrawer';
 import { useLanguage, LanguageProvider } from './components/LanguageContext';
 import { PortalListingsCarousel } from './components/PortalListingsCarousel';
+import logoSrc from './assets/images/logo_transparente.png';
 
 function AppContent() {
   const { t, properties, testimonials } = useLanguage();
@@ -406,7 +407,7 @@ function AppContent() {
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-3">
               <img 
-                src="/src/assets/images/logo_transparente.png" 
+                src={logoSrc} 
                 alt="Silvia Helena Logo" 
                 className="h-12 md:h-16 w-auto object-contain brightness-100"
                 referrerPolicy="no-referrer"

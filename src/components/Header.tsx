@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Heart, MessageSquare, Compass, Award, Globe } from 'lucide-react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage, Language } from './LanguageContext';
+import logoSrc from '../assets/images/logo_transparente.png';
 
 interface HeaderProps {
   onOpenFavorites: () => void;
@@ -84,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
             className="flex items-center gap-3 group text-left cursor-pointer animate-fade-in"
           >
             <img 
-              src="/src/assets/images/logo_transparente.png" 
+              src={logoSrc} 
               alt="Silvia Helena Logo" 
               className="h-10 md:h-12 w-auto object-contain brightness-100 transition-all duration-300 hover:brightness-110"
               referrerPolicy="no-referrer"
