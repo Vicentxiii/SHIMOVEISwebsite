@@ -5,6 +5,13 @@
 
 import { Property, Testimonial, Lifestyle } from './types';
 
+// Imagens locais importadas como módulos — isso faz o Vite processar
+// e empacotar corretamente no build de produção (Vercel).
+import cliffsideVillaHero from './assets/images/cliffside_villa_hero_1783897988616.jpg';
+import saoPauloPenthouse from './assets/images/sao_paulo_penthouse_1783898008439.jpg';
+import luxuryMansionJoatinga from './assets/images/luxury_mansion_joatinga_1783898026904.jpg';
+import trancosoBeachHouse from './assets/images/trancoso_beach_house_1783898016790.jpg';
+
 export const PROPERTIES: Property[] = [
   {
     id: 'prop-1',
@@ -17,9 +24,9 @@ export const PROPERTIES: Property[] = [
     bathrooms: 8,
     garage: 5,
     area: '1,250 m²',
-    image: '/src/assets/images/cliffside_villa_hero_1783897988616.jpg',
+    image: cliffsideVillaHero,
     gallery: [
-      '/src/assets/images/cliffside_villa_hero_1783897988616.jpg',
+      cliffsideVillaHero,
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1200&q=80'
@@ -45,9 +52,9 @@ export const PROPERTIES: Property[] = [
     bathrooms: 5,
     garage: 4,
     area: '680 m²',
-    image: '/src/assets/images/sao_paulo_penthouse_1783898008439.jpg',
+    image: saoPauloPenthouse,
     gallery: [
-      '/src/assets/images/sao_paulo_penthouse_1783898008439.jpg',
+      saoPauloPenthouse,
       'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80'
@@ -73,9 +80,9 @@ export const PROPERTIES: Property[] = [
     bathrooms: 7,
     garage: 6,
     area: '1,450 m²',
-    image: '/src/assets/images/luxury_mansion_joatinga_1783898026904.jpg',
+    image: luxuryMansionJoatinga,
     gallery: [
-      '/src/assets/images/luxury_mansion_joatinga_1783898026904.jpg',
+      luxuryMansionJoatinga,
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80'
@@ -101,9 +108,9 @@ export const PROPERTIES: Property[] = [
     bathrooms: 6,
     garage: 3,
     area: '820 m²',
-    image: '/src/assets/images/trancoso_beach_house_1783898016790.jpg',
+    image: trancosoBeachHouse,
     gallery: [
-      '/src/assets/images/trancoso_beach_house_1783898016790.jpg',
+      trancosoBeachHouse,
       'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?auto=format&fit=crop&w=1200&q=80'
@@ -274,7 +281,7 @@ export const LIFESTYLES: Lifestyle[] = [
     title: 'The Poetry of Leisure',
     subtitle: 'Curated Natural Balance',
     description: 'True luxury lies in the luxury of time, nature, and deep comfort. Whether in the lush tranquility of Bahia\'s canopy or the crisp serenity of mountain ridges, we locate estates that foster wellness, recovery, and quiet memory creation.',
-    image: '/src/assets/images/trancoso_beach_house_1783898016790.jpg',
+    image: trancosoBeachHouse,
     tagline: 'ORGANIC RECOVER'
   }
 ];
