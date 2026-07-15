@@ -7,7 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ShieldCheck, TrendingUp, Sparkles, Award } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
-
+import silviaPortrait from '../assets/images/silvia_helena_portrait_3.png';
 export const AboutSection: React.FC = () => {
   const { t } = useLanguage();
 
@@ -36,7 +36,7 @@ export const AboutSection: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-start">
-          
+
           {/* Left Column: Portrait & Stats (Editorial Layout) */}
           <div className="col-span-1 lg:col-span-5 flex flex-col space-y-8">
             <motion.div
@@ -49,8 +49,7 @@ export const AboutSection: React.FC = () => {
               {/* Premium Thin Double Border */}
               <div className="absolute inset-4 border border-brand-gold/15 rounded-xl pointer-events-none z-10" />
               <img
-                src="/src/assets/images/silvia_helena_portrait_3.png"
-                alt="Silvia Helena Portrait"
+                src={silviaPortrait}
                 className="w-full h-full object-cover object-top scale-[1.2] grayscale-[15%] hover:scale-125 transition-transform duration-[2.5s] ease-out"
                 referrerPolicy="no-referrer"
               />
