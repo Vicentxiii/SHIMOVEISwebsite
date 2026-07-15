@@ -49,9 +49,9 @@ export const AboutSection: React.FC = () => {
               {/* Premium Thin Double Border */}
               <div className="absolute inset-4 border border-brand-gold/15 rounded-xl pointer-events-none z-10" />
               <img
-                src="/src/assets/images/silvia_helena_portrait_2.jpeg"
+                src="/src/assets/images/silvia_helena_portrait_3.png"
                 alt="Silvia Helena Portrait"
-                className="w-full h-full object-cover object-top grayscale-[15%] hover:scale-105 transition-transform duration-[2.5s] ease-out"
+                className="w-full h-full object-cover object-top scale-[1.2] grayscale-[15%] hover:scale-125 transition-transform duration-[2.5s] ease-out"
                 referrerPolicy="no-referrer"
               />
               <div className="absolute bottom-6 left-6 right-6 bg-brand-bg/90 backdrop-blur-md p-5 border border-brand-light/5 rounded-xl z-10">

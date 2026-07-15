@@ -27,7 +27,7 @@ export const DICT = {
 
     // About Section
     about_badge: 'A BIOGRAFIA DE UMA CONSULTORA DE CONFIANÇA',
-    about_title: 'Redefinindo a representação de imóveis de altíssimo padrão.',
+    about_title: 'Redefinindo a representação de imóveis de alto padrão.',
     about_p1: 'Silvia Helena não enxerga propriedades de luxo como simples mercadorias. Com uma sólida formação em assessoria de fortunas privadas e gestão de ativos imobiliários de alto padrão, ela se posiciona como uma representante de patrimônio verdadeiramente dedicada e estratégica.',
     about_p2: 'Ela compreende que a aquisição ou liquidação de uma obra-prima arquitetônica multimilionária não é uma mera transação, mas sim um marco crítico de preservação de capital e uma decisão de alta relevância pessoal. Silvia coordena cada fase deste processo complexo pessoalmente, defendendo os interesses de seus clientes com padrões inabaláveis de inteligência, discrição e excelência técnica.',
     about_p3: 'Sua consultoria privada concentra-se intensamente na poesia espacial, na honestidade estrutural, nos ciclos imobiliários regionais e na integridade dos ativos. Sua assessoria oferece uma ponte perfeita entre a arquitetura moderna e a longevidade do capital.',
