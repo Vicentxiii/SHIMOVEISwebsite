@@ -20,6 +20,7 @@ import { FavoritesDrawer } from './components/FavoritesDrawer';
 import { useLanguage, LanguageProvider } from './components/LanguageContext';
 import { PortalListingsCarousel } from './components/PortalListingsCarousel';
 import logoSrc from './assets/images/logo_transparente.png';
+import cliffsideVillaHero from './assets/images/cliffside_villa_hero_1783897988616.jpg';
 
 function AppContent() {
   const { t, properties, testimonials } = useLanguage();
@@ -27,7 +28,7 @@ function AppContent() {
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  
+
   // Filtering states
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const { favorites } = useFavorites();
@@ -138,9 +139,9 @@ function AppContent() {
       <LoadingScreen />
 
       {/* Sticky Minimal Navigation Header */}
-      <Header 
-        onOpenFavorites={() => setIsFavoritesOpen(true)} 
-        activeSection={activeSection} 
+      <Header
+        onOpenFavorites={() => setIsFavoritesOpen(true)}
+        activeSection={activeSection}
       />
 
       {/* Dynamic Favorites Sidebar Drawer */}
@@ -151,14 +152,14 @@ function AppContent() {
       />
 
       {/* SECTION 1: Fullscreen Cinematic Hero */}
-      <section 
-        id="home" 
+      <section
+        id="home"
         className="relative h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden bg-black"
       >
         {/* Background Image / Paralax effect */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/src/assets/images/cliffside_villa_hero_1783897988616.jpg"
+            src={cliffsideVillaHero}
             alt="Monolithic Luxury Estate"
             className="w-full h-full object-cover scale-105 opacity-65 select-none"
             referrerPolicy="no-referrer"
@@ -254,7 +255,7 @@ function AppContent() {
       {/* SECTION 4: Curated Featured Properties (Magazine Style Layout) */}
       <section id="estates" className="py-24 md:py-36 bg-brand-bg relative">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          
+
           {/* Section Heading */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-brand-light/5 pb-10">
             <div className="space-y-4">
@@ -351,7 +352,7 @@ function AppContent() {
                 <div className="font-serif text-5xl text-brand-gold/25 select-none leading-none -mt-4">
                   “
                 </div>
-                
+
                 <blockquote className="font-serif text-base md:text-xl text-brand-light font-light leading-relaxed max-w-3xl mx-auto tracking-wide italic">
                   {testimonials[activeTestimonial]?.quote}
                 </blockquote>
@@ -374,11 +375,10 @@ function AppContent() {
               <button
                 key={idx}
                 onClick={() => setActiveTestimonial(idx)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border cursor-pointer ${
-                  activeTestimonial === idx
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border cursor-pointer ${activeTestimonial === idx
                     ? 'bg-brand-gold border-brand-gold scale-110'
                     : 'bg-transparent border-brand-light/30 hover:border-brand-light/70'
-                }`}
+                  }`}
                 aria-label={`Go to client testimonial ${idx + 1}`}
               />
             ))}
@@ -402,13 +402,13 @@ function AppContent() {
       {/* SECTION 9: Editorial Footer */}
       <footer className="bg-[#13040a] border-t border-brand-light/5 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
-          
+
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-3">
-              <img 
-                src={logoSrc} 
-                alt="Silvia Helena Logo" 
+              <img
+                src={logoSrc}
+                alt="Silvia Helena Logo"
                 className="h-12 md:h-16 w-auto object-contain brightness-100"
                 referrerPolicy="no-referrer"
               />
