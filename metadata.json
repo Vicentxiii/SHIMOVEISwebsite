@@ -1,0 +1,6 @@
+{
+  "name": "Silvia Helena - Luxury Real Estate Advisor",
+  "description": "Exquisite private wealth real estate advisory services. Curated portfolio of high-end architectural estates, custom consulting, and timeless luxury representation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

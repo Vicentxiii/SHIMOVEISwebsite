@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', sans-serif;
+  
+  --color-brand-bg: #17060D;
+  --color-brand-light: #F8F2EF;
+  --color-brand-muted: #8F7E7E;
+  --color-brand-gold: #D4A373;
+}
+
+/* Custom global styles */
+::selection {
+  background-color: #D4A373;
+  color: #17060D;
+}
+
+body {
+  background-color: #17060D;
+  color: #F8F2EF;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #17060D;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a111a;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #D4A373;
+}
+
+/* Custom animation for luxury cursor and parallax elements */
+.luxury-blur-bg {
+  background: radial-gradient(circle, rgba(212,163,115,0.08) 0%, rgba(23,6,13,0) 70%);
+}
+
+.luxury-text-gradient {
+  background: linear-gradient(135deg, #F8F2EF 0%, #D4A373 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
