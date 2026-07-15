@@ -376,8 +376,8 @@ function AppContent() {
                 key={idx}
                 onClick={() => setActiveTestimonial(idx)}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border cursor-pointer ${activeTestimonial === idx
-                    ? 'bg-brand-gold border-brand-gold scale-110'
-                    : 'bg-transparent border-brand-light/30 hover:border-brand-light/70'
+                  ? 'bg-brand-gold border-brand-gold scale-110'
+                  : 'bg-transparent border-brand-light/30 hover:border-brand-light/70'
                   }`}
                 aria-label={`Go to client testimonial ${idx + 1}`}
               />
