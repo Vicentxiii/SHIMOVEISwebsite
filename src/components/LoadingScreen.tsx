@@ -12,14 +12,25 @@ const phrases = [
 
 const icons = [Home, Key, Building2, Compass];
 
+const STORAGE_KEY = 'sh_preloader_shown';
+
 export const LoadingScreen: React.FC = () => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(() => {
+    // Só mostra uma vez por sessão - navegar entre abas não repete (evita XP cansativa)
+    if (typeof window !== 'undefined' && sessionStorage.getItem(STORAGE_KEY) === 'true') {
+      return false;
+    }
+    return true;
+  });
   const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
   const [IconComponent] = useState(() => icons[Math.floor(Math.random() * icons.length)]);
   const [phrase] = useState(() => phrases[Math.floor(Math.random() * phrases.length)]);
 
   useEffect(() => {
+    if (!visible) return;
+    // marca como já exibido nesta sessão antes de iniciar timers
+    sessionStorage.setItem(STORAGE_KEY, 'true');
     startTime.current = Date.now();
     const duration = 8000;
     const interval = setInterval(() => {
@@ -37,7 +48,7 @@ export const LoadingScreen: React.FC = () => {
       clearTimeout(timer);
       clearInterval(interval);
     };
-  }, []);
+  }, [visible]);
 
   return (
     <AnimatePresence>
