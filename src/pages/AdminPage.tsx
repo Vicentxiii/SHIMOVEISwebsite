@@ -481,51 +481,52 @@ export const AdminPage: React.FC = () => {
     if (fotos.length === 0) return setToast({ tipo: 'erro', msg: 'Adiciona pelo menos 1 foto' });
     if (!endereco.trim()) return setToast({ tipo: 'erro', msg: 'Coloca o endereço' });
 
-    // 1) CORREÇÃO: lê token de sessão do LocalStorage ANTES de iniciar qualquer requisição de upload (evita race condition)
+    // 1) PERSISTÊNCIA DA SESSÃO DURANTE O UPLOAD — lê ANTES e TRAVA como 'true' durante todo o processo
+    // Não depende de resposta assíncrona do Sanity; verificação simples que não reseta se requisição demorar
     const sessionSnapshot = readSessionSnapshot();
-    if (!sessionSnapshot || !isSessionValid()) {
-      handleSessionExpired('Sessão expirada ou não encontrada. Faça login novamente para salvar.');
-      setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
+    const hasSessionSimple = !!sessionSnapshot; // verificação simples: existência no LocalStorage, sem TTL agressivo durante o envio
+    if (!hasSessionSimple) {
+      handleSessionExpired('Sessão não encontrada. Faça login novamente para salvar.');
+      setToast({ tipo: 'erro', msg: '🔒 Sessão não encontrada. Faça login novamente.' });
       return;
     }
-    // Captura headers da sessão ANTES do upload — garante que o Bearer Token seja enviado mesmo que o upload demore
-    const headersSnapshot = getSessionHeaderFromSnapshot(sessionSnapshot);
+    // Trava o estado de autenticação como true durante todo o upload — não revalida via API do Sanity
+    const lockedAuth = true;
+    const lockedSessionSnapshot = sessionSnapshot;
+    const headersSnapshot = getSessionHeaderFromSnapshot(lockedSessionSnapshot);
+    // Garante que UI permaneça autenticada durante upload demorado (imagem grande no Sanity)
+    if (lockedAuth) setAutenticado(true);
 
     setSalvando(true);
     try {
-      // 2) Garantia: NÃO limpa LocalStorage/cookies durante upload lento — apenas em erro real de auth
-      // isSessionValid() agora é pura (sem side-effect de removeItem); limpeza só via handleSessionExpired() em 401 real
-      // 3) Timeout estendido para imagens grandes (falso positivo por atraso) — fetchJson com 60s por imagem
+      // 2) ISOLAMENTO DO CORPO DA REQUISIÇÃO — client.assets.upload usa token Sanity independente, sem derrubar Authorization local
+      // sanityAdminClient já está configurado com useCdn:false + token: SANITY_API_WRITE_TOKEN (src/lib/sanity.ts:15)
+      // O Bearer local (x-admin-auth / Authorization) é enviado apenas para /api/*, nunca interceptado pelo client Sanity
       const hasToken = hasAdminToken();
       if (!hasToken) {
         console.warn(
-          '[Admin] VITE_SANITY_API_WRITE_TOKEN não encontrado no cliente — usando /api/upload-imagem com token servidor (SANITY_API_WRITE_TOKEN). ' +
+          '[Admin] VITE_SANITY_API_WRITE_TOKEN não encontrado no cliente — usando /api/upload-imagem com token servidor (SANITY_API_WRITE_TOKEN) isolado. ' +
             'Se o upload falhar com 401, configure o token permanente (Editor/Write) na Vercel e faça Redeploy.'
         );
       }
       const fotosParaEnviar: any[] = [];
       for (const f of fotos) {
         if (f.isNew && f.file) {
-          // Verificação obrigatória ANTES de cada upload: confirma sessão capturada antes do início (não re-lê com clear)
-          // Não limpa LocalStorage aqui — apenas valida snapshot; limpeza só em erro 401/autêntico
-          if (!sessionSnapshot || localStorage.getItem(LS_KEY) !== sessionSnapshot) {
-            // Se outra aba limpou a sessão, sim é sessão perdida — mas não por timeout de imagem
-            throw new Error('Session not found - sessão foi removida durante o upload. Faça login novamente.');
-          }
-          // Se houver sanityAdminClient com token, tenta upload direto (mais rápido, sem base64); senão usa API
+          // NÃO revalida sessão com isSessionValid() nem compara LocalStorage que pode ter sido alterado por timeout falso
+          // Usa apenas o snapshot travado antes do upload — garante que demora do Sanity não limpe o login
+          // client.assets.upload('image', file) usa token Sanity isolado; não toca no Bearer local
           let assetId: string | null = null;
           if (hasToken && sanityAdminClient) {
             try {
-              // client.assets.upload('image', file) — só executa com token ativo (useCdn:false)
-              // Verificação já feita: hasAdminToken() === true e snapshot válido
+              // Isolado: token Sanity (useCdn:false) — não derruba 'Authorization: Bearer' da página /admin
               const asset = await (sanityAdminClient as any).assets.upload('image', f.file, {
                 filename: f.file.name,
                 contentType: f.file.type || 'image/jpeg',
               });
               assetId = asset._id;
             } catch (directErr: any) {
-              console.warn('[Admin] Falha no upload direto via sanityAdminClient, tentando via /api/upload-imagem:', directErr?.message);
-              // fallback para API — não limpa sessão
+              console.warn('[Admin] Falha no upload direto via sanityAdminClient (token isolado), tentando via /api/upload-imagem:', directErr?.message);
+              // fallback para API — mantém sessão travada, não limpa LocalStorage
             }
           }
           if (!assetId) {
@@ -537,7 +538,7 @@ export const AdminPage: React.FC = () => {
                 headers: { 'Content-Type': 'application/json', ...headersSnapshot },
                 body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
               },
-              60000
+              120000
             );
             if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto (sem assetId)');
             assetId = j.assetId;
@@ -573,7 +574,7 @@ export const AdminPage: React.FC = () => {
             headers: { 'Content-Type': 'application/json', ...headersSnapshot },
             body: JSON.stringify({ id: editId, ...payload }),
           },
-          60000
+          120000
         );
       } else {
         await fetchJson(
@@ -583,11 +584,17 @@ export const AdminPage: React.FC = () => {
             headers: { 'Content-Type': 'application/json', ...headersSnapshot },
             body: JSON.stringify(payload),
           },
-          60000
+          120000
         );
       }
 
       setToast({ tipo: 'sucesso', msg: '✅ Imóvel salvo! Já está no site.' });
+      // Mantém sessão travada como 'true' — não revalida após sucesso
+      // Atualiza timestamp da sessão para estender TTL (evita expiração durante uso)
+      try {
+        const cur = readSessionSnapshot();
+        if (cur) saveSession();
+      } catch {}
       // limpa e volta pra lista após 1.2s
       setTimeout(async () => {
         setModoForm(null);
@@ -597,12 +604,24 @@ export const AdminPage: React.FC = () => {
     } catch (e: any) {
       console.error('[Admin salvar] erro completo:', e);
       const msg = e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp';
-      const isTimeout = /timeout|aborterror|timed out/i.test(msg);
+      // TRATAMENTO DE ERRO SEM DESLOGAR — NUNCA limpa LocalStorage em erro de upload/rede (correção urgente)
+      // Mantém sessão travada como 'true' mesmo com lentidão do Sanity; apenas exibe alerta amigável
+      const isTimeout = /timeout|aborterror|timed out|failed to fetch|networkerror|aborted/i.test(msg);
       if (isTimeout) {
-        // Falso positivo por atraso na resposta da API — NÃO limpa LocalStorage/cookies, não desloga
+        // Falso positivo por atraso na resposta da API — NÃO limpa LocalStorage/cookies, NÃO chama handleSessionExpired()
         setToast({
           tipo: 'erro',
-          msg: '⏳ Upload demorou. As fotos são grandes e a conexão pode estar lenta. Tente novamente — sua sessão continua ativa. Se persistir, comprima as imagens para < 2MB cada.',
+          msg: 'Erro ao subir a imagem, tente novamente. A conexão está lenta ou a imagem é muito grande — sua sessão continua ativa e não foi deslogada. Comprima para < 3MB e tente de novo.',
+        });
+        return;
+      }
+      const isNetworkError =
+        /erro ao subir a imagem|erro no upload|sem assetid|failed to fetch|network|503|502|504|econnreset|enotfound/i.test(msg) ||
+        /sanity.*lentidão|temporário/i.test(msg);
+      if (isNetworkError) {
+        setToast({
+          tipo: 'erro',
+          msg: 'Erro ao subir a imagem, tente novamente. O Sanity demorou para responder, mas sua sessão continua ativa (não foi deslogada).',
         });
         return;
       }
@@ -615,22 +634,24 @@ export const AdminPage: React.FC = () => {
         /SANITY_API_WRITE_TOKEN/i.test(msg) ||
         /401|403/.test(msg);
       if (isAuthError) {
-        handleSessionExpired('Sessão não encontrada ou expirada. Por favor, faça login novamente para salvar o imóvel.');
+        // Mesmo em erro de auth durante o upload, NÃO limpa automaticamente para não derrubar sessão travada
+        // Apenas alerta amigável; sessão permanece travada como 'true' até usuário sair manualmente
+        // (validação real de senha ocorreu ANTES do upload; falso positivo por demora não deve deslogar)
         setToast({
           tipo: 'erro',
-          msg: '🔒 Sessão expirada ou sem permissão. Faça login novamente. Se o erro persistir, verifique SANITY_API_WRITE_TOKEN na Vercel e faça Redeploy.',
+          msg: 'Erro ao salvar (Sanity retornou 401/403). Sua sessão continua ativa — não foi deslogado. Tente novamente em 10s. Se persistir, verifique se SANITY_API_WRITE_TOKEN está configurado na Vercel e faça Redeploy.',
         });
         return;
       }
-      // Se for erro de token, dá dica extra
+      // Se for erro de token, dá dica extra — também sem deslogar
       const isTokenError = msg.includes('SANITY_WRITE_TOKEN') || msg.includes('SANITY_API_WRITE_TOKEN') || msg.includes('não configurado');
       setToast({
         tipo: 'erro',
         msg: isTokenError
-          ? '⚠️ Token do Sanity não configurado. Vá na Vercel → Settings → Environment Variables → adicione SANITY_API_WRITE_TOKEN (ou SANITY_WRITE_TOKEN) (gere em sanity.io/manage) e faça Redeploy. ' + msg
+          ? '⚠️ Token do Sanity não configurado. Vá na Vercel → Settings → Environment Variables → adicione SANITY_API_WRITE_TOKEN (ou SANITY_WRITE_TOKEN) (gere em sanity.io/manage) e faça Redeploy. Sua sessão não foi deslogada.' + ' ' + msg
           : msg.includes('API não encontrada')
           ? msg
-          : msg.length > 180 ? msg.slice(0, 180) + '…' : msg,
+          : msg.length > 220 ? msg.slice(0, 220) + '…' : msg,
       });
     } finally {
       setSalvando(false);
