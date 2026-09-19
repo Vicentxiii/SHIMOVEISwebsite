@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { REGIONS } from '../data/regions';
 import { getPropertiesByRegion } from '../data/regionProperties';
@@ -15,6 +15,7 @@ import { buildCanonical, SITE_CONFIG } from '../utils/seoConfig';
 import { slugify } from '../utils/slugify';
 import logoSrc from '../assets/images/logo_transparente.webp';
 import { MapPin, ShieldCheck, Home as HomeIcon } from 'lucide-react';
+import { fetchImoveisPorRegiao, sanityToProperty } from '../lib/sanity';
 
 export const RegionPage: React.FC = () => {
   const { regiao } = useParams<{ regiao: string }>();
@@ -25,12 +26,42 @@ export const RegionPage: React.FC = () => {
 
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
+  const [loadingSanity, setLoadingSanity] = useState(true);
+  const [sanityProperties, setSanityProperties] = useState<Property[] | null>(null);
 
   if (!region) {
     return <Navigate to="/" replace />;
   }
 
-  const regionProperties = getPropertiesByRegion(region.slug);
+  // Busca do Sanity - publicado = true, ordenado por _createdAt desc
+  // Fallback para dados estáticos em regionProperties.ts se Sanity estiver vazio/erro
+  useEffect(() => {
+    let ativo = true;
+    setLoadingSanity(true);
+    fetchImoveisPorRegiao(region.name)
+      .then((data) => {
+        if (!ativo) return;
+        if (data.length > 0) {
+          const mapped = data.map((item: any) => sanityToProperty(item) as Property);
+          setSanityProperties(mapped);
+        } else {
+          setSanityProperties(null);
+        }
+      })
+      .catch(() => {
+        if (ativo) setSanityProperties(null);
+      })
+      .finally(() => {
+        if (ativo) setLoadingSanity(false);
+      });
+    return () => {
+      ativo = false;
+    };
+  }, [region.name]);
+
+  const fallbackProperties = getPropertiesByRegion(region.slug);
+  const regionProperties = sanityProperties !== null ? sanityProperties : fallbackProperties;
+  const usandoSanity = sanityProperties !== null;
 
   // JSON-LD RealEstateAgent + CollectionPage + Breadcrumb
   const collectionJsonLd = {
@@ -135,9 +166,19 @@ export const RegionPage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10 border-b border-brand-light/5 pb-6">
             <div>
               <h2 id="region-listings-heading" className="font-serif text-3xl md:text-4xl text-brand-light font-light">
-                {regionProperties.length} corretora de imóveis em {region.name} para comprar e alugar
+                {regionProperties.length} {regionProperties.length === 1 ? 'anúncio' : 'anúncios'} em {region.name} com a corretora de imóveis
               </h2>
-              <p className="text-xs text-brand-muted mt-2 font-light">Corretora de imóveis selecionados por Silvia Helena — CRECISP 125743</p>
+              <p className="text-xs text-brand-muted mt-2 font-light flex items-center gap-2">
+                {usandoSanity ? (
+                  <>
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" aria-hidden="true" />
+                    <span>Atualizado ao vivo do painel da corretora de imóveis • CRECISP 125743</span>
+                  </>
+                ) : (
+                  <span>Selecionados com corretora de imóveis por Silvia Helena — CRECISP 125743</span>
+                )}
+                {loadingSanity && <span className="text-brand-gold/60"> • carregando atualizações...</span>}
+              </p>
             </div>
             <Link to="/#contact" className="inline-flex items-center gap-2 border border-brand-gold bg-brand-gold/10 hover:bg-brand-gold text-brand-gold hover:text-brand-bg px-6 py-2.5 text-xs uppercase tracking-widest transition-colors">
               Quero vender no {region.name}

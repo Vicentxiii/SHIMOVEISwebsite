@@ -86,7 +86,38 @@ const blogRoutes = blogPosts.map(p => ({
   lastmod: today,
 }));
 
-const allRoutes = [...staticRoutes.map(r => ({ ...r, lastmod: today })), ...propertyRoutes, ...blogRoutes];
+// Sanity - tenta buscar imóveis publicados para incluir no sitemap (dinâmico)
+// Se falhar (sem rede/credencial), mantém apenas rotas estáticas
+let sanityRoutes = [];
+try {
+  const {createClient} = await import('@sanity/client');
+  const sanity = createClient({
+    projectId: 'wpe14gsf',
+    dataset: 'production',
+    apiVersion: '2024-01-01',
+    useCdn: true,
+    perspective: 'published',
+  });
+  const sanityImoveis = await sanity.fetch(`*[_type == "imovel" && publicado == true]{_id, titulo, regiao, slug, _createdAt}`);
+  if (Array.isArray(sanityImoveis) && sanityImoveis.length > 0) {
+    sanityRoutes = sanityImoveis.map((doc) => {
+      const regiaoSlug = doc.regiao ? slugify(doc.regiao) : 'geral';
+      const slug = doc.slug?.current || `${slugify(doc.titulo || 'imovel')}-${doc._id.slice(0,8)}`;
+      const lastmod = doc._createdAt ? doc._createdAt.split('T')[0] : today;
+      return {
+        loc: `/imoveis/${regiaoSlug}/${slug}`,
+        priority: '0.8',
+        changefreq: 'weekly',
+        lastmod,
+      };
+    });
+    console.log(`✓ Sanity: ${sanityRoutes.length} imóveis publicados encontrados para sitemap`);
+  }
+} catch (e) {
+  console.warn('[sitemap] Sanity fetch falhou, usando apenas rotas estáticas:', e.message);
+}
+
+const allRoutes = [...staticRoutes.map(r => ({ ...r, lastmod: today })), ...propertyRoutes, ...blogRoutes, ...sanityRoutes];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
