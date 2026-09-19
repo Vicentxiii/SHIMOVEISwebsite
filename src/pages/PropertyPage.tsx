@@ -10,7 +10,7 @@ import { useFavorites } from '../components/FavoritesContext';
 import { buildCanonical, SITE_CONFIG } from '../utils/seoConfig';
 import { slugify, parsePriceToNumber } from '../utils/slugify';
 import { REGIONS } from '../data/regions';
-import logoSrc from '../assets/images/logo_transparente.png';
+import logoSrc from '../assets/images/logo_transparente.webp';
 import { MapPin, Heart, Maximize2, Bed, Bath, Car, Calendar, Award, ShieldCheck, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -36,19 +36,19 @@ export const PropertyPage: React.FC = () => {
   }
 
   if (!property) {
-    return <Navigate to="/imoveis" replace />;
+    return <Navigate to="/corretora de imóveis" replace />;
   }
 
   if (!activeImage) setActiveImage(property.gallery[0] || property.image);
 
   const regionData = Object.values(REGIONS).find(r => r.slug === regiao || regiao?.includes(r.slug.slice(0, 4)));
   const regionName = regionData?.name || property.location.split(',')[0];
-  const canonicalPath = `/imoveis/${regiao}/${slug}`;
+  const canonicalPath = `/corretora de imóveis/${regiao}/${slug}`;
   const priceNumber = parsePriceToNumber(property.formattedPrice);
 
   // SEO dinâmico otimizado por região
   const seoTitle = `${property.title} à venda em ${property.location} | ${property.bedrooms} quartos, ${property.area} | Silvia Helena`;
-  const seoDescription = `${property.title} em ${property.location}: ${property.bedrooms} qts, ${property.bathrooms} banhos, ${property.area}, ${property.formattedPrice}. Comprar, vender e alugar imóveis no ${regionName} com Silvia Helena, CRECISP 125743. Agende visita!`.slice(0, 158);
+  const seoDescription = `${property.title} em ${property.location}: ${property.bedrooms} qts, ${property.bathrooms} banhos, ${property.area}, ${property.formattedPrice}. Fale com corretora de imóveis no ${regionName} com Silvia Helena, CRECISP 125743. Agende visita!`.slice(0, 158);
 
   const fav = isFavorite(property.id);
 
@@ -86,7 +86,7 @@ export const PropertyPage: React.FC = () => {
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'RealEstateAgent',
-        name: 'Silvia Helena Imóveis',
+        name: 'Silvia Helena corretora de imóveis',
         telephone: SITE_CONFIG.phone,
         email: SITE_CONFIG.email,
       },
@@ -99,8 +99,8 @@ export const PropertyPage: React.FC = () => {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_CONFIG.getSiteUrl() },
-      { '@type': 'ListItem', position: 2, name: 'Imóveis', item: `${SITE_CONFIG.getSiteUrl()}/imoveis` },
-      { '@type': 'ListItem', position: 3, name: regionName, item: `${SITE_CONFIG.getSiteUrl()}/imoveis/${regiao}` },
+      { '@type': 'ListItem', position: 2, name: 'corretora de imóveis', item: `${SITE_CONFIG.getSiteUrl()}/corretora de imóveis` },
+      { '@type': 'ListItem', position: 3, name: regionName, item: `${SITE_CONFIG.getSiteUrl()}/corretora de imóveis/${regiao}` },
       { '@type': 'ListItem', position: 4, name: property.title, item: buildCanonical(canonicalPath) },
     ],
   };
@@ -118,7 +118,7 @@ export const PropertyPage: React.FC = () => {
         title={seoTitle}
         description={seoDescription}
         canonical={buildCanonical(canonicalPath)}
-        keywords={`imóvel ${regionName}, ${property.title}, comprar ${property.type} ${regionName}, ${property.location}, ${property.bedrooms} quartos`}
+        keywords={`corretora de imóveis ${regionName}, ${property.title}, corretora para comprar ${property.type} ${regionName}, ${property.location}, ${property.bedrooms} quartos`}
         ogImage={property.image}
         ogType="article"
       />
@@ -132,8 +132,8 @@ export const PropertyPage: React.FC = () => {
         {/* Breadcrumbs */}
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <Breadcrumbs items={[
-            { name: 'Imóveis', url: '/imoveis' },
-            { name: regionName, url: `/imoveis/${regiao}` },
+            { name: 'corretora de imóveis', url: '/corretora de imóveis' },
+            { name: regionName, url: `/corretora de imóveis/${regiao}` },
             { name: property.title, url: canonicalPath }
           ]} />
         </div>
@@ -166,7 +166,7 @@ export const PropertyPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-3" role="list" aria-label="Galeria de fotos do imóvel">
+            <div className="grid grid-cols-4 gap-3" role="list" aria-label="Galeria de fotos do corretora de imóveis">
               {property.gallery.map((img, idx) => (
                 <button key={idx} role="listitem" onClick={() => setActiveImage(img)} className={`relative aspect-[4/3] overflow-hidden rounded-xl border transition-all cursor-pointer ${activeImage === img ? 'border-brand-gold ring-1 ring-brand-gold/30' : 'border-brand-light/10 hover:border-brand-light/30'}`} aria-label={`Ver foto ${idx + 1} de ${property.title} em ${property.location}`}>
                   <img src={img} alt={`${property.title} - foto ${idx + 1} - ${property.location}`} className="w-full h-full object-cover" loading="lazy" width={300} height={225} decoding="async" />
@@ -196,7 +196,7 @@ export const PropertyPage: React.FC = () => {
               </div>
 
               <div>
-                <h2 className="font-serif text-xl text-brand-light font-light mb-3">Sobre este imóvel para comprar ou alugar em {regionName}</h2>
+                <h2 className="font-serif text-xl text-brand-light font-light mb-3">Sobre este corretora de imóveis com corretora de imóveis em {regionName}</h2>
                 <p className="text-sm text-brand-muted leading-relaxed font-light">{property.description} Ideal para quem busca comprar com segurança ou investir para alugar em {regionName}, São Paulo, com suporte completo da Silvia Helena (CRECISP 125743).</p>
                 {property.architect && <p className="text-xs text-brand-muted mt-3">Arquiteto: <span className="text-brand-light">{property.architect}</span></p>}
                 <p className="text-xs text-brand-gold mt-2 italic">{property.tagline}</p>
@@ -212,10 +212,10 @@ export const PropertyPage: React.FC = () => {
 
               {/* Links internos SEO */}
               <div className="border border-brand-gold/20 p-5 bg-brand-gold/[0.02] space-y-3">
-                <h3 className="text-xs tracking-widest uppercase text-brand-gold font-light">Veja também imóveis em:</h3>
+                <h3 className="text-xs tracking-widest uppercase text-brand-gold font-light">Veja também com corretora de imóveis em:</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.values(REGIONS).map(r => (
-                    <Link key={r.slug} to={`/imoveis/${r.slug}`} className="text-[11px] uppercase tracking-widest border border-brand-light/10 hover:border-brand-gold text-brand-muted hover:text-brand-gold px-3 py-1.5 transition-colors">Imóveis em {r.name}</Link>
+                    <Link key={r.slug} to={`/corretora de imóveis/${r.slug}`} className="text-[11px] uppercase tracking-widest border border-brand-light/10 hover:border-brand-gold text-brand-muted hover:text-brand-gold px-3 py-1.5 transition-colors">Corretora de imóveis em {r.name}</Link>
                   ))}
                 </div>
               </div>
@@ -228,7 +228,7 @@ export const PropertyPage: React.FC = () => {
               <div className="space-y-2">
                 <span className="flex items-center gap-2 text-xs text-brand-gold tracking-widest uppercase font-light"><ShieldCheck size={12} aria-hidden="true" />Canal protegido por NDA</span>
                 <h2 className="font-serif text-xl text-brand-light font-light">Agendar visita para comprar ou alugar em {regionName}</h2>
-                <p className="text-xs text-brand-muted font-light">Fale com Silvia Helena e visite este imóvel em {property.location}. Atendimento consultivo para compra, venda e aluguel.</p>
+                <p className="text-xs text-brand-muted font-light">Fale com a corretora Silvia Helena e visite este corretora de imóveis em {property.location}. Atendimento com corretora de imóveis para compra, venda e aluguel.</p>
               </div>
 
               {formSubmitted ? (
@@ -260,14 +260,14 @@ export const PropertyPage: React.FC = () => {
                   <button type="submit" className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-3 text-xs uppercase tracking-[0.25em] rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
                     <span>Enviar solicitação para visitar</span><ArrowRight size={12} aria-hidden="true" />
                   </button>
-                  <p className="text-[10px] text-brand-muted text-center">Ao enviar, você aceita contato da Silvia Helena sobre imóveis em {regionName}.</p>
+                  <p className="text-[10px] text-brand-muted text-center">Ao enviar, você aceita contato da corretora Silvia Helena em {regionName}.</p>
                 </form>
               )}
 
               <div className="pt-4 border-t border-brand-light/10 space-y-2 text-xs text-brand-muted">
                 <p className="flex items-center gap-2"><Award size={12} className="text-brand-gold" aria-hidden="true" />CRECISP 125743 • Avaliação gratuita para vender em {regionName}</p>
                 <p>WhatsApp direto: <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">+55 11 94084-0966</a></p>
-                <Link to={`/imoveis/${regiao}`} className="inline-block mt-2 text-brand-gold hover:underline">← Ver todos os imóveis em {regionName}</Link>
+                <Link to={`/corretora de imóveis/${regiao}`} className="inline-block mt-2 text-brand-gold hover:underline">← Ver todos com corretora de imóveis em {regionName}</Link>
               </div>
             </div>
           </div>
@@ -278,7 +278,7 @@ export const PropertyPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between gap-6 text-xs text-brand-muted">
           <div className="flex items-center gap-3">
             <img src={logoSrc} alt="Silvia Helena" className="h-8 w-auto" width={60} height={30} loading="lazy" />
-            <span>Silvia Helena Imóveis • {property.location} • CRECISP 125743</span>
+            <span>Silvia Helena corretora de imóveis • {property.location} • CRECISP 125743</span>
           </div>
           <Link to="/" className="text-brand-gold hover:underline">Voltar ao início</Link>
         </div>

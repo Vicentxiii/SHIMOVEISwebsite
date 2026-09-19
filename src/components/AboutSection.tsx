@@ -7,7 +7,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ShieldCheck, TrendingUp, Sparkles, Award } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
-import silviaPortrait from '../assets/images/silvia_helena_portrait_3.png';
+import silviaPortrait from '../assets/images/silvia_helena_portrait_3.webp';
 export const AboutSection: React.FC = () => {
   const { t } = useLanguage();
 
@@ -50,7 +50,7 @@ export const AboutSection: React.FC = () => {
               <div className="absolute inset-4 border border-brand-gold/15 rounded-xl pointer-events-none z-10" />
               <img
                 src={silviaPortrait}
-                alt="Silvia Helena, corretora de imóveis CRECISP 125743, especialista em comprar, vender e alugar imóveis no Butantã, Morumbi e Taboão da Serra, São Paulo"
+                alt="Silvia Helena, corretora de imóveis CRECISP 125743, que ajuda a comprar, vender e alugar no Butantã, Morumbi e Taboão da Serra, São Paulo"
                 className="w-full h-full object-cover object-top scale-[1.2] grayscale-[15%] hover:scale-125 transition-transform duration-[2.5s] ease-out"
                 referrerPolicy="no-referrer"
                 width={600}

@@ -18,7 +18,7 @@ export const SEO: React.FC<SEOProps> = ({
   const canonicalUrl = canonical || (typeof window !== 'undefined' ? window.location.href : SITE_CONFIG.getSiteUrl());
   const imageUrl = ogImage
     ? ogImage.startsWith('http') ? ogImage : `${SITE_CONFIG.getSiteUrl()}${ogImage}`
-    : `${SITE_CONFIG.getSiteUrl()}/og-image.jpg`;
+    : `${SITE_CONFIG.getSiteUrl()}/og-image.webp`;
 
   useEffect(() => {
     // Title

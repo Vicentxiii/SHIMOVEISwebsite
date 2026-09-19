@@ -5,7 +5,7 @@ import { Home, Key, Building2, Compass } from 'lucide-react';
 const phrases = [
   'Seu sonho tem endereço.',
   'Onde a vida acontece.',
-  'Mais que um imóvel. Um começo.',
+  'Mais que um lar. Um começo com sua corretora.',
   'Encontre. Sinta. More.',
   'O lar que você já imaginava.',
 ];

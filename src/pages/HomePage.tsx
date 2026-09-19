@@ -17,8 +17,8 @@ import { PortalListingsCarousel } from '../components/PortalListingsCarousel';
 import { FAQSection } from '../components/FAQSection';
 import { SEO } from '../components/SEO';
 import { SITE_CONFIG, SEO_TEMPLATES, buildCanonical } from '../utils/seoConfig';
-import logoSrc from '../assets/images/logo_transparente.png';
-import cliffsideVillaHero from '../assets/images/cliffside_villa_hero_1783897988616.jpg';
+import logoSrc from '../assets/images/logo_transparente.webp';
+import cliffsideVillaHero from '../assets/images/cliffside_villa_hero_1783897988616.webp';
 import { Link } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
@@ -91,8 +91,8 @@ export const HomePage: React.FC = () => {
   const realEstateAgentJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'RealEstateAgent',
-    name: 'Silvia Helena Imóveis',
-    image: `${SITE_CONFIG.getSiteUrl()}/favicon.png`,
+    name: 'Silvia Helena corretora de imóveis',
+    image: `${SITE_CONFIG.getSiteUrl()}/favicon.webp`,
     url: SITE_CONFIG.getSiteUrl(),
     telephone: SITE_CONFIG.phone,
     email: SITE_CONFIG.email,
@@ -113,7 +113,7 @@ export const HomePage: React.FC = () => {
     ],
     openingHours: 'Mo-Sa 09:00-19:00',
     description: SEO_TEMPLATES.home.description,
-    knowsAbout: ['compra de imóveis', 'venda de imóveis', 'aluguel de imóveis', 'apartamentos Butantã', 'casas Morumbi', 'imóveis Taboão da Serra'],
+    knowsAbout: ['corretora de imóveis para comprar', 'corretora de imóveis para vender', 'corretora de imóveis para alugar', 'corretora de imóveis Butantã', 'corretora de imóveis Morumbi', 'corretora de imóveis Taboão da Serra'],
   };
 
   const websiteJsonLd = {
@@ -123,7 +123,7 @@ export const HomePage: React.FC = () => {
     url: SITE_CONFIG.getSiteUrl(),
     potentialAction: {
       '@type': 'SearchAction',
-      target: `${SITE_CONFIG.getSiteUrl()}/imoveis?q={search_term_string}`,
+      target: `${SITE_CONFIG.getSiteUrl()}/corretora de imóveis?q={search_term_string}`,
       'query-input': 'required name=search_term_string',
     },
   };
@@ -134,8 +134,8 @@ export const HomePage: React.FC = () => {
         title={SEO_TEMPLATES.home.title}
         description={SEO_TEMPLATES.home.description}
         canonical={buildCanonical('/')}
-        keywords="comprar imóvel São Paulo, vender imóvel Butantã, alugar apartamento Morumbi, imóveis Taboão da Serra, imobiliária São Paulo, Silvia Helena"
-        ogImage="/favicon.png"
+        keywords="Corretora de imóveis São Paulo, corretora de imóveis Butantã, corretora de imóveis Morumbi, corretora de imóveis Taboão da Serra, corretora no Butantã, Silvia Helena"
+        ogImage="/favicon.webp"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateAgentJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
@@ -145,7 +145,7 @@ export const HomePage: React.FC = () => {
       <FavoritesDrawer isOpen={isFavoritesOpen} onClose={() => setIsFavoritesOpen(false)} onSelectProperty={(p) => setSelectedProperty(p)} />
 
       {/* HERO - H1 único por página */}
-      <section id="home" className="relative h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden bg-black" aria-label="Silvia Helena Imóveis - Imóveis em São Paulo">
+      <section id="home" className="relative h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden bg-black" aria-label="Silvia Helena corretora de imóveis - corretora de imóveis em São Paulo">
         <div className="absolute inset-0 z-0">
           <img
             src={cliffsideVillaHero}
@@ -168,18 +168,18 @@ export const HomePage: React.FC = () => {
             {t('hero_title')}
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.2, duration: 1.5 }} className="text-sm md:text-lg tracking-[0.2em] text-brand-light uppercase font-light mt-2 max-w-2xl mx-auto border-t border-brand-gold/25 pt-4">
-            Consultora de imóveis para comprar, vender e alugar no Butantã, Morumbi e Taboão da Serra
+            {t('hero_subtitle')}
           </motion.p>
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 3.5, duration: 1.2 }} className="pt-6">
-            <button onClick={() => scrollToSection('estates')} className="group border border-brand-gold bg-brand-gold/10 hover:bg-brand-gold hover:text-brand-bg px-8 py-3.5 text-xs font-light tracking-[0.3em] uppercase text-brand-gold transition-all duration-500 cursor-pointer" aria-label="Ver imóveis à venda no Butantã, Morumbi e Taboão da Serra">
+            <button onClick={() => scrollToSection('estates')} className="group border border-brand-gold bg-brand-gold/10 hover:bg-brand-gold hover:text-brand-bg px-8 py-3.5 text-xs font-light tracking-[0.3em] uppercase text-brand-gold transition-all duration-500 cursor-pointer" aria-label="Falar com corretora de imóveis no Butantã, Morumbi e Taboão da Serra">
               <span>{t('hero_cta')}</span>
             </button>
           </motion.div>
           {/* Links internos SEO para regiões */}
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.8 }} className="flex flex-wrap justify-center gap-3 pt-4">
-            <Link to="/imoveis/butanta" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Imóveis no Butantã</Link>
-            <Link to="/imoveis/morumbi" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Imóveis no Morumbi</Link>
-            <Link to="/imoveis/taboao-da-serra" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Imóveis em Taboão da Serra</Link>
+            <Link to="/corretora de imóveis/butanta" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis no Butantã</Link>
+            <Link to="/corretora de imóveis/morumbi" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis no Morumbi</Link>
+            <Link to="/corretora de imóveis/taboao-da-serra" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis em Taboão da Serra</Link>
           </motion.div>
         </div>
         <div className="flex flex-col gap-4 md:grid md:grid-cols-3 items-center md:items-end z-10 text-[10px] tracking-[0.25em] text-brand-muted uppercase font-light w-full text-center md:text-left">
@@ -204,16 +204,16 @@ export const HomePage: React.FC = () => {
       {/* SEO Content Section - 300+ palavras para GEO */}
       <section className="py-12 md:py-16 bg-[#1a080f] border-y border-brand-light/5" aria-labelledby="seo-content-heading">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Comprar, vender e alugar imóveis em São Paulo com Silvia Helena</h2>
+          <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa comprar, vender ou alugar com corretora de imóveis? Eu cuido de tudo</h2>
           <div className="grid md:grid-cols-3 gap-8 text-sm text-brand-muted font-light leading-relaxed">
             <p>
-              A <strong className="text-brand-light">Silvia Helena Imóveis</strong> é referência para quem deseja <strong className="text-brand-light">comprar, vender ou alugar imóveis em São Paulo</strong>, com atuação focada no <strong className="text-brand-light">Butantã, Taboão da Serra e Morumbi</strong>. Atendemos apartamentos, casas, coberturas e terrenos — do primeiro imóvel ao alto padrão — com avaliação precisa, fotos profissionais e divulgação nos principais portais.
+              Sou a <strong className="text-brand-light">Silvia Helena — CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
             </p>
             <p>
-              Para <strong className="text-brand-light">vender seu imóvel em São Paulo</strong>, oferecemos estratégia completa: precificação baseada em dados reais, marketing premium e negociação segura até o registro. Para <strong className="text-brand-light">alugar</strong>, garantimos inquilino qualificado, contrato com garantias e vistoria completa. Se quer <strong className="text-brand-light">comprar apartamento no Butantã</strong>, casa em Taboão da Serra ou mansão no Morumbi, temos curadoria exclusiva, inclusive imóveis off-market.
+              Se você quer vender, faço conta com vendas reais da sua rua — não estimativa de portal. Para alugar, seleciono inquilino com critério e contrato que te protege. E se a ideia é encontrar um 2 quartos perto do metrô Butantã, uma casa com quintal no Taboão ou um apartamento tranquilo no Morumbi, te mostro o que vale a pena hoje, incluindo o que ainda nem foi anunciado.
             </p>
             <p>
-              Nossa consultoria boutique une discrição, inteligência de mercado e atendimento humanizado. Com CRECISP 125743, cuidamos de toda a burocracia e te guiamos da visita à entrega das chaves. <Link to="/imoveis/butanta" className="text-brand-gold hover:underline">Veja imóveis no Butantã</Link>, <Link to="/imoveis/taboao-da-serra" className="text-brand-gold hover:underline">em Taboão da Serra</Link> e <Link to="/imoveis/morumbi" className="text-brand-gold hover:underline">no Morumbi</Link> ou fale direto no WhatsApp para uma avaliação gratuita.
+              Você fala sempre direto comigo, do primeiro oi no WhatsApp até a entrega das chaves. Sem equipe passando seu caso adiante. <Link to="/corretora de imóveis/butanta" className="text-brand-gold hover:underline">Veja com corretora de imóveis no Butantã</Link>, <Link to="/corretora de imóveis/taboao-da-serra" className="text-brand-gold hover:underline">opções com corretora de imóveis em Taboão da Serra</Link> ou <Link to="/corretora de imóveis/morumbi" className="text-brand-gold hover:underline">opções mais reservadas no Morumbi com corretora de imóveis</Link> — ou me chama para conversarmos sem compromisso.
             </p>
           </div>
         </div>
@@ -300,7 +300,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8">
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-3">
-              <img src={logoSrc} alt="Silvia Helena Imóveis - Corretora em São Paulo - Logo" className="h-12 md:h-16 w-auto object-contain brightness-100" width={120} height={60} loading="lazy" />
+              <img src={logoSrc} alt="Silvia Helena corretora de imóveis - Corretora em São Paulo - Logo" className="h-12 md:h-16 w-auto object-contain brightness-100" width={120} height={60} loading="lazy" />
               <div className="flex flex-col items-start border-l border-brand-light/15 pl-3">
                 <span className="font-serif text-base md:text-lg font-light uppercase tracking-[0.2em] text-brand-light">SILVIA HELENA</span>
                 <span className="text-[8px] md:text-[9px] font-light uppercase tracking-[0.3em] text-brand-muted mt-0.5">{t('hero_badge')}</span>
@@ -308,17 +308,17 @@ export const HomePage: React.FC = () => {
             </div>
             <p className="text-xs text-brand-muted max-w-sm font-light leading-relaxed mt-4">{t('footer_creci_desc')}</p>
             <div className="flex flex-wrap gap-2 pt-2">
-              <Link to="/imoveis/butanta" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Butantã</Link>
-              <Link to="/imoveis/taboao-da-serra" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Taboão da Serra</Link>
-              <Link to="/imoveis/morumbi" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Morumbi</Link>
+              <Link to="/corretora de imóveis/butanta" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Butantã</Link>
+              <Link to="/corretora de imóveis/taboao-da-serra" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Taboão da Serra</Link>
+              <Link to="/corretora de imóveis/morumbi" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Morumbi</Link>
             </div>
           </div>
           <div className="space-y-3">
             <h3 className="text-xs font-semibold tracking-widest text-brand-light uppercase">{t('footer_territories')}</h3>
             <ul className="text-xs text-brand-muted space-y-2 font-light">
-              <li><Link to="/imoveis/butanta" className="hover:text-brand-gold">Imóveis no Butantã</Link></li>
-              <li><Link to="/imoveis/taboao-da-serra" className="hover:text-brand-gold">Imóveis em Taboão da Serra</Link></li>
-              <li><Link to="/imoveis/morumbi" className="hover:text-brand-gold">Imóveis no Morumbi</Link></li>
+              <li><Link to="/corretora de imóveis/butanta" className="hover:text-brand-gold">Corretora de imóveis no Butantã</Link></li>
+              <li><Link to="/corretora de imóveis/taboao-da-serra" className="hover:text-brand-gold">Corretora de imóveis em Taboão da Serra</Link></li>
+              <li><Link to="/corretora de imóveis/morumbi" className="hover:text-brand-gold">Corretora de imóveis no Morumbi</Link></li>
               <li>{t('footer_angra')}</li>
               <li>{t('footer_campinas')}</li>
             </ul>

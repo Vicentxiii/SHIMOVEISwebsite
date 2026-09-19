@@ -8,7 +8,7 @@ import { REGIONS } from '../data/regions';
 import { REGION_PROPERTIES } from '../data/regionProperties';
 import { buildCanonical } from '../utils/seoConfig';
 import { slugify } from '../utils/slugify';
-import logoSrc from '../assets/images/logo_transparente.png';
+import logoSrc from '../assets/images/logo_transparente.webp';
 import { MapPin, ShieldCheck, Home } from 'lucide-react';
 import { useState } from 'react';
 
@@ -18,22 +18,22 @@ export const ImoveisIndexPage: React.FC = () => {
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'Imóveis à venda em São Paulo - Butantã, Morumbi, Taboão da Serra',
+    name: 'corretora de imóveis à venda em São Paulo - Butantã, Morumbi, Taboão da Serra',
     itemListElement: Object.values(REGIONS).map((r, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
       url: buildCanonical(`/imoveis/${r.slug}`),
-      name: `Imóveis em ${r.name}`,
+      name: `corretora de imóveis em ${r.name}`,
     })),
   };
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-light">
       <SEO
-        title="Imóveis à venda em São Paulo | Butantã, Morumbi e Taboão da Serra | Silvia Helena"
-        description="Todos os imóveis para comprar, vender e alugar em São Paulo. Explore casas e apartamentos no Butantã, Morumbi e Taboão da Serra com Silvia Helena, CRECISP 125743."
+        title="Corretora de imóveis à venda em São Paulo | Butantã, Morumbi e Taboão da Serra | Silvia Helena"
+        description="Fale com corretora de imóveis para comprar, vender e alugar em São Paulo. Explore com a corretora Silvia Helena casas e apartamentos no Butantã, Morumbi e Taboão da Serra. CRECISP 125743."
         canonical={buildCanonical('/imoveis')}
-        keywords="imóveis São Paulo, imóveis Butantã, imóveis Morumbi, imóveis Taboão da Serra, comprar apartamento São Paulo"
+        keywords="Corretora de imóveis São Paulo, corretora de imóveis Butantã, corretora de imóveis Morumbi, corretora de imóveis Taboão da Serra, corretora para comprar apartamento São Paulo"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
       <Header onOpenFavorites={() => setIsFavoritesOpen(true)} activeSection="estates" />
@@ -41,10 +41,10 @@ export const ImoveisIndexPage: React.FC = () => {
 
       <section className="pt-28 pb-12 bg-gradient-to-b from-[#210c14] to-brand-bg border-b border-brand-light/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <Breadcrumbs items={[{ name: 'Imóveis', url: '/imoveis' }]} />
-          <h1 className="font-serif text-4xl md:text-5xl text-brand-light font-light mt-6">Imóveis à venda, para alugar e para comprar em São Paulo</h1>
+          <Breadcrumbs items={[{ name: 'Corretora de imóveis', url: '/imoveis' }]} />
+          <h1 className="font-serif text-4xl md:text-5xl text-brand-light font-light mt-6">Corretora de imóveis à venda, para alugar e para comprar em São Paulo</h1>
           <p className="text-sm text-brand-muted mt-4 max-w-3xl leading-relaxed">
-            Navegue por região e encontre o imóvel ideal no <strong className="text-brand-light">Butantã, Morumbi e Taboão da Serra</strong>. Temos intermediação completa para <strong className="text-brand-light">comprar, vender e alugar</strong> casas, apartamentos e coberturas com assessoria premium da Silvia Helena.
+            Navegue por região e encontre com sua corretora de imóveis no <strong className="text-brand-light">Butantã, Morumbi e Taboão da Serra</strong>. Temos intermediação completa com corretora de imóveis para <strong className="text-brand-light">comprar, vender e alugar</strong> casas, apartamentos e coberturas com assessoria premium da corretora Silvia Helena.
           </p>
         </div>
       </section>
@@ -56,9 +56,9 @@ export const ImoveisIndexPage: React.FC = () => {
               <MapPin size={32} className="text-brand-gold group-hover:scale-110 transition-transform" aria-hidden="true" />
             </div>
             <div className="p-6 space-y-3">
-              <h2 className="font-serif text-xl text-brand-light group-hover:text-brand-gold transition-colors">Imóveis em {region.name}</h2>
+              <h2 className="font-serif text-xl text-brand-light group-hover:text-brand-gold transition-colors">Corretora de imóveis em {region.name}</h2>
               <p className="text-xs text-brand-muted line-clamp-3 leading-relaxed">{region.metaDescription}</p>
-              <span className="inline-flex items-center gap-1 text-[11px] tracking-widest uppercase text-brand-gold">Ver imóveis em {region.name} →</span>
+              <span className="inline-flex items-center gap-1 text-[11px] tracking-widest uppercase text-brand-gold">Falar com corretora de imóveis em {region.name} →</span>
             </div>
           </Link>
         ))}
@@ -66,7 +66,7 @@ export const ImoveisIndexPage: React.FC = () => {
 
       <section className="py-12 bg-[#1a080f] border-t border-brand-light/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <h2 className="font-serif text-2xl text-brand-light font-light mb-6">Últimos imóveis adicionados</h2>
+          <h2 className="font-serif text-2xl text-brand-light font-light mb-6">Últimos selecionados com a corretora de imóveis</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {REGION_PROPERTIES.slice(0, 6).map(prop => (
               <Link key={prop.id} to={`/imoveis/${slugify(prop.location.split(',')[0])}/${slugify(prop.title)}-${prop.id}`} className="group border border-brand-light/10 hover:border-brand-gold/30 rounded-xl overflow-hidden bg-brand-bg flex flex-col">
@@ -86,7 +86,7 @@ export const ImoveisIndexPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between gap-6 text-xs text-brand-muted">
           <div className="flex items-center gap-3">
             <img src={logoSrc} alt="Silvia Helena" className="h-8 w-auto" width={60} height={30} loading="lazy" />
-            <span>Silvia Helena Imóveis • CRECISP 125743</span>
+            <span>Silvia Helena corretora de imóveis • CRECISP 125743</span>
           </div>
           <div className="flex items-center gap-1.5"><ShieldCheck size={12} className="text-brand-gold" aria-hidden="true" /><span>Butantã • Taboão da Serra • Morumbi</span></div>
         </div>

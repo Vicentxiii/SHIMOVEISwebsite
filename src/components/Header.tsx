@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Heart, MessageSquare, Compass, Award, Globe } from 'lucide-react';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage, Language } from './LanguageContext';
-import logoSrc from '../assets/images/logo_transparente.png';
+import logoSrc from '../assets/images/logo_transparente.webp';
 
 interface HeaderProps {
   onOpenFavorites: () => void;
@@ -83,11 +83,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex items-center gap-3 group text-left cursor-pointer animate-fade-in"
-            aria-label="Voltar ao topo - Silvia Helena Imóveis no Butantã, Morumbi e Taboão da Serra"
+            aria-label="Voltar ao topo - Silvia Helena corretora de imóveis no Butantã, Morumbi e Taboão da Serra"
           >
             <img 
               src={logoSrc} 
-              alt="Silvia Helena Imóveis - Corretora de imóveis para comprar, vender e alugar no Butantã, Morumbi e Taboão da Serra - Logo CRECISP 125743" 
+              alt="Silvia Helena corretora de imóveis - Corretora de imóveis para comprar, vender e alugar no Butantã, Morumbi e Taboão da Serra - Logo CRECISP 125743" 
               className="h-10 md:h-12 w-auto object-contain brightness-100 transition-all duration-300 hover:brightness-110"
               referrerPolicy="no-referrer"
               width={120}
@@ -120,7 +120,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
           </button>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-12 xl:space-x-16" aria-label="Navegação principal - Imóveis em Butantã, Morumbi e Taboão da Serra">
+          <nav className="hidden lg:flex items-center space-x-12 xl:space-x-16" aria-label="Navegação principal - corretora de imóveis em Butantã, Morumbi e Taboão da Serra">
             {navItems.map((item) => {
               const isActive = activeSection === item.target;
               return (
@@ -150,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
             <button
               onClick={onOpenFavorites}
               className="relative p-2 text-brand-muted hover:text-brand-gold transition-colors duration-300 cursor-pointer flex items-center gap-1"
-              aria-label={`Ver portfólio salvo com ${favorites.length} imóveis favoritos para comprar ou alugar`}
+              aria-label={`Ver portfólio salvo com ${favorites.length} selecionados com sua corretora de imóveis`}
             >
               <Heart
                 size={18}
@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
             <button
               onClick={() => scrollToSection('contact')}
               className="hidden lg:flex items-center gap-2 border border-brand-gold/30 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold/15 text-brand-gold px-5 py-2 rounded-none text-xs font-light uppercase tracking-[0.2em] transition-all duration-500 cursor-pointer"
-              aria-label="Agendar consulta privada para comprar, vender ou alugar imóvel no Butantã, Morumbi ou Taboão da Serra"
+              aria-label="Agendar com corretora de imóveis no Butantã, Morumbi ou Taboão da Serra"
             >
               <MessageSquare size={12} />
               <span>{t('header_cta_consultation')}</span>
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer"
-              aria-label={mobileMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação - Imóveis Butantã, Morumbi, Taboão da Serra"}
+              aria-label={mobileMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação - corretora de imóveis Butantã, Morumbi, Taboão da Serra"}
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-menu"
             >

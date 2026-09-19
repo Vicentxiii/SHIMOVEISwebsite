@@ -7,10 +7,10 @@ import { Property, Testimonial, Lifestyle } from './types';
 
 // Imagens locais importadas como módulos — isso faz o Vite processar
 // e empacotar corretamente no build de produção (Vercel).
-import cliffsideVillaHero from './assets/images/cliffside_villa_hero_1783897988616.jpg';
-import saoPauloPenthouse from './assets/images/sao_paulo_penthouse_1783898008439.jpg';
-import luxuryMansionJoatinga from './assets/images/luxury_mansion_joatinga_1783898026904.jpg';
-import trancosoBeachHouse from './assets/images/trancoso_beach_house_1783898016790.jpg';
+import cliffsideVillaHero from './assets/images/cliffside_villa_hero_1783897988616.webp';
+import saoPauloPenthouse from './assets/images/sao_paulo_penthouse_1783898008439.webp';
+import luxuryMansionJoatinga from './assets/images/luxury_mansion_joatinga_1783898026904.webp';
+import trancosoBeachHouse from './assets/images/trancoso_beach_house_1783898016790.webp';
 
 export const PROPERTIES: Property[] = [
   {

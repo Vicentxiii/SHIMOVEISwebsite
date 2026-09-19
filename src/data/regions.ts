@@ -1,6 +1,6 @@
 /**
  * Conteúdo único para páginas de região (300-500 palavras)
- * Otimizado para SEO e GEO: comprar, vender, alugar, imóveis, São Paulo
+ * Otimizado para SEO e GEO: comprar, vender, alugar, corretora de imóveis, São Paulo
  */
 
 export interface RegionData {
@@ -21,15 +21,15 @@ export const REGIONS: Record<string, RegionData> = {
   butanta: {
     slug: 'butanta',
     name: 'Butantã',
-    title: 'Imóveis no Butantã, São Paulo',
-    metaTitle: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar Imóveis | Silvia Helena',
-    metaDescription: 'Encontre imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva Silvia Helena. Agende visita.',
-    h1: 'Imóveis à venda no Butantã, São Paulo',
-    intro: 'O Butantã é uma das regiões mais estratégicas de São Paulo para comprar, vender ou alugar imóveis. Com excelente infraestrutura, proximidade à USP, metrô e corredores comerciais, o bairro une valorização constante e qualidade de vida para famílias e investidores.',
+    title: 'corretora de imóveis no Butantã, São Paulo',
+    metaTitle: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar corretora de imóveis | Silvia Helena',
+    metaDescription: 'Encontre corretora de imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva da corretora Silvia Helena. Agende visita.',
+    h1: 'corretora de imóveis à venda no Butantã, São Paulo',
+    intro: 'Morar no Butantã é ter metrô, USP e comércio na porta sem abrir mão de rua tranquila. É prático para estudante, professor e família que não quer depender de carro todo dia.',
     content: [
-      'Comprar imóvel no Butantã é investir em uma região que não para de valorizar. O bairro oferece desde apartamentos compactos ideais para estudantes e jovens casais até casas amplas e coberturas de alto padrão próximas ao Parque Villa-Lobos e à Cidade Universitária. Quem busca alugar encontra opções versáteis a poucos minutos do centro, com fácil acesso pela Raposo Tavares, Marginal Pinheiros e linhas de ônibus e metrô. A rua Alvarenga, a avenida Vital Brasil e o entorno do Instituto Butantan concentram comércio diversificado, escolas renomadas e serviços essenciais.',
-      'Vender seu imóvel no Butantã com a Silvia Helena Imóveis significa contar com avaliação precisa, fotos profissionais, divulgação premium nos principais portais e atendimento 100% consultivo. Trabalhamos venda e alocação com foco em negociação segura, documentação impecável e máxima visibilidade para atrair o comprador certo no menor tempo. Se você deseja alugar, cuidamos de toda a jornada: captação de inquilinos qualificados, vistoria, contrato e garantia locatícia.',
-      'Nosso portfólio no Butantã inclui imóveis novos e usados, na planta e prontos para morar, com 1 a 4 dormitórios, varanda gourmet, lazer completo e vagas de garagem. Seja para morar, investir ou gerar renda de aluguel, a região entrega liquidez e demanda consistente. Agende uma visita guiada com Silvia Helena, corretora CRECISP 125743, e descubra oportunidades exclusivas, incluindo imóveis off-market que não estão nos portais tradicionais.'
+      'Está se perguntando se vale comprar apartamento perto do metrô sem pagar absurdo? No Butantã, entre a estação e a Vital Brasil, você encontra prédios de 2 quartos com varanda e lazer — ótimos para primeiro corretora de imóveis ou para alugar para alunos da USP. Nas internas da Vila Gomes e City Butantã ainda aparecem casas com quintal onde dá para ouvir passarinho, e você continua a 15 minutos da Faria Lima pela Raposo ou Marginal. Nos últimos 15 anos, como corretora de imóveis, vendi de kitnets de 38m² ali na Alvarenga a sobrados na região do Instituto Butantan. Sei dizer, com honestidade, quais prédios têm condomínio justo e qual rua enche em dia de chuva.',
+      'Quer vender? No Butantã o comprador decide rápido quando vê preço justo e fotos reais. Faço avaliação com base em vendas da própria rua — não em estimativa de portal. Cuido de fotos, divulgação nos portais certos e filtro de interessados para não perder seu tempo. Para alugar, seleciono inquilino com calma, vistoria de entrada e contrato claro. Você não lida com burocracia, eu resolvo até as chaves.',
+      'No dia a dia você encontra aqui opções de 1 a 4 quartos, na planta ou prontas, com varanda gourmet e uma ou duas vagas. Muita gente compra para morar e, depois, mantém para alugar — a procura é constante por causa da USP e do comércio da Vital Brasil. Se me contar tamanho, rua preferida e valor, como sua corretora de imóveis te mostro o que está anunciado e também o que ainda nem foi para o portal. É assim que meus clientes acham sem precisar passar meses procurando.'
     ],
     highlights: [
       'Apartamentos de 1 a 4 quartos no Butantã',
@@ -37,21 +37,21 @@ export const REGIONS: Record<string, RegionData> = {
       'Próximo à USP, Metrô Butantã e Parque Villa-Lobos',
       'Valorização acima da média de São Paulo'
     ],
-    keywords: ['imóveis Butantã', 'apartamentos à venda Butantã', 'casas para alugar Butantã', 'comprar imóvel Butantã SP', 'imobiliária Butantã'],
+    keywords: ['corretora de imóveis Butantã', 'apartamentos à venda Butantã com corretora', 'corretora para alugar Butantã', 'comprar com corretora Butantã SP', 'corretora de imóveis Butantã'],
     coords: { lat: -23.573, lng: -46.722 },
   },
   'taboao-da-serra': {
     slug: 'taboao-da-serra',
     name: 'Taboão da Serra',
-    title: 'Imóveis em Taboão da Serra, SP',
-    metaTitle: 'Imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
-    metaDescription: 'Imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena.',
-    h1: 'Imóveis à venda em Taboão da Serra, SP',
-    intro: 'Taboão da Serra é a escolha inteligente para quem quer comprar ou alugar imóvel com ótimo custo-benefício e permanecer conectado a São Paulo. Colado ao Butantã e Morumbi, o município oferece casas espaçosas, apartamentos modernos e terrenos com preços mais acessíveis e alta demanda por locação.',
+    title: 'corretora de imóveis em Taboão da Serra, SP',
+    metaTitle: 'corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
+    metaDescription: 'corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena.',
+    h1: 'corretora de imóveis à venda em Taboão da Serra, SP',
+    intro: 'Taboão é para quem quer quintal e espaço sem pagar preço de São Paulo, mas continuar a 10 minutos do Butantã.',
     content: [
-      'Comprar imóvel em Taboão da Serra garante economia sem abrir mão de localização. Em bairros como Jardim Mirna, Pirajuçara, Parque Pinheiros e Centro, você encontra casas de 2 a 4 dormitórios com quintal, sobrados germinados e apartamentos novos com lazer completo e 1 a 3 vagas. O acesso rápido à Rodovia Régis Bittencourt, avenida Aprígio Bezerra da Silva e ao metrô facilita o deslocamento para São Paulo em minutos, ideal para famílias que trabalham na capital e buscam tranquilidade e segurança para morar.',
-      'Para quem deseja vender em Taboão da Serra, a Silvia Helena Imóveis entrega estratégia completa: precificação baseada em dados reais de mercado, marketing direcionado para compradores que buscam a região e divulgação simultânea em portais, redes sociais e base qualificada. Cuidamos de fotos, tour virtual, documentação e intermediação até o registro em cartório. Se a meta é alugar, maximizamos sua rentabilidade com seleção rigorosa de inquilinos, contrato seguro e gestão transparente.',
-      'Alugar imóvel em Taboão da Serra também é excelente para quem busca primeira moradia ou investimento para renda. A procura por aluguel residencial é forte, com ótima liquidez para proprietários. Nosso catálogo reúne oportunidades para todos os perfis e bolsos, desde imóveis econômicos até padrão médio-alto próximo ao shopping e ao centro comercial. Conte com atendimento humanizado e consultivo com Silvia Helena (CRECISP 125743) para encontrar o lar certo ou fechar a melhor venda.'
+      'Famílias que me procuram no Taboão geralmente fazem a mesma conta: ‘Consigo casa com quintal por menos que um 2 quartos em SP?’ Aqui, nos bairros Jardim Mirna, Pirajuçara, Parque Pinheiros e Centro, a resposta costuma ser sim — e é onde entro como corretora de imóveis. São casas de 2 a 4 quartos onde o carro dorme coberto e ainda sobra espaço para churrasco, além de prédios novos com lazer e 1 a 3 vagas. Saindo pela Régis ou Aprígio Bezerra você chega no Butantã ou Morumbi em minutos — ótimo para quem trabalha na capital e quer voltar para rua calma à noite.',
+      'Vender por aqui pede preço pé no chão. Conheço o valor de cada rua do Taboão porque já atendi como corretora de imóveis de casa em rua sem saída no Jardim Mirna a apartamento no Parque Pinheiros. Apresento com fotos reais e divulgação onde quem busca Taboão realmente procura. Se for alugar, não alugo para qualquer um — confiro renda e histórico, faço vistoria e contrato que te protege. Quero sua casa rendendo, não te dando dor de cabeça.',
+      'Para quem pensa em alugar ou investir para renda com corretora de imóveis, o Taboão tem procura constante. Muita gente prefere pagar aluguel aqui e guardar dinheiro do que financiar pequeno em SP. Por isso casa bem cuidada não fica parada. Me conta seu orçamento e se prefere perto do Shopping Taboão ou mais em rua residencial — como sua corretora te mostro opções que fazem sentido para morar ou para manter alugado com tranquilidade.'
     ],
     highlights: [
       'Casas com quintal e 3 dormitórios',
@@ -59,21 +59,21 @@ export const REGIONS: Record<string, RegionData> = {
       'A 10 minutos do Morumbi e Butantã',
       'Melhor custo por m² da Região Metropolitana'
     ],
-    keywords: ['imóveis Taboão da Serra', 'casas à venda Taboão da Serra', 'apartamentos para alugar Taboão da Serra', 'comprar imóvel Taboão da Serra'],
+    keywords: ['corretora de imóveis Taboão da Serra', 'corretora para casas Taboão da Serra', 'corretora para alugar Taboão da Serra', 'comprar com corretora Taboão da Serra'],
     coords: { lat: -23.62, lng: -46.791 },
   },
   morumbi: {
     slug: 'morumbi',
     name: 'Morumbi',
-    title: 'Imóveis de Alto Padrão no Morumbi, São Paulo',
-    metaTitle: 'Imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
-    metaDescription: 'Imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena Imóveis.',
-    h1: 'Imóveis de luxo à venda no Morumbi, São Paulo',
-    intro: 'O Morumbi é sinônimo de luxo, exclusividade e sofisticação em São Paulo. Comprar ou alugar imóvel no Morumbi é morar em um dos endereços mais valorizados do Brasil, com mansões cinematográficas, apartamentos de alto padrão e condomínios fechados com segurança máxima, lazer resort e vista para a cidade.',
+    title: 'corretora de imóveis de Alto Padrão no Morumbi, São Paulo',
+    metaTitle: 'corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
+    metaDescription: 'corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
+    h1: 'corretora de imóveis de luxo à venda no Morumbi, São Paulo',
+    intro: 'O Morumbi é sossego com conveniência: ruas arborizadas, colégios e hospital perto, e ainda 15 minutos da Faria Lima.',
     content: [
-      'O mercado de imóveis no Morumbi atende um público exigente que busca casas de 4 a 6 suítes com arquitetura assinada, terrenos amplos, piscina, gourmet e heliponto, além de apartamentos de 200 a 600 m² com pé-direito duplo, automação e vista para o Palácio do Governo ou para o Parque do Morumbi. Ruas como Avenida Morumbi, Rua Ver. José Diniz, bairro Cidade Jardim e entorno do Shopping Morumbi concentram o alto luxo paulistano, com colégios internacionais, hospitais de referência e acesso ágil à Marginal e à Berrini.',
-      'Vender imóvel de luxo no Morumbi exige discrição, rede de compradores qualificados e apresentação impecável. A Silvia Helena Imóveis atua no formato boutique e off-market: avaliação patrimonial sigilosa, book fotográfico premium, tour em vídeo e negociação direta com family offices e investidores. Para locação de alto padrão, garantimos inquilinos de perfil compatível, contratos com garantias robustas e preservação total do seu patrimônio.',
-      'Se você procura comprar para morar ou investir, o Morumbi oferece valorização histórica consistente e liquidez em todas as faixas de luxo. Nosso serviço vai além da transação: entregamos curadoria arquitetônica, análise de potencial de reforma e consultoria jurídica. Agende visita privativa com Silvia Helena e conheça imóveis exclusivos no Morumbi, incluindo oportunidades que não estão nos portais, com atendimento personalizado do primeiro contato à entrega das chaves.'
+      'Quem me pergunta ‘como é morar no Morumbi no dia a dia?’ eu respondo como corretora de imóveis que acompanha a região há anos: na Avenida Morumbi e no entorno do Shopping Morumbi e Cidade Jardim, você encontra casas de 4 a 6 suítes com quintal grande e apartamentos de 200 a 600m² com varanda e vista para o parque. É a região de quem busca silêncio à noite, colégios como Porto Seguro e Santo Américo perto, e Hospital Albert Einstein a poucos minutos — sem ficar isolado do trabalho na Marginal/Berrini.',
+      'Vender no Morumbi pede discrição e conversa certa. Muitos bons negócios aqui fecham sem placa, com visita marcada com antecedência. Quando me confiam a venda como corretora de imóveis, preparo book com fotos à luz certa, vídeo curto e apresento só para quem realmente busca esse padrão — nada de curiosos circulando. Para alugar, seleciono perfil compatível e contrato com garantias sólidas. Seu corretora de imóveis continua impecável.',
+      'Se a ideia é comprar para morar com tranquilidade ou manter patrimônio com corretora de imóveis, o Morumbi tem procura estável há anos. Mas cada rua tem preço diferente — uma quadra muda tudo. Te mostro na visita como corretora o que funciona bem hoje e o que pode pesar na revenda, com avaliação honesta e documentação checada antes de assinar. Me chama para uma visita sem pressa; você decide com calma.'
     ],
     highlights: [
       'Mansões de 500 a 1.200 m² no Morumbi',
@@ -81,7 +81,7 @@ export const REGIONS: Record<string, RegionData> = {
       'Condomínios fechados com lazer resort',
       'Região mais valorizada da Zona Sul de SP'
     ],
-    keywords: ['imóveis Morumbi', 'apartamentos luxo Morumbi', 'casas à venda Morumbi SP', 'imóvel alto padrão Morumbi', 'comprar no Morumbi'],
+    keywords: ['corretora de imóveis Morumbi', 'corretora luxo Morumbi', 'corretora para casas Morumbi SP', 'corretora alto padrão Morumbi', 'comprar com corretora no Morumbi'],
     coords: { lat: -23.6, lng: -46.705 },
   },
 };

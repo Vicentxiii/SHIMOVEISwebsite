@@ -8,28 +8,28 @@ export interface FAQItem {
 
 export const FAQ_DATA: FAQItem[] = [
   {
-    question: 'Como comprar um imóvel no Butantã, Morumbi ou Taboão da Serra com segurança?',
-    answer: 'Comprar imóvel nessas regiões exige análise de documentação, avaliação de mercado e negociação estratégica. A Silvia Helena Imóveis realiza vistoria técnica, checagem de matrícula, certidões e intermediação completa até o registro em cartório. Atendemos compra à vista e financiada, com assessoria jurídica e suporte para financiamento bancário.',
+    question: 'Como comprar com corretora de imóveis no Butantã, Morumbi ou Taboão da Serra com segurança?',
+    answer: 'Dá para comprar com tranquilidade quando a documentação é checada de verdade. Eu, como sua corretora de imóveis, verifico matrícula, certidões e analiso vendas reais da rua para você não pagar a mais. Acompanho vistoria e vou com você até o cartório — seja compra à vista ou financiada, com suporte jurídico quando precisa.',
   },
   {
     question: 'Quanto custa um apartamento de 2 quartos no Butantã ou Taboão da Serra?',
-    answer: 'Em 2026, apartamentos de 2 quartos no Butantã variam de R$ 380 mil a R$ 750 mil dependendo do padrão e proximidade do metrô; em Taboão da Serra, de R$ 250 mil a R$ 500 mil, com excelente custo-benefício; no Morumbi, imóveis de 2 quartos de alto padrão partem de R$ 900 mil. Fazemos avaliação gratuita e precisa do seu imóvel para venda ou compra.',
+    answer: 'Depende da rua, mas te dou uma média real de 2026: na região do Butantã, um 2 quartos perto do metrô gira em torno de R$ 380 mil a R$ 750 mil; em Taboão da Serra, nas áreas de Pirajuçara e Parque Pinheiros, fica entre R$ 250 mil e R$ 500 mil; no Morumbi, o mesmo padrão já parte de R$ 900 mil. Se quiser, avalio o seu com base em vendas da própria rua — sem custo e sem compromisso.',
   },
   {
-    question: 'Vale a pena investir em imóveis para alugar no Morumbi e Butantã?',
-    answer: 'Sim. Morumbi e Butantã têm alta liquidez para locação devido à demanda de estudantes da USP, profissionais da Faria Lima/Berrini e famílias. O yield médio de aluguel residencial fica entre 0,4% e 0,6% ao mês sobre o valor do imóvel. Gerenciamos locação com garantia, vistoria e contrato seguro para maximizar sua rentabilidade.',
+    question: 'Vale a pena investir com corretora de imóveis para alugar no Morumbi e Butantã?',
+    answer: 'No Butantã e Morumbi, sim — a procura é constante. No Butantã, muitos alunos e professores da USP buscam alugar perto do metrô; no Morumbi, famílias e executivos da Faria Lima/Berrini preferem prédios silenciosos. O retorno costuma ficar entre 0,4% e 0,6% ao mês. Eu cuido da seleção do inquilino, vistoria e contrato para você receber sem dor de cabeça.',
   },
   {
-    question: 'Como vender meu imóvel rápido em São Paulo e receber o melhor preço?',
-    answer: 'Para vender rápido e bem em Butantã, Morumbi ou Taboão da Serra, é essencial precificação baseada em dados reais, fotos profissionais, tour virtual e divulgação nos principais portais (ZAP, VivaReal, OLX) e base qualificada. A Silvia Helena cuida de toda a estratégia, negociação e burocracia, incluindo imóveis off-market com discrição total.',
+    question: 'Como vender com corretora de imóveis rápido em São Paulo e receber o melhor preço?',
+    answer: 'Preço justo vende mais rápido que anúncio bonito com valor inflado. Eu avalio com vendas reais da sua rua, faço fotos à luz certa e divulgo onde quem busca sua região realmente procura — nos portais e também no boca a boca. Negocio com calma, protejo sua documentação e, se preferir discrição, faço off-market sem placa.',
   },
   {
-    question: 'Quais documentos são necessários para alugar um imóvel?',
-    answer: 'Para alugar, o inquilino precisa de RG, CPF, comprovante de renda (3x o valor do aluguel) e comprovante de residência. Aceitamos caução, seguro-fiança, fiador e título de capitalização. O proprietário deve apresentar matrícula atualizada, IPTU e certidões negativas. Cuidamos de contrato, vistoria de entrada e saída e garantias.',
+    question: 'Quais documentos são necessários para alugar com corretora de imóveis?',
+    answer: 'Para alugar com corretora de imóveis, normalmente peço RG, CPF, comprovante de renda de cerca de 3 vezes o aluguel e comprovante de residência. Você pode escolher entre caução, seguro-fiança, fiador ou título. Do lado do proprietário, preciso da matrícula atualizada, IPTU e certidões em dia. Eu preparo contrato claro e faço vistoria de entrada e saída com fotos — assim ninguém discute depois.',
   },
   {
-    question: 'A Silvia Helena atende imóveis na planta e lançamentos?',
-    answer: 'Sim. Atendemos imóveis novos, usados, na planta e lançamentos das principais construtoras em São Paulo. Se você busca comprar na planta no Butantã ou Morumbi como investimento, orientamos sobre memorial descritivo, cronograma de obras e valorização, com acompanhamento até a entrega das chaves.',
+    question: 'A corretora Silvia Helena atende na planta e lançamentos?',
+    answer: 'Sim, trabalho com usado, novo, na planta e lançamentos. Se a ideia é comprar na planta no Butantã ou Morumbi como investimento, te explico o memorial, o cronograma da obra e o histórico de valorização daquela rua. Acompanho até a entrega das chaves — e fico atenta a atrasos para te manter informado.',
   },
 ];
 
@@ -58,10 +58,10 @@ export const FAQSection: React.FC = () => {
             <HelpCircle size={12} /> Perguntas Frequentes
           </span>
           <h2 id="faq-heading" className="font-serif text-3xl md:text-4xl text-brand-light font-light mt-3">
-            Dúvidas sobre comprar, vender e alugar imóveis em São Paulo
+            Dúvidas sobre comprar, vender e alugar corretora de imóveis em São Paulo
           </h2>
           <p className="text-sm text-brand-muted mt-3 font-light">
-            Respostas otimizadas para você e para IAs como ChatGPT, Perplexity e Gemini encontrarem a Silvia Helena.
+            Respostas curtas e diretas — do jeito que eu explicaria numa visita, e do jeito que Google e IAs gostam de citar.
           </p>
         </div>
 

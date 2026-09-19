@@ -1,11 +1,11 @@
 /**
- * Imóveis adicionais focados em Butantã, Taboão da Serra e Morumbi
- * Para alimentar landing pages regionais (/imoveis/butanta etc.)
+ * corretora de imóveis adicionais focados em Butantã, Taboão da Serra e Morumbi
+ * Para alimentar landing pages regionais (/corretora de imóveis/butanta etc.)
  * Preços e áreas realistas para SEO local
  */
 import { Property } from '../types';
-import saoPauloPenthouse from '../assets/images/sao_paulo_penthouse_1783898008439.jpg';
-import luxuryMansionJoatinga from '../assets/images/luxury_mansion_joatinga_1783898026904.jpg';
+import saoPauloPenthouse from '../assets/images/sao_paulo_penthouse_1783898008439.webp';
+import luxuryMansionJoatinga from '../assets/images/luxury_mansion_joatinga_1783898026904.webp';
 
 export const REGION_PROPERTIES: Property[] = [
   // --- BUTANTÃ (3) ---
@@ -26,7 +26,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Apartamento de 2 quartos à venda no Butantã, a 600m do Metrô Butantã e 5 minutos da USP. Prédio com lazer completo, varanda e vaga. Ideal para comprar como primeiro imóvel ou investir para alugar para estudantes e jovens casais. Condomínio baixo e documentação pronta para financiamento.',
+    description: 'Apartamento de 2 quartos à venda no Butantã, a 600m do Metrô Butantã e 5 minutos da USP. Prédio com lazer completo, varanda e vaga. Ideal para comprar como primeiro lar com corretora de imóveis ou investir para alugar para estudantes e jovens casais. Condomínio baixo e documentação pronta para financiamento.',
     features: ['Varanda', 'Lazer Completo', 'Próximo ao Metrô', 'Aceita Financiamento', 'Pet Friendly'],
     hasSwimmingPool: false,
     hasGarden: false,
@@ -132,7 +132,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1560448204-603b3fc33ddc?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1493809842364-78817add58d1?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Apartamento 2 quartos à venda em Taboão da Serra, Parque Pinheiros, com lazer completo, portaria 24h e vaga. Condomínio econômico. Perfeito para comprar primeiro imóvel ou investir para alugar com alta demanda na região.',
+    description: 'Apartamento 2 quartos à venda em Taboão da Serra, Parque Pinheiros, com lazer completo, portaria 24h e vaga. Condomínio econômico. Perfeito para comprar primeiro lar com corretora de imóveis ou investir para alugar com alta demanda na região.',
     features: ['Lazer Completo', 'Portaria 24h', 'Vaga', 'Condomínio Baixo'],
     hasSwimmingPool: true,
     hasGarden: false,
@@ -185,7 +185,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Mansão de luxo à venda no Morumbi com 5 suítes, arquitetura contemporânea, piscina com borda infinita, gourmet completo e 4 vagas. Condomínio fechado com segurança 24h e lazer resort. Ideal para comprar imóvel de alto padrão em São Paulo com valorização garantida.',
+    description: 'Mansão de luxo à venda no Morumbi com 5 suítes, arquitetura contemporânea, piscina com borda infinita, gourmet completo e 4 vagas. Condomínio fechado com segurança 24h e lazer resort. Ideal para comprar com corretora de imóveis de alto padrão em São Paulo com valorização garantida.',
     features: ['Piscina Borda Infinita', 'Gourmet Completo', '5 Suítes', 'Condomínio Fechado', 'Automação'],
     hasSwimmingPool: true,
     hasGarden: true,
@@ -212,7 +212,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Apartamento de alto padrão para comprar no Morumbi, com 3 suítes, varanda gourmet, 3 vagas e lazer completo. Vista panorâmica, acabamento nobre e prédio com portaria imponente. Excelente para famílias que buscam alugar imóvel de luxo ou comprar para morar com sofisticação.',
+    description: 'Apartamento de alto padrão para comprar no Morumbi, com 3 suítes, varanda gourmet, 3 vagas e lazer completo. Vista panorâmica, acabamento nobre e prédio com portaria imponente. Excelente para famílias que buscam alugar com corretora de imóveis de luxo ou comprar para morar com sofisticação.',
     features: ['3 Suítes', 'Varanda Gourmet', '3 Vagas', 'Lazer Completo', 'Vista Panorâmica'],
     hasSwimmingPool: true,
     hasGarden: false,
@@ -238,7 +238,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Cobertura duplex à venda no Morumbi com 4 quartos, terraço gourmet de 80m², piscina privativa e 4 vagas. Prédio de luxo com heliponto e segurança 24h. Para quem deseja comprar imóvel exclusivo em São Paulo ou vender apartamento menor e subir de padrão.',
+    description: 'Cobertura duplex à venda no Morumbi com 4 quartos, terraço gourmet de 80m², piscina privativa e 4 vagas. Prédio de luxo com heliponto e segurança 24h. Para quem deseja comprar com corretora de imóveis exclusiva em São Paulo ou vender apartamento menor e subir de padrão.',
     features: ['Terraço 80m²', 'Piscina Privativa', '4 Vagas', 'Heliponto', 'Duplex'],
     hasSwimmingPool: true,
     hasGarden: true,

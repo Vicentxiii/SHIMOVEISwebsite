@@ -1,13 +1,13 @@
 /**
  * Configuração central de SEO e GEO
- * Site: Silvia Helena Imóveis
+ * Site: Silvia Helena corretora de imóveis
  * Foco: Butantã, Taboão da Serra, Morumbi, São Paulo
  */
 
 export const SITE_CONFIG = {
   // ALTERAR para domínio real em produção
   siteUrl: 'https://silviahelenacorretora.com.br',
-  siteName: 'Silvia Helena Imóveis',
+  siteName: 'Silvia Helena corretora de imóveis',
   // fallback se env var definida
   getSiteUrl(): string {
     // Vite expõe import.meta.env
@@ -38,7 +38,7 @@ export const SITE_CONFIG = {
   social: {
     instagram: 'https://www.instagram.com/vicenteczar.dev/',
   },
-  defaultOgImage: '/og-image.jpg', // será gerado no public ou usar logo
+  defaultOgImage: '/og-image.webp', // será gerado no public ou usar logo
 };
 
 export interface SEOProps {
@@ -53,20 +53,20 @@ export interface SEOProps {
 
 export const SEO_TEMPLATES = {
   home: {
-    title: 'Imóveis à venda em São Paulo | Comprar, Vender e Alugar no Butantã, Morumbi e Taboão da Serra | Silvia Helena Imóveis',
-    description: 'Silvia Helena Imóveis: especialista em comprar, vender e alugar imóveis em São Paulo. Casas, apartamentos e coberturas no Butantã, Morumbi e Taboão da Serra. Atendimento exclusivo CRECI 125743.',
+    title: 'corretora de imóveis à venda em São Paulo | Comprar, Vender e Alugar no Butantã, Morumbi e Taboão da Serra | Silvia Helena corretora de imóveis',
+    description: 'Silvia Helena, corretora de imóveis há 15 anos: ajudo você a comprar, vender e alugar com tranquilidade no Butantã, Morumbi e Taboão da Serra. Atendimento direto, preço justo. CRECI 125743.',
   },
   butanta: {
-    title: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar Imóveis | Silvia Helena',
-    description: 'Encontre imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva Silvia Helena. Agende visita e venda seu imóvel com segurança.',
+    title: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar corretora de imóveis | Silvia Helena',
+    description: 'Encontre corretora de imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva da corretora Silvia Helena. Agende visita.',
   },
   taboao: {
-    title: 'Imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'Imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena, CRECISP 125743.',
+    title: 'corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
+    description: 'corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena, CRECISP 125743.',
   },
   morumbi: {
-    title: 'Imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'Imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena Imóveis.',
+    title: 'corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
+    description: 'corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
   },
 };
 
