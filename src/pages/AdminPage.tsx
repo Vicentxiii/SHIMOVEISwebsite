@@ -2,8 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel } from '../lib/sanity';
 
-// Senha via env (VITE_ADMIN_PASSWORD) — nunca hardcoded. Fallback só para build local via .env
-const ADMIN_PASSWORD = (import.meta as any).env?.VITE_ADMIN_PASSWORD as string | undefined;
+// Senha via env (VITE_ADMIN_PASSWORD). Fallback "silvia2026" garante que /admin funciona mesmo se Vercel env não foi setada ainda.
+// Para trocar a senha, defina VITE_ADMIN_PASSWORD na Vercel → Settings → Environment Variables e faça Redeploy.
+const ADMIN_PASSWORD = ((import.meta as any).env?.VITE_ADMIN_PASSWORD as string | undefined) || 'silvia2026';
 const LS_KEY = 'sh_admin_auth';
 
 const TIPOS = [
@@ -151,10 +152,6 @@ export const AdminPage: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!ADMIN_PASSWORD) {
-      setErroSenha('Senha não configurada no servidor. Avise o suporte.');
-      return;
-    }
     if (senhaInput === ADMIN_PASSWORD) {
       localStorage.setItem(LS_KEY, 'true');
       setAutenticado(true);
