@@ -39,6 +39,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/blog" element={<BlogListPage />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/login" element={<AdminPage />} />
         {/* Redirects para compatibilidade */}
         <Route path="/butanta" element={<Navigate to="/imoveis/butanta" replace />} />
         <Route path="/morumbi" element={<Navigate to="/imoveis/morumbi" replace />} />

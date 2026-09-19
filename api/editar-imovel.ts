@@ -72,6 +72,11 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ ok: true, id: updated._id });
   } catch (e: any) {
     console.error('[editar-imovel] erro', e);
-    return res.status(500).json({ error: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp', details: e?.message || String(e) });
+    const msg = e?.message || String(e);
+    const isAuth = /SANITY_WRITE_TOKEN|SANITY_API_WRITE_TOKEN|não configurado|Unauthorized|Session not found/i.test(msg);
+    if (isAuth) {
+      return res.status(401).json({ error: 'Unauthorized - Session not found', details: msg });
+    }
+    return res.status(500).json({ error: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp', details: msg });
   }
 }

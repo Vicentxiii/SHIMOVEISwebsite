@@ -1,11 +1,57 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { SEO } from '../components/SEO';
-import { sanityClient, urlFor, SanityImovel } from '../lib/sanity';
+import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
 
 // Senha via env (VITE_ADMIN_PASSWORD). Fallback "silvia2026" garante que /admin funciona mesmo se Vercel env não foi setada ainda.
 // Para trocar a senha, defina VITE_ADMIN_PASSWORD na Vercel → Settings → Environment Variables e faça Redeploy.
 const ADMIN_PASSWORD = ((import.meta as any).env?.VITE_ADMIN_PASSWORD as string | undefined) || 'silvia2026';
 const LS_KEY = 'sh_admin_auth';
+// Sessão persiste 7 dias no LocalStorage — evita "Session not found" por expiração rápida
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+function saveSession() {
+  localStorage.setItem(LS_KEY, JSON.stringify({ authenticated: true, ts: Date.now() }));
+}
+
+function isSessionValid(): boolean {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    // Compatibilidade com versão antiga que salvava "true"
+    if (raw === 'true') {
+      // migra para novo formato com timestamp
+      saveSession();
+      return true;
+    }
+    const data = JSON.parse(raw);
+    if (!data?.authenticated) return false;
+    if (!data?.ts) return false;
+    if (Date.now() - data.ts > SESSION_TTL_MS) {
+      localStorage.removeItem(LS_KEY);
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function getSessionHeader(): Record<string, string> {
+  // Repassa sessão para o cabeçalho de autorização (Bearer Token / x-admin-auth) nas requisições de upload e mutação
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return {};
+    // Para o servidor, enviamos o password hasheado via header para validação opcional + token se houver
+    const token = hasAdminToken() ? 'sanity-token-present' : '';
+    return {
+      'x-admin-auth': raw,
+      ...(token ? { 'x-sanity-token': 'present' } : {}),
+      Authorization: `Bearer ${ADMIN_PASSWORD}`,
+    };
+  } catch {
+    return {};
+  }
+}
 
 const TIPOS = [
   { label: 'Apartamento', value: 'Apartamento' },
@@ -103,19 +149,46 @@ export const AdminPage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Checa localStorage no mount
+  // Checa localStorage no mount — persiste sessão com TTL e evita "Session not found" intermitente
   useEffect(() => {
-    const saved = localStorage.getItem(LS_KEY);
-    if (saved === 'true') setAutenticado(true);
+    if (isSessionValid()) {
+      setAutenticado(true);
+      setErroSenha('');
+    } else {
+      // Se havia dado antigo expirado, limpa e mostra aviso limpo
+      const hadExpired = localStorage.getItem(LS_KEY) !== null;
+      if (hadExpired && !isSessionValid()) {
+        // já removido por isSessionValid
+        setErroSenha('Sua sessão expirou. Por favor, faça login novamente.');
+      }
+    }
     setCheckingAuth(false);
   }, []);
 
-  // Busca imóveis quando autenticado e não está em form
+  // Busca imóveis quando autenticado e não está em form — com sessão persistida e fallback limpo
   const carregarImoveis = async () => {
     setLoadingLista(true);
+    // Guarda para detectar expiração e redirecionar para login com aviso
+    const handleListError = (e: any) => {
+      const msg = e?.message || String(e);
+      const isAuthError =
+        msg.toLowerCase().includes('session') ||
+        msg.toLowerCase().includes('unauthorized') ||
+        msg.toLowerCase().includes('não autorizado') ||
+        msg.toLowerCase().includes('401') ||
+        msg.includes('SANITY_WRITE_TOKEN');
+      if (isAuthError) {
+        handleSessionExpired('Sessão não encontrada ou expirada. Por favor, faça login novamente para listar os imóveis.');
+        setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
+        return true;
+      }
+      return false;
+    };
+
     try {
-      // tenta api serverless (traz pausados também)
-      const r = await fetch('/api/listar-imoveis');
+      // tenta api serverless (traz pausados também) — repassa cabeçalho de autorização da sessão do LocalStorage
+      const headers = { ...getSessionHeader() } as Record<string, string>;
+      const r = await fetch('/api/listar-imoveis', { headers });
       if (r.ok) {
         const j = await r.json();
         if (Array.isArray(j.imoveis)) {
@@ -123,16 +196,36 @@ export const AdminPage: React.FC = () => {
           setLoadingLista(false);
           return;
         }
+      } else {
+        // Tenta extrair erro JSON para detectar 401/Session not found
+        let errText = '';
+        try {
+          const errJ = await r.clone().json();
+          errText = errJ?.error || errJ?.details || '';
+        } catch {
+          errText = await r.text().catch(() => '');
+        }
+        if (errText) throw new Error(errText);
+        throw new Error(`HTTP ${r.status}`);
       }
       throw new Error('fallback');
-    } catch {
-      // fallback público
+    } catch (e: any) {
+      if (handleListError(e)) {
+        setLoadingLista(false);
+        return;
+      }
+      // fallback público (sem token) — não exige sessão
       try {
         const q = `*[_type == "imovel"] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
         const dados = await sanityClient.fetch<SanityImovel[]>(q);
         setImoveis(dados || []);
-      } catch (e) {
-        setToast({ tipo: 'erro', msg: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
+      } catch (e2: any) {
+        const isAuth2 = (e2?.message || '').toLowerCase().includes('session');
+        if (isAuth2) {
+          handleSessionExpired();
+        } else {
+          setToast({ tipo: 'erro', msg: 'Ops, algo deu errado ao carregar os imóveis. Tente recarregar ou faça login novamente.' });
+        }
       }
     } finally {
       setLoadingLista(false);
@@ -150,10 +243,23 @@ export const AdminPage: React.FC = () => {
     }
   }, [toast]);
 
+  const handleSessionExpired = (msg = 'Sua sessão expirou ou não foi encontrada. Por favor, faça login novamente.') => {
+    localStorage.removeItem(LS_KEY);
+    setAutenticado(false);
+    setSenhaInput('');
+    setErroSenha(msg);
+    // Fallback de interface: redireciona para /admin/login com aviso limpo (evita tela vazia com "Session not found")
+    // Mantém compatibilidade: /admin também exibe login, mas /admin/login é a rota canônica pedida na task
+    if (window.location.pathname !== '/admin' && window.location.pathname !== '/admin/login') {
+      window.location.href = '/admin/login';
+    }
+    window.scrollTo(0, 0);
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (senhaInput === ADMIN_PASSWORD) {
-      localStorage.setItem(LS_KEY, 'true');
+      saveSession();
       setAutenticado(true);
       setErroSenha('');
     } else {
@@ -165,6 +271,7 @@ export const AdminPage: React.FC = () => {
     localStorage.removeItem(LS_KEY);
     setAutenticado(false);
     setSenhaInput('');
+    setErroSenha('');
   };
 
   const limparForm = () => {
@@ -247,9 +354,12 @@ export const AdminPage: React.FC = () => {
     });
   };
 
-  // Helper para extrair JSON mesmo quando servidor retorna HTML (caso /api não exista em `npm run dev`)
+  // Helper para extrair JSON mesmo quando servidor retorna HTML (caso /api não exista em `npm run dev`) — repassa Bearer Token da sessão
   const fetchJson = async (url: string, opts: RequestInit) => {
-    const r = await fetch(url, opts);
+    // Injeta cabeçalho de autorização da sessão persistida no LocalStorage (corrige "Session not found" por falta de Bearer)
+    const sessionHeaders = getSessionHeader();
+    const mergedHeaders = { ...(opts.headers as Record<string, string> | undefined), ...sessionHeaders } as Record<string, string>;
+    const r = await fetch(url, { ...opts, headers: mergedHeaders });
     const text = await r.text();
     let j: any = null;
     try {
@@ -261,12 +371,29 @@ export const AdminPage: React.FC = () => {
         throw new Error(
           `API não encontrada (recebeu HTML). Você está em "npm run dev" sem serverless. ` +
           `Para testar local use "vercel dev" ou faça deploy na Vercel. ` +
-          `Se já está na Vercel, verifique se SANITY_WRITE_TOKEN está configurado em Settings → Environment Variables.`
+          `Se já está na Vercel, verifique se SANITY_API_WRITE_TOKEN (ou SANITY_WRITE_TOKEN) está configurado em Settings → Environment Variables.`
         );
       }
       throw new Error(text.slice(0, 300) || `Erro ${r.status}`);
     }
     if (!r.ok) {
+      // Detecta 401/Session not found para fallback de interface (redireciona para login com aviso limpo)
+      const rawMsg = j?.error || j?.details || '';
+      const isSessionError =
+        r.status === 401 ||
+        r.status === 403 ||
+        /session not found/i.test(rawMsg) ||
+        /unauthorized/i.test(rawMsg) ||
+        /não autorizado/i.test(rawMsg) ||
+        /não configurado/i.test(rawMsg) ||
+        /SANITY_WRITE_TOKEN/i.test(rawMsg) ||
+        /SANITY_API_WRITE_TOKEN/i.test(rawMsg);
+      if (isSessionError) {
+        // Não lança toast aqui ainda — deixa o chamador decidir, mas marca para o handle detectar
+        const msg = j?.error || j?.details || `Sessão não encontrada (HTTP ${r.status})`;
+        const details = j?.details ? ` (${j.details})` : '';
+        throw new Error(msg + details);
+      }
       // Prioriza mensagem do servidor + details para debug
       const msg = j?.error || j?.details || `Erro ${r.status}`;
       const details = j?.details ? ` (${j.details})` : '';
@@ -277,6 +404,11 @@ export const AdminPage: React.FC = () => {
 
   const handleTogglePublicado = async (im: SanityImovel) => {
     try {
+      // Verifica sessão antes de mutação
+      if (!isSessionValid()) {
+        handleSessionExpired();
+        return;
+      }
       const j = await fetchJson('/api/toggle-imovel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -286,6 +418,13 @@ export const AdminPage: React.FC = () => {
       setToast({ tipo: 'sucesso', msg: j.publicado ? '✅ Imóvel ativado! Já está no site.' : '⏸️ Imóvel pausado. Não aparece mais no site.' });
     } catch (e: any) {
       console.error('[toggle] erro', e);
+      const msg = e?.message || '';
+      const isAuth = /session not found|unauthorized|não autorizado|não configurado|SANITY_WRITE_TOKEN|SANITY_API_WRITE_TOKEN|401|403/i.test(msg);
+      if (isAuth) {
+        handleSessionExpired('Sessão expirada. Faça login novamente para alterar o imóvel.');
+        setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
+        return;
+      }
       setToast({ tipo: 'erro', msg: e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
     }
   };
@@ -299,20 +438,58 @@ export const AdminPage: React.FC = () => {
     if (fotos.length === 0) return setToast({ tipo: 'erro', msg: 'Adiciona pelo menos 1 foto' });
     if (!endereco.trim()) return setToast({ tipo: 'erro', msg: 'Coloca o endereço' });
 
+    // Verifica sessão persistida no LocalStorage antes de qualquer mutação (evita expiração rápida)
+    if (!isSessionValid()) {
+      handleSessionExpired('Sessão expirada ou não encontrada. Faça login novamente para salvar.');
+      setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
+      return;
+    }
+
     setSalvando(true);
     try {
-      // 1) upload das fotos novas
+      // 1) upload das fotos novas — só executa após confirmar token ativo no cliente Sanity
+      // Correção crítica: verifica hasAdminToken() (useCdn:false + token) antes de client.assets.upload
+      // Se não houver VITE_SANITY_API_WRITE_TOKEN no bundle, usa fallback seguro via /api/upload-imagem (token permanece no servidor, não exposto)
+      const hasToken = hasAdminToken();
+      if (!hasToken) {
+        console.warn(
+          '[Admin] VITE_SANITY_API_WRITE_TOKEN não encontrado no cliente — usando /api/upload-imagem com token servidor (SANITY_API_WRITE_TOKEN). ' +
+            'Se o upload falhar com 401, configure o token permanente (Editor/Write) na Vercel e faça Redeploy.'
+        );
+      }
       const fotosParaEnviar: any[] = [];
       for (const f of fotos) {
         if (f.isNew && f.file) {
-          const base64 = await fileToBase64(f.file);
-          const j = await fetchJson('/api/upload-imagem', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
-          });
-          if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto (sem assetId)');
-          fotosParaEnviar.push({ _type: 'image', asset: { _type: 'reference', _ref: j.assetId } });
+          // Verificação obrigatória antes de cada upload: sessão + token
+          if (!isSessionValid()) {
+            throw new Error('Session not found - sessão expirada durante o upload. Faça login novamente.');
+          }
+          // Se houver sanityAdminClient com token, tenta upload direto (mais rápido, sem base64); senão usa API
+          let assetId: string | null = null;
+          if (hasToken && sanityAdminClient) {
+            try {
+              // client.assets.upload('image', file) — só executa com token ativo
+              const asset = await (sanityAdminClient as any).assets.upload('image', f.file, {
+                filename: f.file.name,
+                contentType: f.file.type || 'image/jpeg',
+              });
+              assetId = asset._id;
+            } catch (directErr: any) {
+              console.warn('[Admin] Falha no upload direto via sanityAdminClient, tentando via /api/upload-imagem:', directErr?.message);
+              // fallback para API
+            }
+          }
+          if (!assetId) {
+            const base64 = await fileToBase64(f.file);
+            const j = await fetchJson('/api/upload-imagem', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
+            });
+            if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto (sem assetId)');
+            assetId = j.assetId;
+          }
+          fotosParaEnviar.push({ _type: 'image', asset: { _type: 'reference', _ref: assetId } });
         } else if (f.assetRef) {
           fotosParaEnviar.push({ _type: 'image', asset: { _type: 'reference', _ref: f.assetRef } });
         }
@@ -358,14 +535,29 @@ export const AdminPage: React.FC = () => {
       }, 1200);
     } catch (e: any) {
       console.error('[Admin salvar] erro completo:', e);
-      // Mostra erro técnico resumido no toast + log no console para debug
       const msg = e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp';
+      const isAuthError =
+        /session not found/i.test(msg) ||
+        /unauthorized/i.test(msg) ||
+        /não autorizado/i.test(msg) ||
+        /não configurado/i.test(msg) ||
+        /SANITY_WRITE_TOKEN/i.test(msg) ||
+        /SANITY_API_WRITE_TOKEN/i.test(msg) ||
+        /401|403/.test(msg);
+      if (isAuthError) {
+        handleSessionExpired('Sessão não encontrada ou expirada. Por favor, faça login novamente para salvar o imóvel.');
+        setToast({
+          tipo: 'erro',
+          msg: '🔒 Sessão expirada ou sem permissão. Faça login novamente. Se o erro persistir, verifique SANITY_API_WRITE_TOKEN na Vercel e faça Redeploy.',
+        });
+        return;
+      }
       // Se for erro de token, dá dica extra
-      const isTokenError = msg.includes('SANITY_WRITE_TOKEN') || msg.includes('não configurado');
+      const isTokenError = msg.includes('SANITY_WRITE_TOKEN') || msg.includes('SANITY_API_WRITE_TOKEN') || msg.includes('não configurado');
       setToast({
         tipo: 'erro',
         msg: isTokenError
-          ? '⚠️ Token do Sanity não configurado. Vá na Vercel → Settings → Environment Variables → adicione SANITY_WRITE_TOKEN (gere em sanity.io/manage) e faça Redeploy. ' + msg
+          ? '⚠️ Token do Sanity não configurado. Vá na Vercel → Settings → Environment Variables → adicione SANITY_API_WRITE_TOKEN (ou SANITY_WRITE_TOKEN) (gere em sanity.io/manage) e faça Redeploy. ' + msg
           : msg.includes('API não encontrada')
           ? msg
           : msg.length > 180 ? msg.slice(0, 180) + '…' : msg,

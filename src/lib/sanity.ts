@@ -9,7 +9,37 @@ export const sanityClient = createClient({
   perspective: 'published',
 })
 
+// Cliente de ESCRITA para o painel /admin — OBRIGATÓRIO: useCdn:false + token permanente com permissão de ESCRITA
+// Usa VITE_SANITY_API_WRITE_TOKEN / VITE_SANITY_WRITE_TOKEN (Vite) — fallback para build local
+// Em produção o ideal é manter o token apenas no servidor (via /api/*) e não expor no bundle; este client serve como fallback/guarda para client.assets.upload('image', file)
+const adminToken =
+  ((import.meta as any).env?.VITE_SANITY_API_WRITE_TOKEN as string | undefined) ||
+  ((import.meta as any).env?.VITE_SANITY_WRITE_TOKEN as string | undefined) ||
+  ((import.meta as any).env?.VITE_SANITY_TOKEN as string | undefined) ||
+  undefined
+
+export const sanityAdminClient = adminToken
+  ? createClient({
+      projectId: ((import.meta as any).env?.VITE_SANITY_PROJECT_ID as string | undefined) || 'wpe14gsf',
+      dataset: ((import.meta as any).env?.VITE_SANITY_DATASET as string | undefined) || 'production',
+      apiVersion: '2024-01-01',
+      token: adminToken,
+      useCdn: false,
+      perspective: 'raw',
+    })
+  : null
+
+export function hasAdminToken(): boolean {
+  return !!adminToken && !!sanityAdminClient
+}
+
+export function getAdminToken(): string | undefined {
+  return adminToken
+}
+
 const builder = imageUrlBuilder(sanityClient)
+// Builder também para admin (mesma URL)
+export const adminBuilder = sanityAdminClient ? imageUrlBuilder(sanityAdminClient) : builder
 
 export function urlFor(source: any) {
   return builder.image(source)

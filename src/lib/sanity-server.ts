@@ -1,14 +1,43 @@
 import { createClient } from '@sanity/client';
 
+// Helper centralizado para resolver token com múltiplos nomes de env (corrige "Unauthorized - Session not found" por env mal configurado)
+// Suporta: SANITY_WRITE_TOKEN (docs), SANITY_API_WRITE_TOKEN (solicitado na task), SANITY_API_TOKEN, SANITY_TOKEN e variantes VITE_
+function resolveWriteToken(): string | undefined {
+  const env: any = process.env as any;
+  return (
+    env.SANITY_WRITE_TOKEN ||
+    env.SANITY_API_WRITE_TOKEN ||
+    env.SANITY_API_TOKEN ||
+    env.SANITY_TOKEN ||
+    env.VITE_SANITY_WRITE_TOKEN ||
+    env.VITE_SANITY_API_WRITE_TOKEN ||
+    undefined
+  );
+}
+
+function resolveProjectId(): string {
+  const env: any = process.env as any;
+  return env.SANITY_PROJECT_ID || env.VITE_SANITY_PROJECT_ID || env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'wpe14gsf';
+}
+
+function resolveDataset(): string {
+  const env: any = process.env as any;
+  return env.SANITY_DATASET || env.VITE_SANITY_DATASET || 'production';
+}
+
 export function getSanityWriteClient() {
-  const projectId = process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'wpe14gsf';
-  const dataset = process.env.SANITY_DATASET || 'production';
-  const token = process.env.SANITY_WRITE_TOKEN;
+  const projectId = resolveProjectId();
+  const dataset = resolveDataset();
+  const token = resolveWriteToken();
 
   if (!token) {
-    throw new Error('SANITY_WRITE_TOKEN não configurado no servidor (Vercel Env)');
+    // Mensagem limpa para o frontend exibir e orientar dev sobre Vercel Env
+    throw new Error(
+      'SANITY_WRITE_TOKEN não configurado no servidor. Configure SANITY_API_WRITE_TOKEN (ou SANITY_WRITE_TOKEN) em Vercel → Settings → Environment Variables (tipo: Editor Token) e faça Redeploy. Gere em https://www.sanity.io/manage > projeto wpe14gsf > API > Tokens.'
+    );
   }
 
+  // OBRIGATÓRIO para mutações: useCdn:false (sem cache) + token permanente com permissão de ESCRITA
   return createClient({
     projectId,
     dataset,
@@ -20,18 +49,24 @@ export function getSanityWriteClient() {
 }
 
 export function getSanityReadClient(withToken = false) {
-  const projectId = process.env.SANITY_PROJECT_ID || process.env.VITE_SANITY_PROJECT_ID || 'wpe14gsf';
-  const dataset = process.env.SANITY_DATASET || 'production';
-  const token = withToken ? process.env.SANITY_WRITE_TOKEN : undefined;
+  const projectId = resolveProjectId();
+  const dataset = resolveDataset();
+  const token = withToken ? resolveWriteToken() : undefined;
 
   return createClient({
     projectId,
     dataset,
     apiVersion: '2024-01-01',
-    token,
+    token: token || undefined,
+    // Quando com token (admin) NÃO usar CDN para listar pausados/publicados em tempo real
     useCdn: withToken ? false : true,
     perspective: withToken ? 'raw' : 'published',
   });
+}
+
+// Util para o frontend verificar se há token ativo antes de client.assets.upload
+export function hasWriteToken(): boolean {
+  return !!resolveWriteToken();
 }
 
 export function slugify(text: string): string {

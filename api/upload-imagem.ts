@@ -43,6 +43,12 @@ export default async function handler(req: any, res: any) {
     });
   } catch (e: any) {
     console.error('[upload-imagem] erro', e);
-    return res.status(500).json({ error: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp', details: e?.message || String(e) });
+    const msg = e?.message || String(e);
+    // Fallback de interface: mapeia falta de token para 401 com aviso limpo "Session not found" para o frontend redirecionar ao login
+    const isAuth = /SANITY_WRITE_TOKEN|SANITY_API_WRITE_TOKEN|não configurado|Unauthorized|Session not found/i.test(msg);
+    if (isAuth) {
+      return res.status(401).json({ error: 'Unauthorized - Session not found', details: msg });
+    }
+    return res.status(500).json({ error: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp', details: msg });
   }
 }

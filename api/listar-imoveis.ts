@@ -1,4 +1,4 @@
-import { getSanityReadClient, setCors } from '../src/lib/sanity-server.js';
+import { getSanityReadClient, setCors, hasWriteToken } from '../src/lib/sanity-server.js';
 
 export default async function handler(req: any, res: any) {
   setCors(res);
@@ -6,7 +6,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Método não permitido' });
 
   try {
-    const hasToken = !!process.env.SANITY_WRITE_TOKEN;
+    const hasToken = hasWriteToken();
     const client = getSanityReadClient(hasToken);
 
     // Tenta buscar todos (incluindo pausados) se tiver token; senão só publicados
