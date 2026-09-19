@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import { PROPERTIES } from '../propertiesData';
 import { REGION_PROPERTIES } from '../data/regionProperties';
@@ -10,6 +10,8 @@ import { useFavorites } from '../components/FavoritesContext';
 import { buildCanonical, SITE_CONFIG } from '../utils/seoConfig';
 import { slugify, parsePriceToNumber } from '../utils/slugify';
 import { REGIONS } from '../data/regions';
+import { sanityClient, sanityToProperty } from '../lib/sanity';
+import { Property } from '../types';
 import logoSrc from '../assets/images/logo_transparente.webp';
 import { MapPin, Heart, Maximize2, Bed, Bath, Car, Calendar, Award, ShieldCheck, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -20,26 +22,62 @@ export const PropertyPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState<string | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
+  const [sanityProperty, setSanityProperty] = useState<Property | null>(null);
+  const [loadingSanity, setLoadingSanity] = useState(false);
 
   // Encontrar propriedade: busca em ambos datasets por ID contido no slug
   const allProps = [...PROPERTIES, ...REGION_PROPERTIES];
   // slug format: titulo-slug-id  (ex: apartamento-2-quartos-jardim-butanta-prop-butanta-1)
   const idFromSlug = slug?.split('-').slice(-3).join('-') || slug?.split('-').pop(); // fallback
   // Tenta match exato por id incluído
-  let property = allProps.find(p => slug?.includes(p.id));
-  if (!property && idFromSlug) {
-    property = allProps.find(p => p.id === idFromSlug);
+  let staticProperty = allProps.find(p => slug?.includes(p.id));
+  if (!staticProperty && idFromSlug) {
+    staticProperty = allProps.find(p => p.id === idFromSlug);
   }
   // Fallback: busca por slugify title
-  if (!property && slug) {
-    property = allProps.find(p => slugify(p.title) === slug || slug.includes(slugify(p.title).slice(0, 20)));
+  if (!staticProperty && slug) {
+    staticProperty = allProps.find(p => slugify(p.title) === slug || slug.includes(slugify(p.title).slice(0, 20)));
   }
+
+  // Se não achou no estático, busca no Sanity por slug
+  useEffect(() => {
+    if (staticProperty || !slug) return;
+    let alive = true;
+    setLoadingSanity(true);
+    // Tenta buscar por slug exato ou por _id parcial
+    const q = `*[_type == "imovel" && slug.current == $slug][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
+    sanityClient.fetch(q, { slug })
+      .then((doc: any) => {
+        if (!alive) return;
+        if (doc) {
+          const mapped = sanityToProperty(doc) as unknown as Property;
+          setSanityProperty(mapped);
+        }
+      })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoadingSanity(false); });
+    return () => { alive = false; };
+  }, [slug, staticProperty]);
+
+  const property = (staticProperty as Property) || sanityProperty;
+
+  // Sincroniza galeria quando imóvel (estático ou Sanity) carregar
+  useEffect(() => {
+    if (property && !activeImage) {
+      setActiveImage(property.gallery[0] || property.image);
+    }
+  }, [property, activeImage]);
 
   if (!property) {
+    if (loadingSanity) {
+      return (
+        <div className="min-h-screen bg-brand-bg flex items-center justify-center text-brand-muted">
+          Carregando imóvel...
+        </div>
+      );
+    }
     return <Navigate to="/imoveis" replace />;
   }
-
-  if (!activeImage) setActiveImage(property.gallery[0] || property.image);
 
   const regionData = Object.values(REGIONS).find(r => r.slug === regiao || regiao?.includes(r.slug.slice(0, 4)));
   const regionName = regionData?.name || property.location.split(',')[0];

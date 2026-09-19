@@ -12,6 +12,7 @@ import {
   TESTIMONIALS_TRANSLATIONS,
   LIFESTYLES_TRANSLATIONS
 } from '../translations';
+import { fetchImoveisPublicados, sanityToProperty } from '../lib/sanity';
 
 export type Language = 'pt' | 'en' | 'es';
 
@@ -29,6 +30,26 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Locked to Brazilian Portuguese by user request
   const [language] = useState<Language>('pt');
+  const [sanityProps, setSanityProps] = useState<Property[] | null>(null);
+
+  // Busca imóveis do Sanity (publicados) e mescla com estáticos para HomePage e filtros
+  useEffect(() => {
+    let alive = true;
+    fetchImoveisPublicados()
+      .then((sanityImoveis) => {
+        if (!alive) return;
+        if (sanityImoveis.length > 0) {
+          const mapped = sanityImoveis.map((s) => sanityToProperty(s) as unknown as Property);
+          setSanityProps(mapped);
+        } else {
+          setSanityProps([]);
+        }
+      })
+      .catch(() => {
+        if (alive) setSanityProps([]);
+      });
+    return () => { alive = false; };
+  }, []);
 
   const setLanguage = (lang: Language) => {
     // No-op to keep it strictly Portuguese
@@ -48,25 +69,37 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return translated;
   };
 
-  // Get translated properties
+  // Get translated properties + merge com Sanity (criados via /admin)
   const getTranslatedProperties = (): Property[] => {
-    if (language === 'en') return PROPERTIES;
-    const transList = PROPERTIES_TRANSLATIONS[language];
-    if (!transList) return PROPERTIES;
-
-    return PROPERTIES.map((base) => {
-      const trans = transList.find((p) => p.id === base.id);
-      if (!trans) return base;
-      return {
-        ...base,
-        title: trans.title || base.title,
-        type: (trans.type as any) || base.type,
-        location: trans.location || base.location,
-        description: trans.description || base.description,
-        features: trans.features || base.features,
-        tagline: trans.tagline || base.tagline,
-      };
-    });
+    let baseList: Property[];
+    if (language === 'en') baseList = PROPERTIES;
+    else {
+      const transList = PROPERTIES_TRANSLATIONS[language];
+      if (!transList) baseList = PROPERTIES;
+      else {
+        baseList = PROPERTIES.map((base) => {
+          const trans = transList.find((p) => p.id === base.id);
+          if (!trans) return base;
+          return {
+            ...base,
+            title: trans.title || base.title,
+            type: (trans.type as any) || base.type,
+            location: trans.location || base.location,
+            description: trans.description || base.description,
+            features: trans.features || base.features,
+            tagline: trans.tagline || base.tagline,
+          };
+        });
+      }
+    }
+    // Mescla imóveis do Sanity (mais recentes primeiro) com os estáticos
+    if (sanityProps && sanityProps.length > 0) {
+      // Evita duplicatas por id (se um Sanity já tiver id igual ao estático, mantém Sanity)
+      const ids = new Set(sanityProps.map((p) => p.id));
+      const estaticosFiltrados = baseList.filter((p) => !ids.has(p.id));
+      return [...sanityProps, ...estaticosFiltrados];
+    }
+    return baseList;
   };
 
   // Get translated testimonials

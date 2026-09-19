@@ -17,6 +17,14 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      // Proxy /api para testar local com `vercel dev` (porta 3000). Se usar `npm run dev` puro, /api retorna 404
+      // porque Vite não roda as funções serverless. Para testar salvar local: use `vercel dev` ou faça deploy na Vercel.
+      proxy: process.env.VERCEL_DEV_PROXY ? {
+        '/api': {
+          target: process.env.VERCEL_DEV_PROXY,
+          changeOrigin: true,
+        }
+      } : undefined,
     },
     // SPA fallback para react-router (importante para SEO de URLs amigáveis)
     appType: 'spa' as const,

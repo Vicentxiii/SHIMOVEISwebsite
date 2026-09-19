@@ -250,19 +250,46 @@ export const AdminPage: React.FC = () => {
     });
   };
 
+  // Helper para extrair JSON mesmo quando servidor retorna HTML (caso /api não exista em `npm run dev`)
+  const fetchJson = async (url: string, opts: RequestInit) => {
+    const r = await fetch(url, opts);
+    const text = await r.text();
+    let j: any = null;
+    try {
+      j = text ? JSON.parse(text) : null;
+    } catch {
+      // Se não for JSON (ex: index.html do SPA quando /api não está rodando), mostra diagnóstico
+      const isHtml = text.trim().startsWith('<!doctype') || text.trim().startsWith('<html');
+      if (isHtml) {
+        throw new Error(
+          `API não encontrada (recebeu HTML). Você está em "npm run dev" sem serverless. ` +
+          `Para testar local use "vercel dev" ou faça deploy na Vercel. ` +
+          `Se já está na Vercel, verifique se SANITY_WRITE_TOKEN está configurado em Settings → Environment Variables.`
+        );
+      }
+      throw new Error(text.slice(0, 300) || `Erro ${r.status}`);
+    }
+    if (!r.ok) {
+      // Prioriza mensagem do servidor + details para debug
+      const msg = j?.error || j?.details || `Erro ${r.status}`;
+      const details = j?.details ? ` (${j.details})` : '';
+      throw new Error(msg + details);
+    }
+    return j;
+  };
+
   const handleTogglePublicado = async (im: SanityImovel) => {
     try {
-      const r = await fetch('/api/toggle-imovel', {
+      const j = await fetchJson('/api/toggle-imovel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: im._id }),
       });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || 'erro');
       setImoveis((prev) => prev.map((p) => (p._id === im._id ? { ...p, publicado: j.publicado } : p)));
       setToast({ tipo: 'sucesso', msg: j.publicado ? '✅ Imóvel ativado! Já está no site.' : '⏸️ Imóvel pausado. Não aparece mais no site.' });
-    } catch {
-      setToast({ tipo: 'erro', msg: 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
+    } catch (e: any) {
+      console.error('[toggle] erro', e);
+      setToast({ tipo: 'erro', msg: e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
     }
   };
 
@@ -282,13 +309,12 @@ export const AdminPage: React.FC = () => {
       for (const f of fotos) {
         if (f.isNew && f.file) {
           const base64 = await fileToBase64(f.file);
-          const up = await fetch('/api/upload-imagem', {
+          const j = await fetchJson('/api/upload-imagem', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
           });
-          const j = await up.json();
-          if (!up.ok) throw new Error(j.error || 'Erro no upload da foto');
+          if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto (sem assetId)');
           fotosParaEnviar.push({ _type: 'image', asset: { _type: 'reference', _ref: j.assetId } });
         } else if (f.assetRef) {
           fotosParaEnviar.push({ _type: 'image', asset: { _type: 'reference', _ref: f.assetRef } });
@@ -312,32 +338,41 @@ export const AdminPage: React.FC = () => {
         fotos: fotosParaEnviar,
       };
 
-      let r: Response;
       if (modoForm === 'editar' && editId) {
-        r = await fetch('/api/editar-imovel', {
+        await fetchJson('/api/editar-imovel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id: editId, ...payload }),
         });
       } else {
-        r = await fetch('/api/criar-imovel', {
+        await fetchJson('/api/criar-imovel', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       }
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || 'erro ao salvar');
 
       setToast({ tipo: 'sucesso', msg: '✅ Imóvel salvo! Já está no site.' });
-      // limpa e volta pra lista após 2s
+      // limpa e volta pra lista após 1.2s
       setTimeout(async () => {
         setModoForm(null);
         limparForm();
         await carregarImoveis();
       }, 1200);
     } catch (e: any) {
-      setToast({ tipo: 'erro', msg: e?.message?.includes('Ops') ? e.message : 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
+      console.error('[Admin salvar] erro completo:', e);
+      // Mostra erro técnico resumido no toast + log no console para debug
+      const msg = e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp';
+      // Se for erro de token, dá dica extra
+      const isTokenError = msg.includes('SANITY_WRITE_TOKEN') || msg.includes('não configurado');
+      setToast({
+        tipo: 'erro',
+        msg: isTokenError
+          ? '⚠️ Token do Sanity não configurado. Vá na Vercel → Settings → Environment Variables → adicione SANITY_WRITE_TOKEN (gere em sanity.io/manage) e faça Redeploy. ' + msg
+          : msg.includes('API não encontrada')
+          ? msg
+          : msg.length > 180 ? msg.slice(0, 180) + '…' : msg,
+      });
     } finally {
       setSalvando(false);
     }
