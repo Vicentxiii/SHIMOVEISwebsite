@@ -15,6 +15,7 @@ import { FavoritesDrawer } from '../components/FavoritesDrawer';
 import { useLanguage } from '../components/LanguageContext';
 import { PortalListingsCarousel } from '../components/PortalListingsCarousel';
 import { FAQSection } from '../components/FAQSection';
+import { SocialProofTestimonials } from '../components/SocialProofTestimonials';
 import { SEO } from '../components/SEO';
 import { SITE_CONFIG, SEO_TEMPLATES, buildCanonical } from '../utils/seoConfig';
 import logoSrc from '../assets/images/logo_transparente.webp';
@@ -181,17 +182,18 @@ export const HomePage: React.FC = () => {
             <span className="hidden sm:inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" aria-hidden="true" />
           </motion.div>
 
-          {/* título */}
+          {/* H1 otimizado SEO Local - corretora + imóveis à venda (sem ambiguidade) */}
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.7, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-[42px] sm:text-6xl md:text-7xl lg:text-8xl font-extralight uppercase text-brand-light tracking-[0.02em] leading-[0.9] mt-8"
+            className="font-serif text-[42px] sm:text-6xl md:text-7xl lg:text-[78px] font-extralight uppercase text-brand-light tracking-[0.02em] leading-[0.9] mt-8 max-w-4xl"
           >
-            <span className="block font-extralight tracking-wide">{t('hero_title')}</span>
+            <span className="block font-extralight tracking-wide">Silvia Helena</span>
+            <span className="block text-[12px] sm:text-sm md:text-[15px] tracking-[0.18em] font-light normal-case mt-3 text-brand-light/90 leading-relaxed">Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743</span>
           </motion.h1>
 
-          {/* subtítulo com linha divisória minimal */}
+          {/* subtítulo / proposta de valor + meta description visível */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -199,8 +201,8 @@ export const HomePage: React.FC = () => {
             className="mt-6 flex flex-col items-center gap-4 max-w-2xl"
           >
             <span className="h-px w-24 bg-gradient-to-r from-transparent via-brand-gold/40 to-transparent" aria-hidden="true" />
-            <p className="text-sm md:text-[15px] tracking-[0.22em] text-brand-light/80 uppercase font-light leading-relaxed">
-              {t('hero_subtitle')}
+            <p className="text-sm md:text-[15px] tracking-[0.14em] md:tracking-[0.16em] text-brand-light/80 uppercase font-light leading-relaxed">
+              Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região.
             </p>
           </motion.div>
 
@@ -364,6 +366,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       <FAQSection />
+      <SocialProofTestimonials />
       <ContactSection />
 
       <AnimatePresence>{selectedProperty && <PropertyDetailModal property={selectedProperty} onClose={() => setSelectedProperty(null)} />}</AnimatePresence>
@@ -379,11 +382,12 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
             <p className="text-xs text-brand-muted max-w-sm font-light leading-relaxed mt-4">{t('footer_creci_desc')}</p>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <Link to="/imoveis/butanta" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Butantã</Link>
-              <Link to="/imoveis/taboao-da-serra" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Taboão da Serra</Link>
-              <Link to="/imoveis/morumbi" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Morumbi</Link>
-            </div>
+            <nav aria-label="Regiões atendidas pela corretora" className="flex flex-wrap gap-2 pt-2">
+              <Link to="/imoveis/butanta" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Corretora no Butantã</Link>
+              <Link to="/imoveis/taboao-da-serra" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Corretora em Taboão da Serra</Link>
+              <Link to="/imoveis/morumbi" className="text-[10px] tracking-widest uppercase text-brand-gold hover:text-brand-light border border-brand-gold/20 px-3 py-1">Corretora no Morumbi</Link>
+            </nav>
+            <p className="text-[11px] text-brand-muted/80 font-light leading-relaxed">Corretora de imóveis no Butantã | Morumbi | Taboão da Serra — atendimento direto na Zona Oeste de SP</p>
           </div>
           <div className="space-y-3">
             <h3 className="text-xs font-semibold tracking-widest text-brand-light uppercase">{t('footer_territories')}</h3>

@@ -18,7 +18,7 @@ export const ImoveisIndexPage: React.FC = () => {
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: 'corretora de imóveis à venda em São Paulo - Butantã, Morumbi, Taboão da Serra',
+    name: 'Imóveis à venda em São Paulo - Butantã, Morumbi, Taboão da Serra | Corretora Silvia Helena',
     itemListElement: Object.values(REGIONS).map((r, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
@@ -30,10 +30,10 @@ export const ImoveisIndexPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-brand-bg text-brand-light">
       <SEO
-        title="Corretora de imóveis à venda em São Paulo | Butantã, Morumbi e Taboão da Serra | Silvia Helena"
-        description="Fale com corretora de imóveis para comprar, vender e alugar em São Paulo. Explore com a corretora Silvia Helena casas e apartamentos no Butantã, Morumbi e Taboão da Serra. CRECISP 125743."
+        title="Imóveis à venda em São Paulo | Butantã, Morumbi e Taboão da Serra | Corretora Silvia Helena - CRECISP 125743"
+        description="Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região. Fale com a corretora Silvia Helena."
         canonical={buildCanonical('/imoveis')}
-        keywords="Corretora de imóveis São Paulo, corretora de imóveis Butantã, corretora de imóveis Morumbi, corretora de imóveis Taboão da Serra, corretora para comprar apartamento São Paulo"
+        keywords="imóveis à venda Butantã, imóveis à venda Morumbi, imóveis à venda Taboão da Serra, Corretora de imóveis São Paulo, Zona Oeste SP, Silvia Helena CRECISP 125743"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
       <Header onOpenFavorites={() => setIsFavoritesOpen(true)} activeSection="estates" />
@@ -41,10 +41,10 @@ export const ImoveisIndexPage: React.FC = () => {
 
       <section className="pt-28 pb-12 bg-gradient-to-b from-[#210c14] to-brand-bg border-b border-brand-light/5">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <Breadcrumbs items={[{ name: 'Corretora de imóveis', url: '/imoveis' }]} />
-          <h1 className="font-serif text-4xl md:text-5xl text-brand-light font-light mt-6">Corretora de imóveis à venda, para alugar e para comprar em São Paulo</h1>
+          <Breadcrumbs items={[{ name: 'Imóveis', url: '/imoveis' }]} />
+          <h1 className="font-serif text-4xl md:text-5xl text-brand-light font-light mt-6">Imóveis à venda em São Paulo - Butantã, Morumbi e Taboão da Serra | Corretora Silvia Helena - CRECISP 125743</h1>
           <p className="text-sm text-brand-muted mt-4 max-w-3xl leading-relaxed">
-            Navegue por região e encontre com sua corretora de imóveis no <strong className="text-brand-light">Butantã, Morumbi e Taboão da Serra</strong>. Temos intermediação completa com corretora de imóveis para <strong className="text-brand-light">comprar, vender e alugar</strong> casas, apartamentos e coberturas com assessoria premium da corretora Silvia Helena.
+            Encontre <strong className="text-brand-light">casas e apartamentos para comprar, vender ou alugar</strong> no <strong className="text-brand-light">Butantã, Morumbi e Taboão da Serra — Zona Oeste de SP</strong> com quem entende da região. Assessoria direta com a corretora Silvia Helena - CRECISP 125743 para casas, apartamentos e coberturas.
           </p>
         </div>
       </section>
@@ -85,10 +85,10 @@ export const ImoveisIndexPage: React.FC = () => {
       <footer className="bg-[#13040a] border-t border-brand-light/5 py-12 mt-8">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between gap-6 text-xs text-brand-muted">
           <div className="flex items-center gap-3">
-            <img src={logoSrc} alt="Silvia Helena" className="h-8 w-auto" width={60} height={30} loading="lazy" />
-            <span>Silvia Helena corretora de imóveis • CRECISP 125743</span>
+            <img src={logoSrc} alt="Silvia Helena corretora de imóveis - CRECISP 125743" className="h-8 w-auto" width={60} height={30} loading="lazy" />
+            <p>Silvia Helena corretora de imóveis • CRECISP 125743</p>
           </div>
-          <div className="flex items-center gap-1.5"><ShieldCheck size={12} className="text-brand-gold" aria-hidden="true" /><span>Butantã • Taboão da Serra • Morumbi</span></div>
+          <p className="flex items-center gap-1.5"><ShieldCheck size={12} className="text-brand-gold" aria-hidden="true" /><span>Corretora de imóveis no Butantã | Morumbi | Taboão da Serra — Zona Oeste de SP</span></p>
         </div>
       </footer>
     </div>

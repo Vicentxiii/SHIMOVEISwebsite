@@ -107,11 +107,11 @@ export const BlogListPage: React.FC = () => {
 
         <div className="mt-16 border border-brand-gold/20 bg-brand-gold/[0.02] p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <h3 className="font-serif text-lg text-brand-light font-light">Quer ver na prática?</h3>
-            <p className="text-sm text-brand-muted font-light">Falo com você direto no WhatsApp e te mostro opções com a corretora no Butantã, Taboão e Morumbi.</p>
+            <h3 className="font-serif text-lg text-brand-light font-light">Quer avaliar, vender ou encontrar o imóvel ideal na Zona Oeste?</h3>
+            <p className="text-sm text-brand-muted font-light">Fale direto comigo pelo WhatsApp — atendimento direto com a corretora no Butantã, Taboão da Serra e Morumbi.</p>
           </div>
-          <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-bg px-6 py-3 text-xs uppercase tracking-[0.2em] font-light transition-colors shrink-0">
-            Falar com a corretora no WhatsApp
+          <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-bg px-6 py-3 text-xs uppercase tracking-[0.2em] font-light transition-colors shrink-0" aria-label="Falar com Silvia Helena no WhatsApp">
+            Fale direto no WhatsApp
           </a>
         </div>
       </section>

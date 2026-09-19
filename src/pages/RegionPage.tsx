@@ -86,11 +86,11 @@ export const RegionPage: React.FC = () => {
     },
   };
 
-  // ItemList for GEO
+  // ItemList for GEO - imóveis à venda (sem ambiguidade)
   const itemListJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
-    name: `corretora de imóveis à venda em ${region.name}`,
+    name: `Imóveis à venda em ${region.name} | Corretora Silvia Helena`,
     itemListElement: regionProperties.map((prop, idx) => ({
       '@type': 'ListItem',
       position: idx + 1,
@@ -217,13 +217,13 @@ export const RegionPage: React.FC = () => {
       <footer className="bg-[#13040a] border-t border-brand-light/5 py-12">
         <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between gap-6 text-xs text-brand-muted">
           <div className="flex items-center gap-3">
-            <img src={logoSrc} alt="Silvia Helena corretora de imóveis" className="h-10 w-auto" width={80} height={40} loading="lazy" />
-            <span>© 2026 Silvia Helena • CRECISP 125743 • {region.name}, São Paulo</span>
+            <img src={logoSrc} alt="Silvia Helena corretora de imóveis - CRECISP 125743" className="h-10 w-auto" width={80} height={40} loading="lazy" />
+            <p>© 2026 Silvia Helena • CRECISP 125743 • Corretora em {region.name}, São Paulo</p>
           </div>
-          <div className="flex items-center gap-1.5">
+          <p className="flex items-center gap-1.5">
             <ShieldCheck size={12} className="text-brand-gold" aria-hidden="true" />
-            <span>Canal seguro • Atendimento em {region.name}, Butantã, Taboão da Serra e Morumbi</span>
-          </div>
+            <span>Corretora de imóveis no Butantã | Morumbi | Taboão da Serra — atendimento direto na Zona Oeste</span>
+          </p>
         </div>
       </footer>
     </div>

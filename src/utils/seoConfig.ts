@@ -53,20 +53,20 @@ export interface SEOProps {
 
 export const SEO_TEMPLATES = {
   home: {
-    title: 'Corretora de imóveis à venda em São Paulo | Comprar, Vender e Alugar no Butantã, Morumbi e Taboão da Serra | Silvia Helena corretora de imóveis',
-    description: 'Silvia Helena, corretora de imóveis há 15 anos: ajudo você a comprar, vender e alugar com tranquilidade no Butantã, Morumbi e Taboão da Serra. Atendimento direto, preço justo. CRECI 125743.',
+    title: 'Silvia Helena | Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743',
+    description: 'Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região. Fale com a corretora Silvia Helena.',
   },
   butanta: {
-    title: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar corretora de imóveis | Silvia Helena',
-    description: 'Encontre corretora de imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva da corretora Silvia Helena. Agende visita.',
+    title: 'Imóveis à venda no Butantã, SP | Apartamentos e Casas para Comprar e Alugar | Silvia Helena - CRECISP 125743',
+    description: 'Encontre apartamentos, casas e coberturas para comprar e alugar no Butantã, São Paulo. Assessoria exclusiva da corretora Silvia Helena - CRECISP 125743. Agende visita.',
   },
   taboao: {
-    title: 'Corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'Corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena, CRECISP 125743.',
+    title: 'Imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos para Comprar e Alugar | Silvia Helena - CRECISP 125743',
+    description: 'Encontre casas, apartamentos e terrenos para comprar, vender ou alugar em Taboão da Serra, SP, com o melhor custo-benefício da Grande SP. Fale com a corretora Silvia Helena - CRECISP 125743.',
   },
   morumbi: {
-    title: 'Corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'Corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
+    title: 'Imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena - CRECISP 125743',
+    description: 'Encontre imóveis de alto padrão para comprar e alugar no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas com consultoria premium da corretora Silvia Helena - CRECISP 125743.',
   },
 };
 

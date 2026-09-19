@@ -85,9 +85,12 @@ export const ContactSection: React.FC = () => {
                     <span className="w-1.5 h-1.5 bg-[#25D366] rounded-full animate-pulse" />
                     WhatsApp Direct
                   </p>
-                  <a href="http://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="font-serif text-lg text-brand-light hover:text-[#25D366] transition-colors mt-1 block">
+                  <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="font-serif text-lg text-brand-light hover:text-[#25D366] transition-colors mt-1 block" aria-label="Falar com Silvia Helena no WhatsApp +55 11 94084-0966">
                     +55 11 94084-0966
                   </a>
+                  <p className="text-xs text-brand-muted font-light leading-relaxed mt-2 max-w-sm">
+                    Quer avaliar, vender ou encontrar o imóvel ideal na Zona Oeste? <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:text-brand-light underline underline-offset-2 transition-colors font-medium">Fale direto comigo pelo WhatsApp.</a>
+                  </p>
                 </div>
               </div>
 
