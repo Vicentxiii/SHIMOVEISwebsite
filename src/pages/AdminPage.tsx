@@ -6,8 +6,9 @@ import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } 
 // Para trocar a senha, defina VITE_ADMIN_PASSWORD na Vercel → Settings → Environment Variables e faça Redeploy.
 const ADMIN_PASSWORD = ((import.meta as any).env?.VITE_ADMIN_PASSWORD as string | undefined) || 'silvia2026';
 const LS_KEY = 'sh_admin_auth';
-// Sessão persiste 7 dias no LocalStorage — evita "Session not found" por expiração rápida
-const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Sessão persiste 30 dias no LocalStorage — aumentado para evitar falso positivo por timeout/demora no upload (ex: imagens 8MB)
+// Antes 7 dias causava "Session not found" se usuário deixasse aba aberta e clicasse em Salvar com upload lento
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 function saveSession() {
   localStorage.setItem(LS_KEY, JSON.stringify({ authenticated: true, ts: Date.now() }));
@@ -19,15 +20,16 @@ function isSessionValid(): boolean {
     if (!raw) return false;
     // Compatibilidade com versão antiga que salvava "true"
     if (raw === 'true') {
-      // migra para novo formato com timestamp
+      // migra para novo formato com timestamp — sem apagar em caso de demora no upload
       saveSession();
       return true;
     }
     const data = JSON.parse(raw);
     if (!data?.authenticated) return false;
     if (!data?.ts) return false;
+    // Verificação pura: NÃO remove LocalStorage aqui — remoção apenas via handleSessionExpired() em erro real de auth
+    // Isso evita que upload demorado (ex: 3 fotos 8MB) limpe a sessão por falso positivo de timeout
     if (Date.now() - data.ts > SESSION_TTL_MS) {
-      localStorage.removeItem(LS_KEY);
       return false;
     }
     return true;
@@ -36,12 +38,21 @@ function isSessionValid(): boolean {
   }
 }
 
+// Leitura pura sem efeito colateral — usada ANTES do upload para capturar snapshot da sessão
+function readSessionSnapshot(): string | null {
+  try {
+    return localStorage.getItem(LS_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function getSessionHeader(): Record<string, string> {
   // Repassa sessão para o cabeçalho de autorização (Bearer Token / x-admin-auth) nas requisições de upload e mutação
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    const raw = readSessionSnapshot();
     if (!raw) return {};
-    // Para o servidor, enviamos o password hasheado via header para validação opcional + token se houver
+    // Para o servidor, enviamos o password via header para validação opcional + sinal de token se houver
     const token = hasAdminToken() ? 'sanity-token-present' : '';
     return {
       'x-admin-auth': raw,
@@ -51,6 +62,16 @@ function getSessionHeader(): Record<string, string> {
   } catch {
     return {};
   }
+}
+
+function getSessionHeaderFromSnapshot(snapshot: string | null): Record<string, string> {
+  if (!snapshot) return {};
+  const token = hasAdminToken() ? 'sanity-token-present' : '';
+  return {
+    'x-admin-auth': snapshot,
+    ...(token ? { 'x-sanity-token': 'present' } : {}),
+    Authorization: `Bearer ${ADMIN_PASSWORD}`,
+  };
 }
 
 const TIPOS = [
@@ -149,17 +170,25 @@ export const AdminPage: React.FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Checa localStorage no mount — persiste sessão com TTL e evita "Session not found" intermitente
+  // Checa localStorage no mount — persiste sessão com TTL 30d e evita "Session not found" intermitente
   useEffect(() => {
+    const raw = readSessionSnapshot();
     if (isSessionValid()) {
       setAutenticado(true);
       setErroSenha('');
     } else {
-      // Se havia dado antigo expirado, limpa e mostra aviso limpo
-      const hadExpired = localStorage.getItem(LS_KEY) !== null;
-      if (hadExpired && !isSessionValid()) {
-        // já removido por isSessionValid
-        setErroSenha('Sua sessão expirou. Por favor, faça login novamente.');
+      // Sessão expirada ou inválida: limpa apenas aqui (não durante upload) e mostra aviso limpo
+      if (raw) {
+        try {
+          const data = raw === 'true' ? null : JSON.parse(raw);
+          const expired = data?.ts ? Date.now() - data.ts > SESSION_TTL_MS : true;
+          if (expired) {
+            localStorage.removeItem(LS_KEY);
+            setErroSenha('Sua sessão expirou. Por favor, faça login novamente.');
+          }
+        } catch {
+          localStorage.removeItem(LS_KEY);
+        }
       }
     }
     setCheckingAuth(false);
@@ -354,12 +383,26 @@ export const AdminPage: React.FC = () => {
     });
   };
 
-  // Helper para extrair JSON mesmo quando servidor retorna HTML (caso /api não exista em `npm run dev`) — repassa Bearer Token da sessão
-  const fetchJson = async (url: string, opts: RequestInit) => {
+  // Helper para extrair JSON mesmo quando servidor retorna HTML (caso /api não exista em `npm run dev`) — repassa Bearer Token da sessão com timeout estendido
+  const fetchJson = async (url: string, opts: RequestInit, timeoutMs = 45000) => {
     // Injeta cabeçalho de autorização da sessão persistida no LocalStorage (corrige "Session not found" por falta de Bearer)
+    // Usa AbortController para evitar falso positivo de timeout curto (imagens 8MB no Vercel podem levar 20-40s)
     const sessionHeaders = getSessionHeader();
     const mergedHeaders = { ...(opts.headers as Record<string, string> | undefined), ...sessionHeaders } as Record<string, string>;
-    const r = await fetch(url, { ...opts, headers: mergedHeaders });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    let r: Response;
+    try {
+      r = await fetch(url, { ...opts, headers: mergedHeaders, signal: controller.signal });
+    } catch (e: any) {
+      clearTimeout(timeoutId);
+      // Timeout real por demora nas imagens — NÃO deve limpar LocalStorage nem deslogar (falso positivo)
+      if (e?.name === 'AbortError') {
+        throw new Error(`Timeout na API (${timeoutMs / 1000}s). A imagem pode ser muito grande ou a conexão está lenta. Tente novamente com fotos menores ou aguarde.`);
+      }
+      throw e;
+    }
+    clearTimeout(timeoutId);
     const text = await r.text();
     let j: any = null;
     try {
@@ -438,18 +481,21 @@ export const AdminPage: React.FC = () => {
     if (fotos.length === 0) return setToast({ tipo: 'erro', msg: 'Adiciona pelo menos 1 foto' });
     if (!endereco.trim()) return setToast({ tipo: 'erro', msg: 'Coloca o endereço' });
 
-    // Verifica sessão persistida no LocalStorage antes de qualquer mutação (evita expiração rápida)
-    if (!isSessionValid()) {
+    // 1) CORREÇÃO: lê token de sessão do LocalStorage ANTES de iniciar qualquer requisição de upload (evita race condition)
+    const sessionSnapshot = readSessionSnapshot();
+    if (!sessionSnapshot || !isSessionValid()) {
       handleSessionExpired('Sessão expirada ou não encontrada. Faça login novamente para salvar.');
       setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
       return;
     }
+    // Captura headers da sessão ANTES do upload — garante que o Bearer Token seja enviado mesmo que o upload demore
+    const headersSnapshot = getSessionHeaderFromSnapshot(sessionSnapshot);
 
     setSalvando(true);
     try {
-      // 1) upload das fotos novas — só executa após confirmar token ativo no cliente Sanity
-      // Correção crítica: verifica hasAdminToken() (useCdn:false + token) antes de client.assets.upload
-      // Se não houver VITE_SANITY_API_WRITE_TOKEN no bundle, usa fallback seguro via /api/upload-imagem (token permanece no servidor, não exposto)
+      // 2) Garantia: NÃO limpa LocalStorage/cookies durante upload lento — apenas em erro real de auth
+      // isSessionValid() agora é pura (sem side-effect de removeItem); limpeza só via handleSessionExpired() em 401 real
+      // 3) Timeout estendido para imagens grandes (falso positivo por atraso) — fetchJson com 60s por imagem
       const hasToken = hasAdminToken();
       if (!hasToken) {
         console.warn(
@@ -460,15 +506,18 @@ export const AdminPage: React.FC = () => {
       const fotosParaEnviar: any[] = [];
       for (const f of fotos) {
         if (f.isNew && f.file) {
-          // Verificação obrigatória antes de cada upload: sessão + token
-          if (!isSessionValid()) {
-            throw new Error('Session not found - sessão expirada durante o upload. Faça login novamente.');
+          // Verificação obrigatória ANTES de cada upload: confirma sessão capturada antes do início (não re-lê com clear)
+          // Não limpa LocalStorage aqui — apenas valida snapshot; limpeza só em erro 401/autêntico
+          if (!sessionSnapshot || localStorage.getItem(LS_KEY) !== sessionSnapshot) {
+            // Se outra aba limpou a sessão, sim é sessão perdida — mas não por timeout de imagem
+            throw new Error('Session not found - sessão foi removida durante o upload. Faça login novamente.');
           }
           // Se houver sanityAdminClient com token, tenta upload direto (mais rápido, sem base64); senão usa API
           let assetId: string | null = null;
           if (hasToken && sanityAdminClient) {
             try {
-              // client.assets.upload('image', file) — só executa com token ativo
+              // client.assets.upload('image', file) — só executa com token ativo (useCdn:false)
+              // Verificação já feita: hasAdminToken() === true e snapshot válido
               const asset = await (sanityAdminClient as any).assets.upload('image', f.file, {
                 filename: f.file.name,
                 contentType: f.file.type || 'image/jpeg',
@@ -476,16 +525,20 @@ export const AdminPage: React.FC = () => {
               assetId = asset._id;
             } catch (directErr: any) {
               console.warn('[Admin] Falha no upload direto via sanityAdminClient, tentando via /api/upload-imagem:', directErr?.message);
-              // fallback para API
+              // fallback para API — não limpa sessão
             }
           }
           if (!assetId) {
             const base64 = await fileToBase64(f.file);
-            const j = await fetchJson('/api/upload-imagem', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
-            });
+            const j = await fetchJson(
+              '/api/upload-imagem',
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', ...headersSnapshot },
+                body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }),
+              },
+              60000
+            );
             if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto (sem assetId)');
             assetId = j.assetId;
           }
@@ -513,17 +566,25 @@ export const AdminPage: React.FC = () => {
       };
 
       if (modoForm === 'editar' && editId) {
-        await fetchJson('/api/editar-imovel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: editId, ...payload }),
-        });
+        await fetchJson(
+          '/api/editar-imovel',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...headersSnapshot },
+            body: JSON.stringify({ id: editId, ...payload }),
+          },
+          60000
+        );
       } else {
-        await fetchJson('/api/criar-imovel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+        await fetchJson(
+          '/api/criar-imovel',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...headersSnapshot },
+            body: JSON.stringify(payload),
+          },
+          60000
+        );
       }
 
       setToast({ tipo: 'sucesso', msg: '✅ Imóvel salvo! Já está no site.' });
@@ -536,6 +597,15 @@ export const AdminPage: React.FC = () => {
     } catch (e: any) {
       console.error('[Admin salvar] erro completo:', e);
       const msg = e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp';
+      const isTimeout = /timeout|aborterror|timed out/i.test(msg);
+      if (isTimeout) {
+        // Falso positivo por atraso na resposta da API — NÃO limpa LocalStorage/cookies, não desloga
+        setToast({
+          tipo: 'erro',
+          msg: '⏳ Upload demorou. As fotos são grandes e a conexão pode estar lenta. Tente novamente — sua sessão continua ativa. Se persistir, comprima as imagens para < 2MB cada.',
+        });
+        return;
+      }
       const isAuthError =
         /session not found/i.test(msg) ||
         /unauthorized/i.test(msg) ||
