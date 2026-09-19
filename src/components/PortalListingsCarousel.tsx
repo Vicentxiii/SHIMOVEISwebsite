@@ -217,9 +217,9 @@ export const PortalListingsCarousel: React.FC = () => {
             <button
               onClick={() => handleScroll('left')}
               className="absolute left-1 md:left-4 top-1/2 -translate-y-1/2 z-30 p-2.5 bg-brand-bg/95 backdrop-blur-md rounded-full border border-brand-gold/30 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/15 shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer flex items-center justify-center"
-              aria-label="Anterior"
+              aria-label="Ver imóveis anteriores - carrossel de imóveis para comprar em São Paulo"
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} aria-hidden="true" />
             </button>
           )}
 
@@ -228,9 +228,9 @@ export const PortalListingsCarousel: React.FC = () => {
             <button
               onClick={() => handleScroll('right')}
               className="absolute right-1 md:right-4 top-1/2 -translate-y-1/2 z-30 p-2.5 bg-brand-bg/95 backdrop-blur-md rounded-full border border-brand-gold/30 text-brand-gold hover:border-brand-gold hover:bg-brand-gold/15 shadow-xl transition-all duration-300 hover:scale-105 cursor-pointer flex items-center justify-center"
-              aria-label="Próximo"
+              aria-label="Ver próximos imóveis - carrossel de imóveis à venda no Morumbi, Butantã e Taboão da Serra"
             >
-              <ArrowRight size={16} />
+              <ArrowRight size={16} aria-hidden="true" />
             </button>
           )}
 
@@ -259,10 +259,13 @@ export const PortalListingsCarousel: React.FC = () => {
                 >
                   <img
                     src={listing.image}
-                    alt={listing.title}
+                    alt={`${listing.title} à venda em ${listing.location} - ${listing.bedrooms} quartos ${listing.area} ${listing.price} - foto da fachada`}
                     className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105"
                     referrerPolicy="no-referrer"
                     loading="lazy"
+                    width={400}
+                    height={225}
+                    decoding="async"
                   />
                   
                   {/* Visual Glow Gradient overlay */}
@@ -347,9 +350,10 @@ export const PortalListingsCarousel: React.FC = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-5 flex items-center justify-center gap-2 w-full py-2.5 border border-brand-gold/20 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold/10 text-brand-gold text-[9px] uppercase font-light tracking-widest transition-all duration-300 rounded-sm"
+                    aria-label={`Ver detalhes do ${listing.title} em ${listing.location} por ${listing.price} no ZAP Imóveis - comprar ou alugar`}
                   >
                     <span>Acessar no ZAP Imóveis</span>
-                    <ExternalLink size={10} />
+                    <ExternalLink size={10} aria-hidden="true" />
                   </a>
                 </div>
               </motion.div>

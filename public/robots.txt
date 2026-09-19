@@ -1,0 +1,16 @@
+# robots.txt — Silvia Helena Imóveis
+# Permite indexação total e aponta para sitemap
+
+User-agent: *
+Allow: /
+
+# Bloqueia apenas rotas privadas/administrativas se existirem (nenhuma hoje)
+# Disallow: /admin
+# Disallow: /api/private
+
+# Sitemap principal
+Sitemap: https://www.silviahelena.com.br/sitemap.xml
+
+# Para IAs generativas (GEO) — llms.txt
+# Ver: https://llmstxt.org/
+# URL: https://www.silviahelena.com.br/llms.txt

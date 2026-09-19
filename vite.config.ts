@@ -18,5 +18,28 @@ export default defineConfig(() => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
+    // SPA fallback para react-router (importante para SEO de URLs amigáveis)
+    appType: 'spa' as const,
+    build: {
+      // Otimizações para Core Web Vitals
+      cssCodeSplit: true,
+      sourcemap: false,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom', 'react-router-dom'],
+            motion: ['motion'],
+          },
+        },
+      },
+      // Aumenta limite para evitar warnings de chunk grande
+      chunkSizeWarningLimit: 600,
+    },
+    // Pré-carrega módulos críticos
+    preview: {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
   };
 });

@@ -78,9 +78,13 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
           >
             <img
               src={activeImage}
-              alt={property.title}
+              alt={`${property.title} em ${property.location} - ${property.bedrooms} quartos, ${property.area}, ${property.formattedPrice} - foto principal`}
               className="w-full h-full object-cover transition-all duration-700"
               referrerPolicy="no-referrer"
+              width={1200}
+              height={750}
+              loading="eager"
+              decoding="async"
             />
           </motion.div>
 

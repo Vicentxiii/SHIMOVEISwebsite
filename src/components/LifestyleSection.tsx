@@ -51,7 +51,8 @@ export const LifestyleSection: React.FC = () => {
                   className={`h-[2px] transition-all duration-500 cursor-pointer ${
                     activeIndex === idx ? 'w-12 bg-brand-gold' : 'w-6 bg-brand-light/10'
                   }`}
-                  aria-label={`Go to slide ${idx + 1}`}
+                  aria-label={`Ver filosofia ${idx + 1}: ${lifestyles[idx]?.title} — imóveis no Butantã, Morumbi e Taboão da Serra`}
+                  aria-current={activeIndex === idx}
                 />
               ))}
             </div>
@@ -87,16 +88,16 @@ export const LifestyleSection: React.FC = () => {
               <button
                 onClick={prevSlide}
                 className="p-3 border border-brand-light/10 hover:border-brand-gold text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer rounded-xl"
-                aria-label="Previous slide"
+                aria-label="Ver filosofia anterior sobre comprar e morar em imóveis de luxo em São Paulo"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={16} aria-hidden="true" />
               </button>
               <button
                 onClick={nextSlide}
                 className="p-3 border border-brand-light/10 hover:border-brand-gold text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer rounded-xl"
-                aria-label="Next slide"
+                aria-label="Ver próxima filosofia sobre imóveis em Butantã, Morumbi e Taboão da Serra"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={16} aria-hidden="true" />
               </button>
             </div>
           </div>
@@ -115,9 +116,13 @@ export const LifestyleSection: React.FC = () => {
                   exit={{ scale: 0.95, opacity: 0 }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
                   src={lifestyles[activeIndex]?.image}
-                  alt={lifestyles[activeIndex]?.title}
+                  alt={`${lifestyles[activeIndex]?.title} — ${lifestyles[activeIndex]?.subtitle} — Estilo de vida em imóveis no Butantã, Morumbi e Taboão da Serra`}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
+                  width={800}
+                  height={500}
+                  loading="lazy"
+                  decoding="async"
                 />
               </AnimatePresence>
               

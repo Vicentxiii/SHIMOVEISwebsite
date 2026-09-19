@@ -48,9 +48,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect, 
             toggleFavorite(property.id);
           }}
           className="p-2.5 bg-brand-bg/90 backdrop-blur-md rounded-full border border-brand-light/10 text-brand-light hover:text-brand-gold transition-colors duration-300 cursor-pointer"
-          aria-label="Add to private portfolio"
+          aria-label={fav ? `Remover ${property.title} em ${property.location} dos favoritos` : `Adicionar ${property.title} em ${property.location} aos favoritos para comprar ou alugar`}
         >
-          <Heart size={14} className={fav ? 'fill-brand-gold text-brand-gold' : 'text-brand-light'} />
+          <Heart size={14} className={fav ? 'fill-brand-gold text-brand-gold' : 'text-brand-light'} aria-hidden="true" />
         </button>
       </div>
 
@@ -58,13 +58,20 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect, 
       <div 
         onClick={() => onSelect(property)}
         className="relative overflow-hidden aspect-[16/10] md:aspect-[16/9] cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-label={`Ver detalhes do ${property.title} em ${property.location} - ${property.bedrooms} quartos, ${property.area}, ${property.formattedPrice} para comprar ou alugar`}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onSelect(property); }}
       >
         <img
           src={property.image}
-          alt={property.title}
+          alt={`${property.title} à venda em ${property.location} — ${property.bedrooms} quartos, ${property.area}, ${property.formattedPrice} - fachada`}
           className="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-105"
           referrerPolicy="no-referrer"
           loading="lazy"
+          width={800}
+          height={500}
+          decoding="async"
         />
         {/* Cinematic dark mask overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-bg via-brand-bg/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
@@ -91,7 +98,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect, 
             onClick={() => onSelect(property)}
             className="font-serif text-xl md:text-2xl text-brand-light font-light group-hover:text-brand-gold transition-colors duration-300 tracking-tight cursor-pointer"
           >
-            {property.title}
+            <button onClick={() => onSelect(property)} className="text-left hover:text-brand-gold transition-colors cursor-pointer" aria-label={`Ver detalhes do ${property.title} em ${property.location} para comprar ou alugar`}>
+              {property.title}
+            </button>
           </h3>
 
           <p className="text-xs text-brand-muted italic font-light tracking-wide max-w-lg">

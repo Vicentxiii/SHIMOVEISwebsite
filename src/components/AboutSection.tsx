@@ -50,8 +50,13 @@ export const AboutSection: React.FC = () => {
               <div className="absolute inset-4 border border-brand-gold/15 rounded-xl pointer-events-none z-10" />
               <img
                 src={silviaPortrait}
+                alt="Silvia Helena, corretora de imóveis CRECISP 125743, especialista em comprar, vender e alugar imóveis no Butantã, Morumbi e Taboão da Serra, São Paulo"
                 className="w-full h-full object-cover object-top scale-[1.2] grayscale-[15%] hover:scale-125 transition-transform duration-[2.5s] ease-out"
                 referrerPolicy="no-referrer"
+                width={600}
+                height={800}
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute bottom-6 left-6 right-6 bg-brand-bg/90 backdrop-blur-md p-5 border border-brand-light/5 rounded-xl z-10">
                 <p className="font-serif text-lg text-brand-gold">Silvia Helena</p>
