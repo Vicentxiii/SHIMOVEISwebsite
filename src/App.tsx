@@ -6,12 +6,14 @@
 
 import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { FavoritesProvider } from './components/FavoritesContext';
 import { LanguageProvider } from './components/LanguageContext';
 import { HomePage } from './pages/HomePage';
 import { RegionPage } from './pages/RegionPage';
 import { PropertyPage } from './pages/PropertyPage';
 import { ImoveisIndexPage } from './pages/ImoveisIndexPage';
+import { GoogleAnalytics } from './components/GoogleAnalytics';
 
 // Scroll to top on route change (SEO UX)
 const ScrollToTop: React.FC = () => {
@@ -47,6 +49,8 @@ export default function App() {
       <FavoritesProvider>
         <BrowserRouter>
           <AppRoutes />
+          <Analytics />
+          <GoogleAnalytics />
         </BrowserRouter>
       </FavoritesProvider>
     </LanguageProvider>
