@@ -1,6 +1,6 @@
 /**
  * corretora de imóveis adicionais focados em Butantã, Taboão da Serra e Morumbi
- * Para alimentar landing pages regionais (/corretora de imóveis/butanta etc.)
+ * Para alimentar landing pages regionais (/imoveis/butanta etc.)
  * Preços e áreas realistas para SEO local
  */
 import { Property } from '../types';

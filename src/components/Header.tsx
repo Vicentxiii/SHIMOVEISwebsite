@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X, Heart, MessageSquare, Compass, Award, Globe } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage, Language } from './LanguageContext';
 import logoSrc from '../assets/images/logo_transparente.webp';
@@ -21,6 +22,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
   const [hasLoaded, setHasLoaded] = useState(false);
   const { favorites } = useFavorites();
   const { language, setLanguage, t } = useLanguage();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isHome = location.pathname === '/';
+  const isBlog = location.pathname.startsWith('/blog');
 
   useEffect(() => {
     const timer = setTimeout(() => setHasLoaded(true), 3500);
@@ -37,6 +42,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
 
   const scrollToSection = (id: string) => {
     setMobileMenuOpen(false);
+    if (!isHome) {
+      navigate(`/#${id}`);
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          const headerOffset = 80;
+          const elementPosition = el.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+      }, 100);
+      return;
+    }
     const element = document.getElementById(id);
     if (element) {
       const headerOffset = 80;
@@ -47,6 +65,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
         behavior: 'smooth',
       });
     }
+  };
+
+  const handleLogoClick = () => {
+    if (isHome) window.scrollTo({ top: 0, behavior: 'smooth' });
+    else navigate('/');
   };
 
   const navItems = [
@@ -62,16 +85,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
       <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ 
-          y: (activeSection === 'home' || activeSection === 'about') ? 0 : -120, 
-          opacity: (activeSection === 'home' || activeSection === 'about') ? 1 : 0 
+          y: (isBlog || activeSection === 'home' || activeSection === 'about') ? 0 : -120, 
+          opacity: (isBlog || activeSection === 'home' || activeSection === 'about') ? 1 : 0 
         }}
         transition={{ 
           delay: hasLoaded ? 0 : 2.2, 
-          duration: (activeSection === 'home' || activeSection === 'about') ? 0.8 : 0.5, 
+          duration: (isBlog || activeSection === 'home' || activeSection === 'about') ? 0.8 : 0.5, 
           ease: [0.16, 1, 0.3, 1] 
         }}
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 border-b ${
-          (activeSection === 'home' || activeSection === 'about') ? '' : 'pointer-events-none'
+          (isBlog || activeSection === 'home' || activeSection === 'about') ? '' : 'pointer-events-none'
         } ${
           scrolled
             ? 'bg-brand-bg/95 backdrop-blur-md py-4 border-brand-light/5 shadow-lg shadow-black/10'
@@ -81,7 +104,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
         <div className="max-w-[95rem] mx-auto px-6 md:px-12 xl:px-16 flex justify-between items-center w-full">
           {/* Logo Brand Title */}
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={handleLogoClick}
             className="flex items-center gap-3 group text-left cursor-pointer animate-fade-in"
             aria-label="Voltar ao topo - Silvia Helena corretora de imóveis no Butantã, Morumbi e Taboão da Serra"
           >
@@ -142,6 +165,22 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
                 </button>
               );
             })}
+            <Link
+              to="/blog"
+              className={`relative text-xs font-light uppercase tracking-[0.2em] transition-all duration-300 ${
+                isBlog ? 'text-brand-gold font-medium' : 'text-brand-muted hover:text-brand-light'
+              }`}
+              aria-label="Blog da corretora de imóveis - dicas para comprar, vender e alugar no Butantã, Morumbi e Taboão da Serra"
+            >
+              Blog
+              {isBlog && (
+                <motion.span
+                  layoutId="navIndicator"
+                  className="absolute -bottom-1 left-0 right-0 h-[1px] bg-brand-gold"
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+            </Link>
           </nav>
 
           {/* Desktop Right Utilities (Favorites, Private Button) */}
@@ -221,6 +260,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
                     {item.label}
                   </motion.button>
                 ))}
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: navItems.length * 0.1 }}
+                >
+                  <Link
+                    to="/blog"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-left font-serif text-3xl font-light tracking-wide text-brand-light hover:text-brand-gold transition-colors duration-300 uppercase block"
+                  >
+                    Blog
+                  </Link>
+                </motion.div>
               </nav>
             </div>
 

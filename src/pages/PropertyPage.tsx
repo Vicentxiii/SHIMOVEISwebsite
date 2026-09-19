@@ -36,14 +36,14 @@ export const PropertyPage: React.FC = () => {
   }
 
   if (!property) {
-    return <Navigate to="/corretora de imóveis" replace />;
+    return <Navigate to="/imoveis" replace />;
   }
 
   if (!activeImage) setActiveImage(property.gallery[0] || property.image);
 
   const regionData = Object.values(REGIONS).find(r => r.slug === regiao || regiao?.includes(r.slug.slice(0, 4)));
   const regionName = regionData?.name || property.location.split(',')[0];
-  const canonicalPath = `/corretora de imóveis/${regiao}/${slug}`;
+  const canonicalPath = `/imoveis/${regiao}/${slug}`;
   const priceNumber = parsePriceToNumber(property.formattedPrice);
 
   // SEO dinâmico otimizado por região
@@ -99,8 +99,8 @@ export const PropertyPage: React.FC = () => {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_CONFIG.getSiteUrl() },
-      { '@type': 'ListItem', position: 2, name: 'corretora de imóveis', item: `${SITE_CONFIG.getSiteUrl()}/corretora de imóveis` },
-      { '@type': 'ListItem', position: 3, name: regionName, item: `${SITE_CONFIG.getSiteUrl()}/corretora de imóveis/${regiao}` },
+      { '@type': 'ListItem', position: 2, name: 'corretora de imóveis', item: `${SITE_CONFIG.getSiteUrl()}/imoveis` },
+      { '@type': 'ListItem', position: 3, name: regionName, item: `${SITE_CONFIG.getSiteUrl()}/imoveis/${regiao}` },
       { '@type': 'ListItem', position: 4, name: property.title, item: buildCanonical(canonicalPath) },
     ],
   };
@@ -132,8 +132,8 @@ export const PropertyPage: React.FC = () => {
         {/* Breadcrumbs */}
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <Breadcrumbs items={[
-            { name: 'corretora de imóveis', url: '/corretora de imóveis' },
-            { name: regionName, url: `/corretora de imóveis/${regiao}` },
+            { name: 'corretora de imóveis', url: '/imoveis' },
+            { name: regionName, url: `/imoveis/${regiao}` },
             { name: property.title, url: canonicalPath }
           ]} />
         </div>
@@ -215,7 +215,7 @@ export const PropertyPage: React.FC = () => {
                 <h3 className="text-xs tracking-widest uppercase text-brand-gold font-light">Veja também com corretora de imóveis em:</h3>
                 <div className="flex flex-wrap gap-2">
                   {Object.values(REGIONS).map(r => (
-                    <Link key={r.slug} to={`/corretora de imóveis/${r.slug}`} className="text-[11px] uppercase tracking-widest border border-brand-light/10 hover:border-brand-gold text-brand-muted hover:text-brand-gold px-3 py-1.5 transition-colors">Corretora de imóveis em {r.name}</Link>
+                    <Link key={r.slug} to={`/imoveis/${r.slug}`} className="text-[11px] uppercase tracking-widest border border-brand-light/10 hover:border-brand-gold text-brand-muted hover:text-brand-gold px-3 py-1.5 transition-colors">Corretora de imóveis em {r.name}</Link>
                   ))}
                 </div>
               </div>
@@ -267,7 +267,7 @@ export const PropertyPage: React.FC = () => {
               <div className="pt-4 border-t border-brand-light/10 space-y-2 text-xs text-brand-muted">
                 <p className="flex items-center gap-2"><Award size={12} className="text-brand-gold" aria-hidden="true" />CRECISP 125743 • Avaliação gratuita para vender em {regionName}</p>
                 <p>WhatsApp direto: <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="text-brand-gold hover:underline">+55 11 94084-0966</a></p>
-                <Link to={`/corretora de imóveis/${regiao}`} className="inline-block mt-2 text-brand-gold hover:underline">← Ver todos com corretora de imóveis em {regionName}</Link>
+                <Link to={`/imoveis/${regiao}`} className="inline-block mt-2 text-brand-gold hover:underline">← Ver todos com corretora de imóveis em {regionName}</Link>
               </div>
             </div>
           </div>

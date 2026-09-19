@@ -13,6 +13,8 @@ import { HomePage } from './pages/HomePage';
 import { RegionPage } from './pages/RegionPage';
 import { PropertyPage } from './pages/PropertyPage';
 import { ImoveisIndexPage } from './pages/ImoveisIndexPage';
+import { BlogListPage } from './pages/BlogListPage';
+import { BlogPostPage } from './pages/BlogPostPage';
 import { GoogleAnalytics } from './components/GoogleAnalytics';
 
 // Scroll to top on route change (SEO UX)
@@ -33,6 +35,8 @@ const AppRoutes: React.FC = () => {
         <Route path="/imoveis" element={<ImoveisIndexPage />} />
         <Route path="/imoveis/:regiao" element={<RegionPage />} />
         <Route path="/imoveis/:regiao/:slug" element={<PropertyPage />} />
+        <Route path="/blog" element={<BlogListPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
         {/* Redirects para compatibilidade */}
         <Route path="/butanta" element={<Navigate to="/imoveis/butanta" replace />} />
         <Route path="/morumbi" element={<Navigate to="/imoveis/morumbi" replace />} />

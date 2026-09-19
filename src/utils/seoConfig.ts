@@ -53,7 +53,7 @@ export interface SEOProps {
 
 export const SEO_TEMPLATES = {
   home: {
-    title: 'corretora de imóveis à venda em São Paulo | Comprar, Vender e Alugar no Butantã, Morumbi e Taboão da Serra | Silvia Helena corretora de imóveis',
+    title: 'Corretora de imóveis à venda em São Paulo | Comprar, Vender e Alugar no Butantã, Morumbi e Taboão da Serra | Silvia Helena corretora de imóveis',
     description: 'Silvia Helena, corretora de imóveis há 15 anos: ajudo você a comprar, vender e alugar com tranquilidade no Butantã, Morumbi e Taboão da Serra. Atendimento direto, preço justo. CRECI 125743.',
   },
   butanta: {
@@ -61,12 +61,12 @@ export const SEO_TEMPLATES = {
     description: 'Encontre corretora de imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva da corretora Silvia Helena. Agende visita.',
   },
   taboao: {
-    title: 'corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena, CRECISP 125743.',
+    title: 'Corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
+    description: 'Corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena, CRECISP 125743.',
   },
   morumbi: {
-    title: 'corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
-    description: 'corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
+    title: 'Corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
+    description: 'Corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
   },
 };
 

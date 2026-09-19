@@ -25,6 +25,7 @@ const staticRoutes = [
   { loc: '/imoveis/butanta', priority: '0.9', changefreq: 'weekly' },
   { loc: '/imoveis/taboao-da-serra', priority: '0.9', changefreq: 'weekly' },
   { loc: '/imoveis/morumbi', priority: '0.9', changefreq: 'weekly' },
+  { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
 ];
 
 // Importar propriedades - replicando dados de regionProperties para geração estática sem TS
@@ -69,7 +70,23 @@ const propertyRoutes = regionProperties.map(p => {
   };
 });
 
-const allRoutes = [...staticRoutes.map(r => ({ ...r, lastmod: today })), ...propertyRoutes];
+// Blog - 5 artigos
+const blogPosts = [
+  { slug: 'quanto-custa-apartamento-butanta' },
+  { slug: 'quanto-custa-alugar-apartamento-taboao-da-serra' },
+  { slug: 'quanto-custa-apartamento-alto-padrao-morumbi' },
+  { slug: 'butanta-taboao-ou-morumbi-qual-regiao-escolher' },
+  { slug: 'documentos-necessarios-comprar-imovel-sao-paulo' },
+];
+
+const blogRoutes = blogPosts.map(p => ({
+  loc: `/blog/${p.slug}`,
+  priority: '0.7',
+  changefreq: 'monthly',
+  lastmod: today,
+}));
+
+const allRoutes = [...staticRoutes.map(r => ({ ...r, lastmod: today })), ...propertyRoutes, ...blogRoutes];
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

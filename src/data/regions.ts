@@ -21,10 +21,10 @@ export const REGIONS: Record<string, RegionData> = {
   butanta: {
     slug: 'butanta',
     name: 'Butantã',
-    title: 'corretora de imóveis no Butantã, São Paulo',
+    title: 'Corretora de imóveis no Butantã, São Paulo',
     metaTitle: 'Apartamentos e Casas à venda no Butantã, SP | Comprar e Alugar corretora de imóveis | Silvia Helena',
     metaDescription: 'Encontre corretora de imóveis para comprar e alugar no Butantã, São Paulo. Apartamentos, casas e coberturas com assessoria exclusiva da corretora Silvia Helena. Agende visita.',
-    h1: 'corretora de imóveis à venda no Butantã, São Paulo',
+    h1: 'Corretora de imóveis à venda no Butantã, São Paulo',
     intro: 'Morar no Butantã é ter metrô, USP e comércio na porta sem abrir mão de rua tranquila. É prático para estudante, professor e família que não quer depender de carro todo dia.',
     content: [
       'Está se perguntando se vale comprar apartamento perto do metrô sem pagar absurdo? No Butantã, entre a estação e a Vital Brasil, você encontra prédios de 2 quartos com varanda e lazer — ótimos para primeiro corretora de imóveis ou para alugar para alunos da USP. Nas internas da Vila Gomes e City Butantã ainda aparecem casas com quintal onde dá para ouvir passarinho, e você continua a 15 minutos da Faria Lima pela Raposo ou Marginal. Nos últimos 15 anos, como corretora de imóveis, vendi de kitnets de 38m² ali na Alvarenga a sobrados na região do Instituto Butantan. Sei dizer, com honestidade, quais prédios têm condomínio justo e qual rua enche em dia de chuva.',
@@ -43,10 +43,10 @@ export const REGIONS: Record<string, RegionData> = {
   'taboao-da-serra': {
     slug: 'taboao-da-serra',
     name: 'Taboão da Serra',
-    title: 'corretora de imóveis em Taboão da Serra, SP',
-    metaTitle: 'corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
+    title: 'Corretora de imóveis em Taboão da Serra, SP',
+    metaTitle: 'Corretora de imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos | Silvia Helena',
     metaDescription: 'corretora de imóveis em Taboão da Serra para comprar, vender e alugar. Casas, apartamentos e terrenos com melhor custo-benefício da Grande SP. Fale com Silvia Helena.',
-    h1: 'corretora de imóveis à venda em Taboão da Serra, SP',
+    h1: 'Corretora de imóveis à venda em Taboão da Serra, SP',
     intro: 'Taboão é para quem quer quintal e espaço sem pagar preço de São Paulo, mas continuar a 10 minutos do Butantã.',
     content: [
       'Famílias que me procuram no Taboão geralmente fazem a mesma conta: ‘Consigo casa com quintal por menos que um 2 quartos em SP?’ Aqui, nos bairros Jardim Mirna, Pirajuçara, Parque Pinheiros e Centro, a resposta costuma ser sim — e é onde entro como corretora de imóveis. São casas de 2 a 4 quartos onde o carro dorme coberto e ainda sobra espaço para churrasco, além de prédios novos com lazer e 1 a 3 vagas. Saindo pela Régis ou Aprígio Bezerra você chega no Butantã ou Morumbi em minutos — ótimo para quem trabalha na capital e quer voltar para rua calma à noite.',
@@ -65,10 +65,10 @@ export const REGIONS: Record<string, RegionData> = {
   morumbi: {
     slug: 'morumbi',
     name: 'Morumbi',
-    title: 'corretora de imóveis de Alto Padrão no Morumbi, São Paulo',
-    metaTitle: 'corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
+    title: 'Corretora de imóveis de Alto Padrão no Morumbi, São Paulo',
+    metaTitle: 'Corretora de imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena',
     metaDescription: 'corretora de imóveis de alto padrão no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas para comprar e alugar. Consultoria premium Silvia Helena corretora de imóveis.',
-    h1: 'corretora de imóveis de luxo à venda no Morumbi, São Paulo',
+    h1: 'Corretora de imóveis de luxo à venda no Morumbi, São Paulo',
     intro: 'O Morumbi é sossego com conveniência: ruas arborizadas, colégios e hospital perto, e ainda 15 minutos da Faria Lima.',
     content: [
       'Quem me pergunta ‘como é morar no Morumbi no dia a dia?’ eu respondo como corretora de imóveis que acompanha a região há anos: na Avenida Morumbi e no entorno do Shopping Morumbi e Cidade Jardim, você encontra casas de 4 a 6 suítes com quintal grande e apartamentos de 200 a 600m² com varanda e vista para o parque. É a região de quem busca silêncio à noite, colégios como Porto Seguro e Santo Américo perto, e Hospital Albert Einstein a poucos minutos — sem ficar isolado do trabalho na Marginal/Berrini.',
