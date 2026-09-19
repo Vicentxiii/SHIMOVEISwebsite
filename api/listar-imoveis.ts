@@ -1,4 +1,4 @@
-import { getSanityReadClient, setCors } from './_sanity-helpers';
+import { getSanityReadClient, setCors } from '../src/lib/sanity-server.js';
 
 export default async function handler(req: any, res: any) {
   setCors(res);

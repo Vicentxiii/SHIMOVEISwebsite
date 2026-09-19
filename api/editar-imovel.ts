@@ -1,4 +1,4 @@
-import { getSanityWriteClient, slugify, setCors, descricaoToPortableText } from './_sanity-helpers';
+import { getSanityWriteClient, slugify, setCors, descricaoToPortableText } from '../src/lib/sanity-server.js';
 
 export default async function handler(req: any, res: any) {
   setCors(res);
