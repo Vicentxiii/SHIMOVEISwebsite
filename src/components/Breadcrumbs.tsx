@@ -18,7 +18,7 @@ export const Breadcrumbs: React.FC<{ items: BreadcrumbItem[] }> = ({ items }) =>
       '@type': 'ListItem',
       position: idx + 1,
       name: item.name,
-      item: `https://www.silviahelena.com.br${item.url}`,
+      item: `https://silviahelenacorretora.com.br${item.url}`,
     })),
   };
 

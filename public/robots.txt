@@ -9,8 +9,8 @@ Allow: /
 # Disallow: /api/private
 
 # Sitemap principal
-Sitemap: https://www.silviahelena.com.br/sitemap.xml
+Sitemap: https://silviahelenacorretora.com.br/sitemap.xml
 
 # Para IAs generativas (GEO) — llms.txt
 # Ver: https://llmstxt.org/
-# URL: https://www.silviahelena.com.br/llms.txt
+# URL: https://silviahelenacorretora.com.br/llms.txt

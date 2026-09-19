@@ -6,7 +6,7 @@
 
 export const SITE_CONFIG = {
   // ALTERAR para domínio real em produção
-  siteUrl: 'https://www.silviahelena.com.br',
+  siteUrl: 'https://silviahelenacorretora.com.br',
   siteName: 'Silvia Helena Imóveis',
   // fallback se env var definida
   getSiteUrl(): string {
