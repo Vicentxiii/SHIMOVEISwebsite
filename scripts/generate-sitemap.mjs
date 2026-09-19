@@ -71,21 +71,40 @@ const propertyRoutes = regionProperties.map(p => {
   };
 });
 
-// Blog - 5 artigos
-const blogPosts = [
-  { slug: 'quanto-custa-apartamento-butanta' },
-  { slug: 'quanto-custa-alugar-apartamento-taboao-da-serra' },
-  { slug: 'quanto-custa-apartamento-alto-padrao-morumbi' },
-  { slug: 'butanta-taboao-ou-morumbi-qual-regiao-escolher' },
-  { slug: 'documentos-necessarios-comprar-imovel-sao-paulo' },
-];
-
-const blogRoutes = blogPosts.map(p => ({
-  loc: `/blog/${p.slug}`,
-  priority: '0.7',
-  changefreq: 'monthly',
-  lastmod: today,
-}));
+// Blog - geração automática a partir de src/data/blog.ts (injeção imediata para LLMs e Googlebot)
+// Fallback hardcoded para não quebrar se parse falhar
+let blogRoutes = [];
+try {
+  const blogFile = fs.readFileSync(path.resolve(__dirname, '../src/data/blog.ts'), 'utf8');
+  const slugMatches = [...blogFile.matchAll(/slug:\s*['"]([^'"]+)['"]/g)].map(m => m[1]);
+  // Deduplica mantendo ordem
+  const uniqueSlugs = [...new Set(slugMatches)];
+  blogRoutes = uniqueSlugs.map(slug => ({
+    loc: `/blog/${slug}`,
+    priority: '0.7',
+    changefreq: 'monthly',
+    lastmod: today,
+  }));
+  console.log(`✓ Blog: ${blogRoutes.length} slugs encontrados em src/data/blog.ts`);
+} catch (e) {
+  console.warn('[sitemap] Falha ao ler blog.ts, usando fallback hardcoded:', e.message);
+  const fallback = [
+    { slug: 'quanto-custa-apartamento-butanta' },
+    { slug: 'quanto-custa-alugar-apartamento-taboao-da-serra' },
+    { slug: 'quanto-custa-apartamento-alto-padrao-morumbi' },
+    { slug: 'butanta-taboao-ou-morumbi-qual-regiao-escolher' },
+    { slug: 'documentos-necessarios-comprar-imovel-sao-paulo' },
+    { slug: 'guia-completo-morar-butanta-por-que-bairro-atrai-familias' },
+    { slug: 'mercado-imobiliario-morumbi-alto-padrao-antes-de-comprar' },
+    { slug: 'financiamento-imobiliario-taboao-da-serra-2026-dicas-sair-do-aluguel' },
+  ];
+  blogRoutes = fallback.map(p => ({
+    loc: `/blog/${p.slug}`,
+    priority: '0.7',
+    changefreq: 'monthly',
+    lastmod: today,
+  }));
+}
 
 // Sanity - tenta buscar imóveis publicados para incluir no sitemap (dinâmico)
 // Se falhar (sem rede/credencial), mantém apenas rotas estáticas

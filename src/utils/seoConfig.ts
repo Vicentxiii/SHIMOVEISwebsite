@@ -57,16 +57,16 @@ export const SEO_TEMPLATES = {
     description: 'Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região. Fale com a corretora Silvia Helena.',
   },
   butanta: {
-    title: 'Imóveis à venda no Butantã, SP | Apartamentos e Casas para Comprar e Alugar | Silvia Helena - CRECISP 125743',
-    description: 'Encontre apartamentos, casas e coberturas para comprar e alugar no Butantã, São Paulo. Assessoria exclusiva da corretora Silvia Helena - CRECISP 125743. Agende visita.',
+    title: 'Imóveis à Venda e para Alugar no Butantã | Silvia Helena Corretora - CRECISP 125743',
+    description: 'Descubra por que o Butantã atrai tantas famílias: proximidade com o metrô Linha 4-Amarela, USP, Parque Villa-Lobos e comércio da Vital Brasil. Veja imóveis à venda e para alugar no Butantã com a corretora Silvia Helena - CRECISP 125743.',
   },
   taboao: {
-    title: 'Imóveis à venda em Taboão da Serra, SP | Casas e Apartamentos para Comprar e Alugar | Silvia Helena - CRECISP 125743',
-    description: 'Encontre casas, apartamentos e terrenos para comprar, vender ou alugar em Taboão da Serra, SP, com o melhor custo-benefício da Grande SP. Fale com a corretora Silvia Helena - CRECISP 125743.',
+    title: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena',
+    description: 'Saia do aluguel em 2026: imóveis prontos para morar e financiar em Taboão da Serra com crédito facilitado, documentação com CRECISP e parcelas que cabem no bolso. Veja casas e apartamentos com Silvia Helena.',
   },
   morumbi: {
-    title: 'Imóveis de Luxo à venda no Morumbi, SP | Casas e Apartamentos | Silvia Helena - CRECISP 125743',
-    description: 'Encontre imóveis de alto padrão para comprar e alugar no Morumbi, São Paulo. Mansões, apartamentos de luxo e coberturas com consultoria premium da corretora Silvia Helena - CRECISP 125743.',
+    title: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Imóveis',
+    description: 'Morar no Morumbi é viver com segurança em condomínios fechados, colégios de ponta como Porto Seguro e Santo Américo, e apartamentos de luxo com lazer completo. Veja casas e apartamentos de luxo à venda no Morumbi com Silvia Helena.',
   },
 };
 

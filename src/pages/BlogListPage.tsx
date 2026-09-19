@@ -62,46 +62,53 @@ export const BlogListPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-12 md:py-16 max-w-7xl mx-auto px-6 md:px-12">
+      {/* Grade semântica <article> para indexação LLM/Googlebot - E-E-A-T */}
+      <section className="py-12 md:py-16 max-w-7xl mx-auto px-6 md:px-12" aria-label="Lista de artigos do blog">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {BLOG_POSTS.map((post) => (
-            <Link
+            <article
               key={post.slug}
-              to={`/blog/${post.slug}`}
               className="group flex flex-col border border-brand-light/10 hover:border-brand-gold/40 rounded-2xl overflow-hidden bg-brand-bg/40 hover:shadow-[0_0_20px_rgba(197,160,89,0.12)] transition-all duration-300"
+              aria-labelledby={`post-title-${post.slug}`}
             >
-              <div className="relative aspect-[16/10] overflow-hidden bg-[#1a080f]">
-                <img
-                  src={post.image}
-                  alt={post.imageAlt}
-                  className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                  loading="lazy"
-                  width={600}
-                  height={375}
-                  decoding="async"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-brand-bg/60 to-transparent opacity-60" aria-hidden="true" />
-                <span className="absolute top-4 left-4 bg-brand-bg/90 backdrop-blur-md border border-brand-gold/20 text-brand-gold text-[10px] tracking-[0.2em] uppercase px-3 py-1">
-                  {post.category}
-                </span>
-              </div>
-              <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-center gap-3 text-[11px] text-brand-muted tracking-widest uppercase font-light mb-3">
-                  <span className="inline-flex items-center gap-1"><Clock size={11} className="text-brand-gold" aria-hidden="true" /> {post.readingTime} min</span>
-                  <span>•</span>
-                  <span>{new Date(post.datePublished).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+              <Link
+                to={`/blog/${post.slug}`}
+                className="flex flex-col flex-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold/50"
+                aria-label={`Ler artigo: ${post.title}`}
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-[#1a080f]">
+                  <img
+                    src={post.image}
+                    alt={post.imageAlt}
+                    className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
+                    loading="lazy"
+                    width={600}
+                    height={375}
+                    decoding="async"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-bg/60 to-transparent opacity-60" aria-hidden="true" />
+                  <span className="absolute top-4 left-4 bg-brand-bg/90 backdrop-blur-md border border-brand-gold/20 text-brand-gold text-[10px] tracking-[0.2em] uppercase px-3 py-1">
+                    {post.category}
+                  </span>
                 </div>
-                <h2 className="font-serif text-xl text-brand-light font-light leading-snug group-hover:text-brand-gold transition-colors line-clamp-3">
-                  {post.title}
-                </h2>
-                <p className="text-sm text-brand-muted font-light leading-relaxed mt-3 line-clamp-3">
-                  {post.excerpt}
-                </p>
-                <span className="mt-5 inline-flex items-center gap-1.5 text-[11px] tracking-[0.2em] uppercase text-brand-gold group-hover:gap-2 transition-all">
-                  Ler artigo <ArrowRight size={12} aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
+                <div className="p-6 flex flex-col flex-1">
+                  <div className="flex items-center gap-3 text-[11px] text-brand-muted tracking-widest uppercase font-light mb-3">
+                    <span className="inline-flex items-center gap-1"><Clock size={11} className="text-brand-gold" aria-hidden="true" /> {post.readingTime} min</span>
+                    <span>•</span>
+                    <span>{new Date(post.datePublished).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                  </div>
+                  <h2 id={`post-title-${post.slug}`} className="font-serif text-xl text-brand-light font-light leading-snug group-hover:text-brand-gold transition-colors line-clamp-3">
+                    {post.title}
+                  </h2>
+                  <p className="text-sm text-brand-muted font-light leading-relaxed mt-3 line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-[11px] tracking-[0.2em] uppercase text-brand-gold group-hover:gap-2 transition-all">
+                    Ler artigo <ArrowRight size={12} aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            </article>
           ))}
         </div>
 
