@@ -18,7 +18,7 @@ function slugify(text) {
   return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').replace(/--+/g,'-');
 }
 
-// Rotas estáticas
+// Rotas estáticas — /admin NUNCA entra no sitemap (noindex, privado)
 const staticRoutes = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
   { loc: '/imoveis', priority: '0.9', changefreq: 'weekly' },
@@ -27,6 +27,7 @@ const staticRoutes = [
   { loc: '/imoveis/morumbi', priority: '0.9', changefreq: 'weekly' },
   { loc: '/blog', priority: '0.8', changefreq: 'weekly' },
 ];
+// NOTA: /admin é propositalmente excluído (noindex, Disallow em robots.txt)
 
 // Importar propriedades - replicando dados de regionProperties para geração estática sem TS
 // Lista manual para evitar parse de TS; manter sincronizado com src/data/regionProperties.ts

@@ -4,9 +4,9 @@
 User-agent: *
 Allow: /
 
-# Bloqueia apenas rotas privadas/administrativas se existirem (nenhuma hoje)
-# Disallow: /admin
-# Disallow: /api/private
+# Bloqueia rota administrativa — não indexar
+Disallow: /admin
+Disallow: /api/
 
 # Sitemap principal
 Sitemap: https://silviahelenacorretora.com.br/sitemap.xml
