@@ -144,59 +144,131 @@ export const HomePage: React.FC = () => {
       <Header onOpenFavorites={() => setIsFavoritesOpen(true)} activeSection={activeSection} />
       <FavoritesDrawer isOpen={isFavoritesOpen} onClose={() => setIsFavoritesOpen(false)} onSelectProperty={(p) => setSelectedProperty(p)} />
 
-      {/* HERO - H1 único por página */}
-      <section id="home" className="relative h-screen flex flex-col justify-between p-6 md:p-12 overflow-hidden bg-black" aria-label="Silvia Helena corretora de imóveis - corretora de imóveis em São Paulo">
+      {/* HERO - limpa, elegante e futurista - bordas redondas */}
+      <section id="home" className="relative min-h-[100svh] flex flex-col justify-center items-center overflow-hidden bg-black" aria-label="Silvia Helena corretora de imóveis - corretora de imóveis em São Paulo">
+        {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
             src={cliffsideVillaHero}
             alt="Apartamento de luxo à venda no Morumbi São Paulo - vista panorâmica"
-            className="w-full h-full object-cover scale-105 opacity-65 select-none"
+            className="w-full h-full object-cover scale-[1.02] opacity-[0.58] select-none"
             width={1920}
             height={1080}
             loading="eager"
             decoding="async"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-bg via-brand-bg/40 to-black/80" />
+          {/* gradiente elegante + vinheta futurista */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-brand-bg/15 to-brand-bg" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
+          {/* brilho sutil dourado */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-brand-gold/10 blur-[120px] rounded-full pointer-events-none" />
+          {/* grid futurista muito sutil */}
+          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)`, backgroundSize: '72px 72px' }} aria-hidden="true" />
         </div>
-        <div className="h-20" />
-        <div className="max-w-4xl mx-auto text-center z-10 space-y-6 md:space-y-8 px-4">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.5, duration: 1.5, ease: [0.16, 1, 0.3, 1] }} className="flex items-center justify-center gap-2 text-xs tracking-[0.35em] text-brand-gold uppercase font-light">
-            <Sparkles size={12} aria-hidden="true" />
-            <span>{t('hero_badge')}</span>
+
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-8 flex flex-col items-center text-center pt-28 md:pt-32 pb-10">
+          {/* pill badge futurista */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-xl px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-gold text-brand-bg">
+              <Sparkles size={12} aria-hidden="true" />
+            </span>
+            <span className="text-[11px] tracking-[0.28em] text-brand-light/90 uppercase font-light">{t('hero_badge')}</span>
+            <span className="hidden sm:inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" aria-hidden="true" />
           </motion.div>
-          <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.7, duration: 1.8, ease: [0.16, 1, 0.3, 1] }} className="font-serif text-5xl md:text-8xl font-extralight uppercase text-brand-light tracking-wide leading-tight">
-            {t('hero_title')}
+
+          {/* título */}
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.7, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="font-serif text-[42px] sm:text-6xl md:text-7xl lg:text-8xl font-extralight uppercase text-brand-light tracking-[0.02em] leading-[0.9] mt-8"
+          >
+            <span className="block font-extralight tracking-wide">{t('hero_title')}</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.2, duration: 1.5 }} className="text-sm md:text-lg tracking-[0.2em] text-brand-light uppercase font-light mt-2 max-w-2xl mx-auto border-t border-brand-gold/25 pt-4">
-            {t('hero_subtitle')}
-          </motion.p>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 3.5, duration: 1.2 }} className="pt-6">
-            <button onClick={() => scrollToSection('estates')} className="group border border-brand-gold bg-brand-gold/10 hover:bg-brand-gold hover:text-brand-bg px-8 py-3.5 text-xs font-light tracking-[0.3em] uppercase text-brand-gold transition-all duration-500 cursor-pointer" aria-label="Falar com corretora de imóveis no Butantã, Morumbi e Taboão da Serra">
+
+          {/* subtítulo com linha divisória minimal */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 3.1, duration: 1 }}
+            className="mt-6 flex flex-col items-center gap-4 max-w-2xl"
+          >
+            <span className="h-px w-24 bg-gradient-to-r from-transparent via-brand-gold/40 to-transparent" aria-hidden="true" />
+            <p className="text-sm md:text-[15px] tracking-[0.22em] text-brand-light/80 uppercase font-light leading-relaxed">
+              {t('hero_subtitle')}
+            </p>
+          </motion.div>
+
+          {/* CTA principal - rounded full */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-10 flex flex-col sm:flex-row items-center gap-3">
+            <button
+              onClick={() => scrollToSection('estates')}
+              className="group inline-flex items-center gap-3 rounded-full bg-brand-gold px-8 py-4 text-[12px] font-medium tracking-[0.2em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer"
+              aria-label="Falar com corretora de imóveis no Butantã, Morumbi e Taboão da Serra"
+            >
               <span>{t('hero_cta')}</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
+                <ArrowDown size={14} className="-rotate-90" aria-hidden="true" />
+              </span>
+            </button>
+            <button
+              onClick={() => scrollToSection('about')}
+              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] backdrop-blur-xl px-6 py-4 text-[11px] tracking-[0.18em] uppercase text-brand-light/90 hover:bg-white/10 hover:border-white/25 transition-all duration-300 cursor-pointer"
+            >
+              Conheça a consultora
             </button>
           </motion.div>
-          {/* Links internos SEO para regiões */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3.8 }} className="flex flex-wrap justify-center gap-3 pt-4">
-            <Link to="/imoveis/butanta" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis no Butantã</Link>
-            <Link to="/imoveis/morumbi" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis no Morumbi</Link>
-            <Link to="/imoveis/taboao-da-serra" className="text-[11px] tracking-widest uppercase border border-brand-light/20 hover:border-brand-gold text-brand-light hover:text-brand-gold px-4 py-2 transition-colors">Corretora de imóveis em Taboão da Serra</Link>
+
+          {/* pills de região - rounded full, futurista glass */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.7, duration: 0.8 }} className="mt-8 flex flex-wrap justify-center gap-2.5">
+            <Link to="/imoveis/butanta" className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] backdrop-blur-xl px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase text-brand-light/85 hover:bg-white/10 hover:border-brand-gold/30 hover:text-brand-gold transition-all duration-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold group-hover:shadow-[0_0_8px_rgba(212,163,115,0.8)] transition-shadow" aria-hidden="true" />
+              Butantã
+            </Link>
+            <Link to="/imoveis/morumbi" className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] backdrop-blur-xl px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase text-brand-light/85 hover:bg-white/10 hover:border-brand-gold/30 hover:text-brand-gold transition-all duration-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold group-hover:shadow-[0_0_8px_rgba(212,163,115,0.8)] transition-shadow" aria-hidden="true" />
+              Morumbi
+            </Link>
+            <Link to="/imoveis/taboao-da-serra" className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] backdrop-blur-xl px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase text-brand-light/85 hover:bg-white/10 hover:border-brand-gold/30 hover:text-brand-gold transition-all duration-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold group-hover:shadow-[0_0_8px_rgba(212,163,115,0.8)] transition-shadow" aria-hidden="true" />
+              Taboão da Serra
+            </Link>
           </motion.div>
         </div>
-        <div className="flex flex-col gap-4 md:grid md:grid-cols-3 items-center md:items-end z-10 text-[10px] tracking-[0.25em] text-brand-muted uppercase font-light w-full text-center md:text-left">
-          <div className="flex items-center gap-3 justify-center md:justify-start">
-            <MapPin size={10} className="text-brand-gold" aria-hidden="true" />
-            <span>Butantã • Taboão da Serra • Morumbi • São Paulo</span>
-          </div>
-          <div className="flex justify-center">
-            <button onClick={() => scrollToSection('about')} className="hidden md:flex items-center gap-2 text-brand-muted hover:text-brand-gold transition-all duration-300 animate-bounce cursor-pointer" aria-label="Rolar para conhecer a consultora Silvia Helena">
+
+        {/* barra inferior minimal - rounded pills */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 4, duration: 1 }}
+          className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pb-6 md:pb-8"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 rounded-full border border-white/10 bg-black/20 backdrop-blur-xl px-4 md:px-6 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]">
+            <div className="inline-flex items-center gap-2.5 text-[10px] tracking-[0.2em] text-brand-light/70 uppercase font-light">
+              <span className="hidden sm:flex h-7 w-7 items-center justify-center rounded-full bg-white/10 border border-white/10">
+                <MapPin size={12} className="text-brand-gold" aria-hidden="true" />
+              </span>
+              <span>Butantã • Taboão da Serra • Morumbi • São Paulo</span>
+            </div>
+            <button
+              onClick={() => scrollToSection('about')}
+              className="hidden md:inline-flex items-center gap-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 text-[10px] tracking-[0.2em] uppercase text-brand-light/80 hover:text-brand-light transition-all duration-300 cursor-pointer group"
+              aria-label="Rolar para conhecer a consultora Silvia Helena"
+            >
               <span>{t('hero_scroll')}</span>
-              <ArrowDown size={10} aria-hidden="true" />
+              <ArrowDown size={12} className="group-hover:translate-y-0.5 transition-transform" aria-hidden="true" />
             </button>
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-gold/15 border border-brand-gold/20 px-4 py-2 text-[10px] tracking-[0.18em] text-brand-gold uppercase font-light">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold animate-pulse" aria-hidden="true" />
+              <span>{t('hero_private_office')}</span>
+            </div>
           </div>
-          <div className="text-center md:text-right w-full md:w-auto flex justify-center md:justify-end">
-            <span>{t('hero_private_office')}</span>
-          </div>
-        </div>
+        </motion.div>
       </section>
 
       <AboutSection />
