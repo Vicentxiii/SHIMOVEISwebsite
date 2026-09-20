@@ -189,11 +189,11 @@ export const SocialProofTestimonials: React.FC = () => {
             Atendimento 100% direto com a corretora Silvia Helena — <span className="text-brand-light">CRECISP 125743</span> • Sem repasse para equipe • Resposta em até 2h
           </p>
           <a
-            href="https://wa.me/5511940840966"
+            href="https://wa.me/5511940840966?text=Ol%C3%A1%2C%20vim%20pelo%20site%2C%20gostaria%20de%20falar%20sobre%20um%20im%C3%B3vel"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-bg px-5 py-2.5 rounded-full text-[11px] tracking-[0.18em] uppercase font-medium transition-colors shrink-0"
-            aria-label="Falar com Silvia Helena no WhatsApp - prova social"
+            aria-label="Falar com Silvia Helena no WhatsApp - Olá, vim pelo site, gostaria de falar sobre um imóvel"
           >
             Quero a mesma experiência
           </a>
