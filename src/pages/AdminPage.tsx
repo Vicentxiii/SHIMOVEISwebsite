@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, AlertTriangle, X } from 'lucide-react';
+import { Trash2, AlertTriangle, X, ExternalLink, Eye } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
+import { getRegionSlug } from '../utils/slugify';
 
 // Senha via env (VITE_ADMIN_PASSWORD). Fallback "silvia2026" garante que /admin funciona mesmo se Vercel env não foi setada ainda.
 // Para trocar a senha, defina VITE_ADMIN_PASSWORD na Vercel → Settings → Environment Variables e faça Redeploy.
@@ -97,6 +98,15 @@ type FotoItem = {
 
 function formatarBRL(valor: number) {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(valor);
+}
+
+function getImovelUrl(im: SanityImovel): string {
+  const slug = (typeof im.slug === 'string' ? im.slug : (im.slug as any)?.current || '').trim();
+  const regiaoSlug = getRegionSlug(im.regiao || '');
+  if (slug && regiaoSlug) return `/imoveis/${regiaoSlug}/${slug}`;
+  if (slug) return `/imoveis/${slug}`;
+  if (regiaoSlug) return `/imoveis/${regiaoSlug}`;
+  return '/imoveis';
 }
 
 function fileToBase64(file: File): Promise<string> {
@@ -1109,6 +1119,16 @@ export const AdminPage: React.FC = () => {
                         <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
                         Remover imóvel
                       </button>
+                      <a
+                        href={getImovelUrl(im)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full mt-3 h-[44px] rounded-[12px] border border-[#D4A373]/30 bg-[#D4A373]/5 text-[#8B5A2B] text-[14px] font-semibold hover:bg-[#D4A373]/10 hover:border-[#D4A373]/50 hover:text-[#6d4a24] flex items-center justify-center gap-2 transition active:scale-[0.98] group"
+                      >
+                        <Eye size={16} className="group-hover:scale-110 transition-transform" />
+                        Ver no site
+                        <ExternalLink size={12} className="opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+                      </a>
                     </div>
                   </motion.div>
                 );
