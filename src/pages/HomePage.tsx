@@ -277,24 +277,17 @@ export const HomePage: React.FC = () => {
             </p>
           </motion.div>
 
-          {/* CTA principal - rounded full */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-10 flex flex-col sm:flex-row items-center gap-3">
+          {/* CTA principal - único botão centralizado */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-10 flex justify-center w-full px-2 sm:px-0">
             <button
               onClick={() => scrollToSection('estates')}
-              className="group inline-flex items-center gap-3 rounded-full bg-brand-gold px-6 md:px-8 py-3.5 md:py-4 text-[12px] font-medium tracking-[0.18em] md:tracking-[0.2em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer"
-              aria-label="Falar com a corretora"
+              className="group inline-flex items-center justify-center gap-3 rounded-full bg-brand-gold px-5 sm:px-6 md:px-8 py-3.5 md:py-4 text-[10px] sm:text-[11px] md:text-[12px] font-medium tracking-[0.12em] sm:tracking-[0.15em] md:tracking-[0.18em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer text-center max-w-[92vw] sm:max-w-xl md:max-w-none"
+              aria-label={t('hero_cta')}
             >
-              <span className="md:hidden">falar com a corretora</span>
-              <span className="hidden md:inline">{t('hero_cta')}</span>
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
+              <span className="leading-[1.35] text-center whitespace-normal break-words">{t('hero_cta')}</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
                 <ArrowDown size={14} className="-rotate-90" aria-hidden="true" />
               </span>
-            </button>
-            <button
-              onClick={() => scrollToSection('about')}
-              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] backdrop-blur-xl px-6 py-4 text-[11px] tracking-[0.18em] uppercase text-brand-light/90 hover:bg-white/10 hover:border-white/25 transition-all duration-300 cursor-pointer"
-            >
-              Conheça a consultora
             </button>
           </motion.div>
 
@@ -350,15 +343,14 @@ export const HomePage: React.FC = () => {
       {/* SEO Content Section — duas colunas: esquerda Signature, direita texto */}
       <section className="py-12 md:py-16 bg-[#1a080f] border-y border-brand-light/5" aria-labelledby="seo-content-heading">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
-          {/* Coluna esquerda — efeito Signature (corrigido: fontUrl explícito + tamanho responsivo) */}
-          <div className="flex flex-col items-center justify-center text-center py-2 md:py-6 order-1 overflow-visible">
+          {/* Coluna esquerda — efeito Signature com leve inclinação manuscrita */}
+          <div className="flex flex-col items-center justify-center text-center py-2 md:py-6 order-1 overflow-visible rotate-[-10deg] origin-center">
             <div className="w-full max-w-[320px] md:max-w-[420px]">
-              <Signature text="Silvia Helena" fontSize={44} duration={1.5} delay={0.2} color="#D4A373" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto text-brand-gold overflow-visible" />
+              <Signature text="Silvia Helena" fontSize={44} duration={1.5} delay={0.2} color="#D4A373" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto text-brand-gold overflow-visible" loop loopPause={2.2} />
             </div>
             <div className="w-full max-w-[280px] md:max-w-[360px] -mt-2 md:-mt-1">
-              <Signature text="corretora de imóveis" fontSize={22} duration={1.4} delay={1.1} color="#F8F2EF" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto opacity-85 overflow-visible" />
+              <Signature text="corretora de imóveis" fontSize={22} duration={1.4} delay={1.1} color="#F8F2EF" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto opacity-85 overflow-visible" loop loopPause={2.2} />
             </div>
-            <p className="mt-4 text-[10px] tracking-[0.22em] text-brand-muted uppercase font-light">CRECI 125743 • Assinatura de confiança</p>
             {/* fallback caso fonte não carregue — garante que algo apareça */}
             <noscript>
               <p className="font-serif text-2xl text-brand-gold mt-2">Silvia Helena — corretora de imóveis</p>
@@ -576,8 +568,6 @@ export const HomePage: React.FC = () => {
               <li><Link to="/imoveis/butanta" className="hover:text-brand-gold">Corretora de imóveis no Butantã</Link></li>
               <li><Link to="/imoveis/taboao-da-serra" className="hover:text-brand-gold">Corretora de imóveis em Taboão da Serra</Link></li>
               <li><Link to="/imoveis/morumbi" className="hover:text-brand-gold">Corretora de imóveis no Morumbi</Link></li>
-              <li>{t('footer_angra')}</li>
-              <li>{t('footer_campinas')}</li>
             </ul>
           </div>
           <div className="space-y-3">
@@ -586,7 +576,6 @@ export const HomePage: React.FC = () => {
               <li>{t('footer_off_market_policy')}</li>
               <li>{t('footer_nda')}</li>
               <li>{t('footer_wealth_integration')}</li>
-              <li>{t('footer_ecology')}</li>
               <li>{t('footer_rights')}</li>
             </ul>
           </div>

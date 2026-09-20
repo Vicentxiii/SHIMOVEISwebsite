@@ -1,32 +1,22 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { motion } from "framer-motion";
-import * as opentypeImport from "opentype.js";
+import { motion } from "motion/react";
+import { parse as opentypeParse } from "opentype.js";
 import { cn } from "@/lib/utils";
 
-// Compatibilidade ESM/CJS para opentype.js
-const opentype: any = (opentypeImport as any).default || opentypeImport;
-
 interface SignatureProps {
-  /** Text to generate signature for */
   text?: string;
-  /** Color of the signature path */
   color?: string;
-  /** Font size of the signature */
   fontSize?: number;
-  /** Animation duration in seconds */
   duration?: number;
-  /** Delay before animation starts in seconds */
   delay?: number;
-  /** Additional CSS classes */
   className?: string;
-  /** Only animate when in view */
   inView?: boolean;
-  /** Only animate once */
   once?: boolean;
-  /** Custom font URL to load */
   fontUrl?: string;
+  loop?: boolean;
+  loopPause?: number;
 }
 
 export function Signature({
@@ -39,21 +29,26 @@ export function Signature({
   inView = false,
   once = true,
   fontUrl,
+  loop = false,
+  loopPause = 2.8,
 }: SignatureProps) {
   const [paths, setPaths] = useState<string[]>([]);
   const [width, setWidth] = useState<number>(300);
-  const height = fontSize * 3; // Give plenty of vertical space
+  const [animationKey, setAnimationKey] = useState(0);
+  const height = fontSize * 3;
   const horizontalPadding = fontSize * 0.1;
-  const topMargin = fontSize * 1.5; // Shift down
+  const topMargin = fontSize * 1.5;
   const baseline = topMargin;
-  const maskId = `signature-reveal-${useId().replace(/:/g, "")}`;
+  const maskId = `signature-reveal-${useId().replace(/:/g, "")}-${animationKey}`;
 
   useEffect(() => {
+    let cancelled = false;
+
     async function load() {
       try {
-        let font;
-        const fontPaths = fontUrl 
-          ? [fontUrl] 
+        let font: any = null;
+        const fontPaths = fontUrl
+          ? [fontUrl]
           : [
               "/LastoriaBoldRegular.otf",
               "./LastoriaBoldRegular.otf",
@@ -62,21 +57,17 @@ export function Signature({
 
         for (const path of fontPaths) {
           try {
-            font = await new Promise<any>((resolve, reject) => {
-              opentype.load(path as string, (err: any, loadedFont: any) => {
-                if (err) reject(err);
-                else resolve(loadedFont);
-              });
-            });
-            break;
-          } catch {
-            // Try next path
+            const res = await fetch(path);
+            if (!res.ok) throw new Error(`HTTP ${res.status} ao buscar ${path}`);
+            const buffer = await res.arrayBuffer();
+            font = opentypeParse(buffer);
+            if (font) break;
+          } catch (e) {
+            console.warn(`[Signature] falha ao carregar fonte em ${path}:`, e);
           }
         }
 
-        if (!font) {
-          throw new Error("Font could not be loaded from any path");
-        }
+        if (!font) throw new Error("Font could not be loaded from any path");
 
         let x = horizontalPadding;
         const newPaths: string[] = [];
@@ -85,31 +76,53 @@ export function Signature({
           const glyph = font.charToGlyph(char);
           const path = glyph.getPath(x, baseline, fontSize);
           newPaths.push(path.toPathData(3));
-
           const advanceWidth = glyph.advanceWidth ?? font.unitsPerEm;
           x += advanceWidth * (fontSize / font.unitsPerEm);
         }
 
-        setPaths(newPaths);
-        setWidth(x + horizontalPadding);
+        if (!cancelled) {
+          setPaths(newPaths);
+          setWidth(x + horizontalPadding);
+        }
       } catch (error) {
         console.error("Signature component font load error:", error);
-        setPaths([]);
-        setWidth(text.length * fontSize * 0.6);
+        if (!cancelled) {
+          setPaths([]);
+          setWidth(text.length * fontSize * 0.6);
+        }
       }
     }
 
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [text, fontSize, baseline, horizontalPadding, fontUrl]);
+
+  // Looping via remount: anima da primeira até a última letra, pausa, e repete
+  useEffect(() => {
+    if (!loop || paths.length === 0) return;
+    const stagger = 0.2;
+    const totalDuration = delay + Math.max(0, paths.length - 1) * stagger + duration;
+    const cycle = totalDuration + loopPause;
+    const id = setInterval(() => {
+      setAnimationKey((k) => k + 1);
+    }, cycle * 1000);
+    return () => clearInterval(id);
+  }, [loop, loopPause, paths.length, delay, duration]);
 
   const variants = {
     hidden: { pathLength: 0, opacity: 0 },
     visible: { pathLength: 1, opacity: 1 },
   };
 
+  // Traço mais fino: mask 0.14 (era 0.22) e stroke 1.15 (era 2)
+  const maskStrokeWidth = fontSize * 0.14;
+  const strokeWidth = 1.15;
+
   return (
     <motion.svg
-      key={paths.length}
+      key={loop ? animationKey : paths.length}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
@@ -118,16 +131,16 @@ export function Signature({
       initial="hidden"
       whileInView={inView ? "visible" : undefined}
       animate={inView ? undefined : "visible"}
-      viewport={{ once }}
+      viewport={{ once: loop ? false : once }}
     >
       <defs>
         <mask id={maskId} maskUnits="userSpaceOnUse">
           {paths.map((d, i) => (
             <motion.path
-              key={i}
+              key={`${i}-${animationKey}-mask`}
               d={d}
               stroke="white"
-              strokeWidth={fontSize * 0.22}
+              strokeWidth={maskStrokeWidth}
               fill="none"
               variants={variants}
               transition={{
@@ -151,10 +164,10 @@ export function Signature({
 
       {paths.map((d, i) => (
         <motion.path
-          key={i}
+          key={`${i}-${animationKey}-stroke`}
           d={d}
           stroke={color}
-          strokeWidth={2}
+          strokeWidth={strokeWidth}
           fill="none"
           variants={variants}
           transition={{
@@ -169,13 +182,15 @@ export function Signature({
             },
           }}
           vectorEffect="non-scaling-stroke"
-          strokeLinecap="butt"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
       ))}
 
       <g mask={`url(#${maskId})`}>
-        {paths.map((d, i) => <path key={i} d={d} fill={color} />)}
+        {paths.map((d, i) => (
+          <path key={`${i}-${animationKey}-fill`} d={d} fill={color} />
+        ))}
       </g>
     </motion.svg>
   );

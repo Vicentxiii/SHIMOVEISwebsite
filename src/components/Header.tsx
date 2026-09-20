@@ -121,22 +121,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, onOpenSearch, a
               <span className="font-serif text-sm md:text-base font-light uppercase tracking-[0.2em] text-brand-light transition-all duration-300 group-hover:text-brand-gold">
                 SILVIA HELENA
               </span>
-              <span className="text-[7px] md:text-[7.5px] font-mono tracking-[0.2em] text-brand-gold/60 mt-1 uppercase">
+              <span className="text-[7px] md:text-[7.5px] font-mono tracking-[0.2em] text-brand-gold mt-1 uppercase">
                 CRECISP 125743
-              </span>
-              <span 
-                className="text-[8px] md:text-[9px] font-light uppercase tracking-[0.3em] text-brand-muted mt-1 block leading-relaxed"
-                style={{ paddingLeft: '0px', marginRight: '25px', marginBottom: '8px' }}
-              >
-                {t('hero_badge').toLowerCase().includes('patrimônio imobiliário') ? (
-                  <>
-                    Patrimônio Imobiliário
-                    <br />
-                    Privado de Luxo
-                  </>
-                ) : (
-                  t('hero_badge')
-                )}
               </span>
             </div>
           </button>

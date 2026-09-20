@@ -16,7 +16,7 @@ export const ContactSection: React.FC = () => {
     email: '',
     phone: '',
     budget: 'R$ 5M - R$ 10M',
-    type: 'Luxury Mansion',
+    type: 'Quero comprar um imóvel',
     message: ''
   });
 
@@ -211,7 +211,7 @@ export const ContactSection: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Desired Estate Type */}
+                {/* Desired Estate Type — linguagem leiga e mastigada */}
                 <div className="space-y-1">
                   <label htmlFor="contact-type" className="text-[9px] tracking-widest text-brand-muted uppercase font-light">
                     {t('contact_form_type')}
@@ -220,13 +220,25 @@ export const ContactSection: React.FC = () => {
                     id="contact-type"
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-xs tracking-widest uppercase text-brand-light rounded-xl outline-none cursor-pointer font-light"
+                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm normal-case text-brand-light rounded-xl outline-none cursor-pointer font-light"
                   >
-                    <option value="Luxury Mansion">{t('contact_type_buy')}</option>
-                    <option value="Apartment">{t('contact_type_sell')}</option>
-                    <option value="Beach House">{t('contact_type_portfolio')}</option>
-                    <option value="Off Market">{t('contact_type_offmarket')}</option>
+                    <option value="Quero comprar um imóvel">{t('contact_type_buy')}</option>
+                    <option value="Quero vender meu imóvel">{t('contact_type_sell')}</option>
+                    <option value="Quero alugar ou colocar para alugar">{t('contact_type_portfolio')}</option>
+                    <option value="Ainda não achei o que procuro — quero ajuda para procurar">{t('contact_type_offmarket')}</option>
                   </select>
+                  <div className="bg-brand-gold/5 border border-brand-gold/10 rounded-lg px-3 py-2.5 space-y-1">
+                    <p className="text-[11px] text-brand-muted font-light leading-relaxed">
+                      <span className="text-brand-gold font-medium">Como escolher?</span> Toque na setinha e selecione o que mais parece com você:
+                    </p>
+                    <ul className="text-[11px] text-brand-muted/80 font-light leading-relaxed list-disc list-inside space-y-0.5 ml-1">
+                      <li><span className="text-brand-light">Quero comprar</span> — ex: 2 quartos no Butantã até R$ 600 mil</li>
+                      <li><span className="text-brand-light">Quero vender</span> — quero saber quanto vale e vender sem dor de cabeça</li>
+                      <li><span className="text-brand-light">Quero alugar</span> — tanto faz se você quer morar ou tem um imóvel para alugar</li>
+                      <li><span className="text-brand-light">Ainda não achei</span> — não viu no site? Eu procuro fora do anúncio também</li>
+                    </ul>
+                    <p className="text-[11px] text-brand-muted/60 font-light italic">Depois é só escrever do seu jeito na caixa abaixo.</p>
+                  </div>
                 </div>
 
                 {/* Message */}
