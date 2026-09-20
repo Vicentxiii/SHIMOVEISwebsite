@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import { motion } from 'motion/react';
 import { Star, Quote, ShieldCheck, BadgeCheck } from 'lucide-react';
 
 interface Review {
@@ -135,9 +136,26 @@ export const SocialProofTestimonials: React.FC = () => {
             <BadgeCheck size={12} aria-hidden="true" />
             Prova social • Avaliações verificadas
           </span>
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-[40px] text-brand-light font-light leading-tight mt-4">
-            Quem já comprou, vendeu e alugou com a Silvia Helena
-          </h2>
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className="font-serif text-3xl md:text-4xl lg:text-[40px] text-brand-light font-light leading-tight mt-4 flex flex-wrap justify-center overflow-visible"
+          >
+            {'Quem já comprou, vendeu e alugou com a Silvia Helena'.split(' ').map((word, i) => (
+              <motion.span
+                key={i}
+                variants={{
+                  hidden: { opacity: 0, x: -18, filter: 'blur(6px)' },
+                  visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+                }}
+                transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] as any }}
+                className="inline-block mr-[0.22em] will-change-transform"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h2>
           <p className="text-sm text-brand-muted font-light leading-relaxed mt-3 max-w-2xl mx-auto">
             Histórias reais nas 3 regiões onde mais atuo — <strong className="text-brand-light font-normal">Butantã, Morumbi e Taboão da Serra</strong>. Atendimento direto com a corretora, do primeiro contato à entrega das chaves.
           </p>

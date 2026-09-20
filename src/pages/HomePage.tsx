@@ -405,7 +405,26 @@ export const HomePage: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 border-b border-brand-light/5 pb-10">
             <div className="space-y-4">
               <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light block">{t('portfolio_badge')}</span>
-              <h2 className="font-serif text-3xl md:text-5xl text-brand-light font-light leading-tight tracking-tight">{t('portfolio_title')}</h2>
+              <motion.h2
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                className="font-serif text-3xl md:text-5xl text-brand-light font-light leading-tight tracking-tight flex flex-wrap overflow-visible"
+              >
+                {t('portfolio_title').split(' ').map((word: string, i: number) => (
+                  <motion.span
+                    key={i}
+                    variants={{
+                      hidden: { opacity: 0, x: -18, filter: 'blur(6px)' },
+                      visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+                    }}
+                    transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] as any }}
+                    className="inline-block mr-[0.22em] will-change-transform"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.h2>
             </div>
             <div>
               <p className="text-xs text-brand-muted max-w-sm font-light leading-relaxed tracking-wide">{t('portfolio_desc', [filteredProperties.length, properties.length])}</p>

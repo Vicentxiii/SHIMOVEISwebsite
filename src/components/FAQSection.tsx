@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export interface FAQItem {
@@ -57,9 +58,27 @@ export const FAQSection: React.FC = () => {
           <span className="inline-flex items-center gap-2 text-xs tracking-[0.3em] text-brand-gold uppercase font-light">
             <HelpCircle size={12} /> Perguntas Frequentes
           </span>
-          <h2 id="faq-heading" className="font-serif text-3xl md:text-4xl text-brand-light font-light mt-3">
-            Você tem dúvidas para vender, comprar ou alugar imóveis em São Paulo?
-          </h2>
+          <motion.h2
+            id="faq-heading"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className="font-serif text-3xl md:text-4xl text-brand-light font-light mt-3 flex flex-wrap justify-center overflow-visible"
+          >
+            {'Você tem dúvidas para vender, comprar ou alugar imóveis em São Paulo?'.split(' ').map((word, i) => (
+              <motion.span
+                key={i}
+                variants={{
+                  hidden: { opacity: 0, x: -18, filter: 'blur(6px)' },
+                  visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+                }}
+                transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] as any }}
+                className="inline-block mr-[0.22em] will-change-transform"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h2>
           <p className="text-sm text-brand-muted mt-3 font-light">
             Respostas curtas e diretas — do jeito que eu explicaria numa visita, e do jeito que Google e IAs gostam de citar.
           </p>

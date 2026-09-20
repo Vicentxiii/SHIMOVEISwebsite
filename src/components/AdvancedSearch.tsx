@@ -42,7 +42,7 @@ const initialFilters: FilterState = {
   isPetFriendly: false
 };
 
-// ——— Submenu elegante custom ———
+// ——— Submenu elegante custom com 20px radius no final ———
 const CustomSelect: React.FC<{
   value: string;
   onChange: (v: string) => void;
@@ -65,7 +65,7 @@ const CustomSelect: React.FC<{
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-between gap-3 bg-brand-bg border py-3 md:py-2.5 px-4 pr-3 text-[14px] md:text-xs tracking-wide normal-case rounded-xl outline-none cursor-pointer transition-colors ${
+        className={`w-full flex items-center justify-between gap-3 bg-brand-bg border py-3 md:py-2.5 px-4 pr-3 text-[14px] md:text-xs tracking-wide normal-case rounded-[20px] outline-none cursor-pointer transition-colors ${
           open ? 'border-brand-gold bg-brand-bg' : 'border-brand-light/10 hover:border-brand-gold/30'
         } ${isPlaceholder ? 'text-brand-muted' : 'text-brand-light'}`}
         aria-haspopup="listbox"
@@ -85,7 +85,6 @@ const CustomSelect: React.FC<{
             style={{ borderRadius: '12px 12px 20px 20px' }}
             role="listbox"
           >
-            {/* topo sutil */}
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-gold/15 to-transparent pointer-events-none" aria-hidden="true" />
             <div className="max-h-[260px] overflow-y-auto overscroll-contain py-1.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(212,163,115,0.3) transparent' }}>
               {options.map(opt => {
@@ -132,7 +131,7 @@ const MiniSelect: React.FC<{
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-center gap-1 bg-brand-bg border py-3 md:py-2.5 px-2 text-[14px] md:text-xs rounded-xl outline-none cursor-pointer transition-colors ${open ? 'border-brand-gold text-brand-gold' : 'border-brand-light/10 text-brand-light hover:border-brand-gold/30'}`}
+        className={`w-full flex items-center justify-center gap-1 bg-brand-bg border py-3 md:py-2.5 px-2 text-[14px] md:text-xs rounded-[20px] outline-none cursor-pointer transition-colors ${open ? 'border-brand-gold text-brand-gold' : 'border-brand-light/10 text-brand-light hover:border-brand-gold/30'}`}
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -178,7 +177,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-  // Tipos reais que existem no banco (português Sanity + traduzidos) — garante que o filtro funciona
   const propertyTypes: string[] = [
     'all',
     'Apartamento',
@@ -226,10 +224,10 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
 
   return (
     <div className="w-full bg-brand-bg relative z-20">
-      {/* Search Header Bar */}
-      <div className="border border-brand-light/10 p-4 md:p-6 bg-[#210c14] flex flex-col md:flex-row gap-4 justify-between items-center rounded-2xl hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
+      {/* Search Header Bar — 20px radius */}
+      <div className="border border-brand-light/10 p-4 md:p-6 bg-[#210c14] flex flex-col md:flex-row gap-4 justify-between items-center rounded-[20px] hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
         <div className="flex items-center gap-3 text-left w-full md:w-auto">
-          <div className="p-2.5 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold">
+          <div className="p-2.5 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold rounded-[10px]">
             <Search size={16} />
           </div>
           <div>
@@ -243,7 +241,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className={`flex items-center gap-2 px-5 py-2.5 text-xs font-light tracking-widest uppercase border rounded-xl transition-all duration-300 cursor-pointer ${
+            className={`flex items-center gap-2 px-5 py-2.5 text-xs font-light tracking-widest uppercase border rounded-[20px] transition-all duration-300 cursor-pointer ${
               isOpen || getActiveFilterCount() > 0
                 ? 'border-brand-gold bg-brand-gold/5 text-brand-gold'
                 : 'border-brand-light/15 hover:border-brand-light/30 text-brand-light'
@@ -261,7 +259,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
           {getActiveFilterCount() > 0 && (
             <button
               onClick={resetFilters}
-              className="p-2.5 border border-brand-light/10 hover:border-brand-gold hover:text-brand-gold text-brand-muted transition-colors duration-300 cursor-pointer rounded-xl"
+              className="p-2.5 border border-brand-light/10 hover:border-brand-gold hover:text-brand-gold text-brand-muted transition-colors duration-300 cursor-pointer rounded-[20px]"
               title="Reset all filters"
             >
               <RotateCcw size={14} />
@@ -270,7 +268,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
         </div>
       </div>
 
-      {/* Expandable Advanced Filters Drawer */}
+      {/* Expandable Advanced Filters Drawer — 20px radius no final */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -359,7 +357,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
 
             </div>
 
-            {/* Premium Features Row */}
+            {/* Premium Features Row — 20px no final */}
             <div className="px-6 md:px-8 pb-6 border-t border-brand-light/5 pt-4 rounded-b-[20px]">
               <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light mb-3">
                 {t('filter_features')}
@@ -370,7 +368,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                     type="checkbox"
                     checked={filters.hasSwimmingPool}
                     onChange={(e) => updateFilter('hasSwimmingPool', e.target.checked)}
-                    className="rounded-none border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
+                    className="rounded-[4px] border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_swimming')}</span>
                 </label>
@@ -379,7 +377,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                     type="checkbox"
                     checked={filters.hasGarden}
                     onChange={(e) => updateFilter('hasGarden', e.target.checked)}
-                    className="rounded-none border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
+                    className="rounded-[4px] border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_garden')}</span>
                 </label>
@@ -388,7 +386,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                     type="checkbox"
                     checked={filters.hasOceanView}
                     onChange={(e) => updateFilter('hasOceanView', e.target.checked)}
-                    className="rounded-none border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
+                    className="rounded-[4px] border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_ocean')}</span>
                 </label>
@@ -397,25 +395,25 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                     type="checkbox"
                     checked={filters.isPetFriendly}
                     onChange={(e) => updateFilter('isPetFriendly', e.target.checked)}
-                    className="rounded-none border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
+                    className="rounded-[4px] border-brand-light/20 text-brand-gold bg-brand-bg focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer accent-brand-gold"
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_pet')}</span>
                 </label>
               </div>
             </div>
 
-            {/* Botão Buscar */}
+            {/* Botão Buscar — 20px */}
             <div className="px-6 md:px-8 pb-6 pt-2 flex flex-col sm:flex-row gap-3 bg-[#1a080f]/90 rounded-b-[20px]">
               <button
                 onClick={handleBuscar}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90 active:bg-brand-gold/80 text-brand-bg px-6 py-4 rounded-xl text-[13px] font-semibold uppercase tracking-[0.18em] transition-colors shadow-[0_4px_20px_rgba(212,163,115,0.25)] cursor-pointer"
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90 active:bg-brand-gold/80 text-brand-bg px-6 py-4 rounded-[20px] text-[13px] font-semibold uppercase tracking-[0.18em] transition-colors shadow-[0_4px_20px_rgba(212,163,115,0.25)] cursor-pointer"
               >
                 <Search size={16} aria-hidden="true" />
                 Buscar
               </button>
               <button
                 onClick={() => { resetFilters(); setIsOpen(false); }}
-                className="sm:w-auto w-full inline-flex items-center justify-center gap-2 border border-brand-light/15 hover:border-brand-light/30 text-brand-muted hover:text-brand-light px-6 py-4 rounded-xl text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                className="sm:w-auto w-full inline-flex items-center justify-center gap-2 border border-brand-light/15 hover:border-brand-light/30 text-brand-muted hover:text-brand-light px-6 py-4 rounded-[20px] text-xs uppercase tracking-widest transition-colors cursor-pointer"
               >
                 <RotateCcw size={14} aria-hidden="true" />
                 Limpar

@@ -51,7 +51,7 @@ export const FilterSearchModal: React.FC<FilterSearchModalProps> = ({ isOpen, on
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.96, y: 16, opacity: 0 }}
             transition={{ type: 'spring', damping: 26, stiffness: 340 }}
-            className="relative w-full max-w-[880px] max-h-[90vh] overflow-hidden rounded-[28px] border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)]"
+            className="relative w-full max-w-[880px] max-h-[90vh] overflow-hidden rounded-[20px] border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.08)]"
             style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%), rgba(23,6,13,0.88)',
               backdropFilter: 'blur(24px)',

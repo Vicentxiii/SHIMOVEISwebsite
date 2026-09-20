@@ -33,9 +33,26 @@ export const LifestyleSection: React.FC = () => {
             <Feather size={12} />
             <span>{t('life_badge')}</span>
           </div>
-          <h2 className="font-serif text-3xl md:text-5xl text-brand-light font-light leading-tight tracking-tight">
-            {t('life_title')}
-          </h2>
+          <motion.h2
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            className="font-serif text-3xl md:text-5xl text-brand-light font-light leading-tight tracking-tight flex flex-wrap overflow-visible"
+          >
+            {t('life_title').split(' ').map((word: string, i: number) => (
+              <motion.span
+                key={i}
+                variants={{
+                  hidden: { opacity: 0, x: -18, filter: 'blur(6px)' },
+                  visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+                }}
+                transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] as any }}
+                className="inline-block mr-[0.22em] will-change-transform"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h2>
         </div>
 
         {/* Dynamic Presentation Layout */}

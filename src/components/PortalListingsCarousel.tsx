@@ -201,9 +201,26 @@ export const PortalListingsCarousel: React.FC = () => {
             <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light block">
               Disponibilidade em Tempo Real
             </span>
-            <h2 className="font-serif text-3xl md:text-4xl text-brand-light font-light leading-tight tracking-tight">
-              Ativos nos Portais
-            </h2>
+            <motion.h2
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.4 }}
+              className="font-serif text-3xl md:text-4xl text-brand-light font-light leading-tight tracking-tight flex flex-wrap overflow-visible"
+            >
+              {'Ativos nos Portais'.split(' ').map((word, i) => (
+                <motion.span
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, x: -18, filter: 'blur(6px)' },
+                    visible: { opacity: 1, x: 0, filter: 'blur(0px)' },
+                  }}
+                  transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] as any }}
+                  className="inline-block mr-[0.22em] will-change-transform"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </motion.h2>
             <p className="text-xs text-brand-muted max-w-2xl font-light leading-relaxed tracking-wide">
               Explore uma seleção curada de nossas propriedades exclusivas com anúncios ativos nos principais canais de luxo nacionais. Selecione para visualizar detalhes oficiais e agendar assessoria.
             </p>
