@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, ArrowDown, MapPin, Sparkles, Compass, ShieldCheck, ArrowUp } from 'lucide-react';
+import { ChevronRight, ArrowDown, MapPin, Sparkles, Compass, ShieldCheck, ArrowUp, X, Crown, MessageCircle } from 'lucide-react';
 import { Property } from '../types';
 import { Header } from '../components/Header';
 import { AboutSection } from '../components/AboutSection';
@@ -35,6 +35,7 @@ export const HomePage: React.FC = () => {
   const [showNoResultsModal, setShowNoResultsModal] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [filterHasNoResults, setFilterHasNoResults] = useState(false);
+  const [showVIPModal, setShowVIPModal] = useState(false);
   const { favorites } = useFavorites();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -365,7 +366,30 @@ export const HomePage: React.FC = () => {
           </div>
           {/* Coluna direita — texto */}
           <div className="order-2">
-            <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa achar alguém de confiança para comprar, vender ou alugar seu imóvel? Eu cuido de tudo</h2>
+            <motion.h2
+              id="seo-content-heading"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.4 }}
+              className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6 leading-tight overflow-visible"
+            >
+              {"Precisa achar alguém de confiança para comprar, vender ou alugar seu imóvel? Eu cuido de tudo".split(" ").map((word, i) => (
+                <motion.span
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, x: -18, filter: "blur(6px)" },
+                    visible: { opacity: 1, x: 0, filter: "blur(0px)" },
+                  }}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.035, duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+                  className="inline-block mr-[0.22em] will-change-transform"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </motion.h2>
             <div className="space-y-4 text-sm text-brand-muted font-light leading-relaxed">
               <p>
                 Sou a <strong className="text-brand-light">Silvia Helena, CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
@@ -416,15 +440,81 @@ export const HomePage: React.FC = () => {
               ))}
             </div>
           )}
-          <div className="mt-20 border border-brand-gold/20 p-8 text-center max-w-3xl mx-auto space-y-4 bg-brand-gold/[0.01]">
-            <span className="bg-brand-gold/10 text-brand-gold border border-brand-gold/20 text-[9px] px-3 py-1 font-light tracking-widest uppercase">{t('portfolio_unlisted_badge')}</span>
+          <div className="mt-20 border border-brand-gold/20 p-8 text-center max-w-3xl mx-auto space-y-4 bg-brand-gold/[0.01] rounded-[20px]">
+            <span className="bg-brand-gold/10 text-brand-gold border border-brand-gold/20 text-[9px] px-3 py-1 font-light tracking-widest uppercase rounded-full">{t('portfolio_unlisted_badge')}</span>
             <h3 className="font-serif text-xl text-brand-light font-light tracking-wide">{t('portfolio_unlisted_title')}</h3>
             <p className="text-xs text-brand-muted leading-relaxed font-light max-w-xl mx-auto">{t('portfolio_unlisted_desc')}</p>
+            <button
+              onClick={() => setShowVIPModal(true)}
+              className="group inline-flex items-center gap-2 bg-brand-gold hover:bg-[#e0b48a] text-brand-bg px-6 py-3 rounded-full text-xs font-semibold uppercase tracking-[0.16em] shadow-[0_8px_24px_rgba(212,163,115,0.35)] hover:shadow-[0_10px_28px_rgba(212,163,115,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer mt-2"
+            >
+              <Sparkles size={12} aria-hidden="true" />
+              Lista de clientes VIP
+            </button>
           </div>
         </div>
       </section>
 
       <NoResultsModal isOpen={showNoResultsModal} onClose={() => setShowNoResultsModal(false)} />
+
+      {/* Modal Lista VIP — elegante e chique */}
+      <AnimatePresence>
+        {showVIPModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[70] flex items-center justify-center p-4 md:p-6"
+            aria-modal="true"
+            role="dialog"
+            aria-labelledby="vip-modal-title"
+          >
+            <div className="absolute inset-0 bg-[#0a0206]/70 backdrop-blur-[10px]" onClick={() => setShowVIPModal(false)} aria-hidden="true" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-brand-gold/10 blur-[90px] rounded-full pointer-events-none" aria-hidden="true" />
+            <motion.div
+              initial={{ scale: 0.96, y: 12, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.96, y: 12, opacity: 0 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              className="relative w-full max-w-[520px] bg-[#1d0a12] border border-brand-gold/20 rounded-[24px] shadow-[0_24px_64px_rgba(0,0,0,0.55)] overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" aria-hidden="true" />
+              <button
+                onClick={() => setShowVIPModal(false)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/10 border border-white/10 text-brand-muted hover:text-brand-light flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Fechar"
+              >
+                <X size={14} />
+              </button>
+              <div className="p-7 md:p-8 text-center">
+                <div className="mx-auto w-12 h-12 rounded-full bg-brand-gold/15 border border-brand-gold/20 flex items-center justify-center mb-4">
+                  <Crown size={20} className="text-brand-gold" aria-hidden="true" />
+                </div>
+                <span className="inline-flex items-center gap-1.5 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[10px] tracking-[0.18em] uppercase px-3 py-1 rounded-full">
+                  <Sparkles size={10} aria-hidden="true" /> Acesso antecipado
+                </span>
+                <h3 id="vip-modal-title" className="font-serif text-2xl text-brand-light font-light mt-4">Lista de clientes VIP</h3>
+                <p className="text-sm text-brand-muted font-light leading-relaxed mt-3">
+                  Uma seleção exclusiva da Silvia Helena para quem quer prioridade. Clientes VIP recebem <strong className="text-brand-light font-medium">antes de todo mundo</strong> as oportunidades off-market, pré-lançamentos e imóveis que nem chegam ao portal.
+                </p>
+                <p className="text-sm text-brand-muted font-light leading-relaxed mt-3">
+                  Atendimento direto com a corretora, sem intermediários, com prioridade no agendamento e condições especiais. Todos os dias entram imóveis novos e os melhores saem primeiro para a lista VIP.
+                </p>
+                <a
+                  href={`https://wa.me/5511940840966?text=${encodeURIComponent('olá, quero entrar na lista VIP de clientes')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-brand-gold hover:bg-[#e0b48a] text-brand-bg px-6 py-4 rounded-full text-xs font-semibold uppercase tracking-[0.16em] shadow-[0_8px_28px_rgba(212,163,115,0.35)] hover:shadow-[0_10px_32px_rgba(212,163,115,0.45)] transition-all duration-300 cursor-pointer"
+                >
+                  <MessageCircle size={16} aria-hidden="true" />
+                  Entrar na lista VIP no WhatsApp
+                </a>
+                <p className="mt-3 text-[11px] text-brand-muted/60 font-light">Resposta em até 2h • Sem spam, só oportunidades reais</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <PortalListingsCarousel />
       <LifestyleSection />

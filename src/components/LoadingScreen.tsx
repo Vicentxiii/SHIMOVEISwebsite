@@ -5,7 +5,7 @@ import { Home, Key, Building2, Compass } from 'lucide-react';
 const phrases = [
   'Seu sonho tem endereço.',
   'Onde a vida acontece.',
-  'Mais que um lar. Um começo com sua corretora.',
+  'O próximo capítulo da sua história.',
   'Encontre. Sinta. More.',
   'O lar que você já imaginava.',
 ];
@@ -15,13 +15,7 @@ const icons = [Home, Key, Building2, Compass];
 const STORAGE_KEY = 'sh_preloader_shown';
 
 export const LoadingScreen: React.FC = () => {
-  const [visible, setVisible] = useState(() => {
-    // Só mostra uma vez por sessão - navegar entre abas não repete (evita XP cansativa)
-    if (typeof window !== 'undefined' && sessionStorage.getItem(STORAGE_KEY) === 'true') {
-      return false;
-    }
-    return true;
-  });
+  const [visible, setVisible] = useState(true);
   const [progress, setProgress] = useState(0);
   const startTime = useRef(Date.now());
   const [IconComponent] = useState(() => icons[Math.floor(Math.random() * icons.length)]);
@@ -29,8 +23,6 @@ export const LoadingScreen: React.FC = () => {
 
   useEffect(() => {
     if (!visible) return;
-    // marca como já exibido nesta sessão antes de iniciar timers
-    sessionStorage.setItem(STORAGE_KEY, 'true');
     startTime.current = Date.now();
     const duration = 8000;
     const interval = setInterval(() => {
