@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { X, Heart, MapPin, Grid, Compass, Award, Shield, Calendar, ArrowRight, Check } from 'lucide-react';
+import { X, Heart, MapPin, Grid, Compass, Award, Shield, ShieldCheck, Calendar, ArrowRight, Check, Bed, Bath, Car, Maximize2 } from 'lucide-react';
 import { Property } from '../types';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage } from './LanguageContext';
@@ -20,7 +20,7 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
   const { t } = useLanguage();
   const [activeImage, setActiveImage] = useState(property.gallery[0]);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: `I would like to schedule a private consultation regarding ${property.title}.` });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: `Olá Silvia Helena, tenho interesse neste imóvel (ID: ${property.id}) e gostaria de agendar uma visita ou receber mais informações.` });
 
   const fav = isFavorite(property.id);
 
@@ -108,14 +108,14 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
             ))}
           </div>
 
-          {/* Interactive Map Section Placeholder */}
+          {/* Localização — copy de autoridade PT-BR */}
           <div className="border border-brand-light/10 p-6 md:p-8 space-y-4 rounded-2xl hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
             <div className="flex items-center gap-2">
               <Compass className="text-brand-gold" size={16} />
-              <h4 className="font-serif text-lg text-brand-light font-light">{t('footer_territories')}</h4>
+              <h4 className="font-serif text-lg text-brand-light font-light">Localização</h4>
             </div>
             <p className="text-xs text-brand-muted leading-relaxed font-light">
-              This space resides within a highly secured, high-value district in {property.location}. To preserve the absolute safety and confidentiality of the resident portfolio, precise coordinate markers are kept behind our private ledger.
+              Imóvel selecionado e verificado pela nossa equipe. Garantia de segurança jurídica e confidencialidade em todo o processo de negociação.
             </p>
             {/* Visual Abstract Luxury Map Art */}
             <div className="relative h-48 rounded-xl bg-[#1f0912] border border-brand-light/5 flex items-center justify-center overflow-hidden">
@@ -133,11 +133,11 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
                 <circle cx="300" cy="120" r="15" className="text-brand-gold/10 fill-brand-gold/10" />
                 <circle cx="300" cy="120" r="4" className="fill-brand-gold text-brand-gold" />
               </svg>
-              <div className="relative text-center p-4 bg-brand-bg/90 backdrop-blur-md border border-brand-light/10">
-                <p className="text-[10px] tracking-widest text-brand-gold uppercase font-light">PORTFOLIO SECURED AREA</p>
+              <div className="relative text-center p-4 bg-brand-bg/90 backdrop-blur-md border border-brand-light/10 rounded-xl">
+                <p className="text-[10px] tracking-[0.18em] text-brand-gold uppercase font-light">LOCALIZAÇÃO APROXIMADA</p>
                 <p className="text-xs text-brand-muted mt-1 font-light flex items-center justify-center gap-1">
-                  <MapPin size={10} />
-                  <span>Exclusive enclave, {property.location}</span>
+                  <MapPin size={10} className="text-brand-gold" aria-hidden="true" />
+                  <span>{property.location}</span>
                 </p>
               </div>
             </div>
@@ -147,10 +147,10 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
         {/* Right Area: Editorial Metadata & Private Booking Form */}
         <div className="lg:col-span-5 flex flex-col space-y-10">
           
-          {/* Header Typography */}
+          {/* Header Typography — PT-BR */}
           <div className="space-y-4">
             <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light">
-              {property.type} PRESENTATION
+              APRESENTAÇÃO DO IMÓVEL
             </span>
             <h2 className="font-serif text-3xl md:text-4xl text-brand-light font-light leading-tight tracking-tight">
               {property.title}
@@ -159,16 +159,17 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
               <MapPin size={12} className="text-brand-gold" />
               <span>{property.location}</span>
             </div>
+            <p className="text-[10px] tracking-widest text-brand-muted uppercase font-light">Cód: {property.id}</p>
           </div>
 
-          {/* Primary Financial Indicator & Size */}
+          {/* Primary Financial Indicator & Size — PT-BR */}
           <div className="grid grid-cols-2 gap-4 border-y border-brand-light/10 py-6">
             <div>
-              <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">ADVISORY PRICE</p>
+              <p className="text-[9px] tracking-[0.2em] text-brand-muted uppercase font-light">VALOR DO IMÓVEL</p>
               <p className="font-serif text-2xl text-brand-gold font-light mt-1">{property.formattedPrice}</p>
             </div>
             <div className="border-l border-brand-light/10 pl-6">
-              <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">{t('details_area')}</p>
+              <p className="text-[9px] tracking-[0.2em] text-brand-muted uppercase font-light">ÁREA PRIVATIVA</p>
               <p className="font-serif text-2xl text-brand-light font-light mt-1">{property.area}</p>
             </div>
           </div>
@@ -178,61 +179,61 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
             <p>{property.description}</p>
           </div>
 
-          {/* Structural Details (Architect, Year Built, Features) */}
-          <div className="space-y-4 bg-brand-light/[0.02] border border-brand-light/5 p-6 rounded-2xl hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
-            <h4 className="font-serif text-sm text-brand-light uppercase tracking-widest font-medium border-b border-brand-light/5 pb-3">
-              {t('details_features_title')}
+          {/* Características unificadas — lista limpa com ícones sutis */}
+          <div className="bg-brand-light/[0.02] border border-brand-light/5 rounded-2xl p-5 md:p-6 space-y-4 hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
+            <h4 className="font-serif text-sm tracking-[0.16em] uppercase text-brand-light font-medium border-b border-brand-light/5 pb-3">
+              O QUE A CORRETORA DESTACA AQUI
             </h4>
-            <div className="grid grid-cols-1 gap-3 text-xs tracking-wide">
-              {property.architect && (
-                <div className="flex justify-between items-center text-brand-muted">
-                  <span className="font-light">{t('details_architect')}:</span>
-                  <span className="text-brand-light font-medium">{property.architect}</span>
-                </div>
-              )}
-              {property.yearBuilt && (
-                <div className="flex justify-between items-center text-brand-muted">
-                  <span className="font-light">{t('details_year')}:</span>
-                  <span className="text-brand-light font-medium">{property.yearBuilt}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center text-brand-muted">
-                <span className="font-light">{t('details_beds')}:</span>
-                <span className="text-brand-light font-medium">{property.bedrooms} {t('details_beds')}</span>
+            <ul className="grid grid-cols-2 gap-3 text-xs" aria-label="Características do imóvel">
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <Bed size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Quartos</span>
+                <span className="ml-auto text-brand-light font-semibold">{property.bedrooms}</span>
+              </li>
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <Bath size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Banheiros</span>
+                <span className="ml-auto text-brand-light font-semibold">{property.bathrooms}</span>
+              </li>
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <Car size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Vagas</span>
+                <span className="ml-auto text-brand-light font-semibold">{property.garage}</span>
+              </li>
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <Maximize2 size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Área</span>
+                <span className="ml-auto text-brand-light font-semibold">{property.area}</span>
+              </li>
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <Award size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Tipo</span>
+                <span className="ml-auto text-brand-light font-semibold truncate">{property.type}</span>
+              </li>
+              <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                <ShieldCheck size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                <span className="text-brand-muted">Finalidade</span>
+                <span className="ml-auto text-brand-light font-semibold">{(property as any).finalidade || 'Venda'}</span>
+              </li>
+            </ul>
+            {(property.architect || property.yearBuilt) && (
+              <div className="pt-3 border-t border-brand-light/5 text-xs text-brand-muted space-y-1">
+                {property.architect && <p>Arquiteto: <span className="text-brand-light font-medium">{property.architect}</span></p>}
+                {property.yearBuilt && <p>Ano: <span className="text-brand-light font-medium">{property.yearBuilt}</span></p>}
               </div>
-              <div className="flex justify-between items-center text-brand-muted">
-                <span className="font-light">{t('details_garages')}:</span>
-                <span className="text-brand-light font-medium">{property.garage} {t('details_garages')}</span>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* Luxury Tags / Exclusive Amenities */}
-          <div className="space-y-3">
-            <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">{t('details_features_title')}</p>
-            <div className="flex flex-wrap gap-2">
-              {property.features.map((feature, idx) => (
-                <span
-                  key={idx}
-                  className="bg-brand-light/[0.04] text-[10px] text-brand-light font-light tracking-widest px-3 py-1.5 border border-brand-light/5 rounded-xl uppercase flex items-center gap-1.5"
-                >
-                  <span className="w-1 h-1 bg-brand-gold rounded-full" />
-                  <span>{feature}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Secure Private Consultation Lead Generation form */}
+          {/* Formulário — PT-BR, corrigido */}
           <div className="border border-brand-gold/25 p-6 md:p-8 space-y-6 bg-brand-gold/[0.01] rounded-2xl hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
             <div className="space-y-2">
               <span className="flex items-center gap-2 text-xs text-brand-gold tracking-widest uppercase font-light">
-                <Shield size={12} />
-                <span>{t('fav_channel_secured')}</span>
+                <Shield size={12} aria-hidden="true" />
+                <span>Canal protegido por NDA</span>
               </span>
-              <h4 className="font-serif text-xl text-brand-light font-light">{t('details_contact_inquiry')}</h4>
+              <h4 className="font-serif text-xl text-brand-light font-light leading-tight">Fale com a Silvia sobre este imóvel</h4>
               <p className="text-xs text-brand-muted font-light leading-relaxed">
-                {t('contact_subtitle')}
+                Quer comprar, vender ou tirar dúvidas? Envie sua mensagem. Retorno em até 2 horas.
               </p>
             </div>
 
@@ -251,64 +252,69 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({ proper
                 </p>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                 <div>
-                  <label htmlFor="modal-name" className="sr-only">{t('contact_form_name')}</label>
+                  <label htmlFor="modal-name" className="sr-only">Seu nome</label>
                   <input
                     type="text"
                     id="modal-name"
                     required
-                    placeholder={t('details_contact_placeholder')}
+                    placeholder="Seu nome"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all duration-300 font-light"
+                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all duration-300"
+                    autoComplete="name"
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="modal-email" className="sr-only">{t('contact_form_email')}</label>
+                    <label htmlFor="modal-email" className="sr-only">Seu melhor e-mail</label>
                     <input
                       type="email"
                       id="modal-email"
                       required
-                      placeholder={t('contact_form_email').toUpperCase()}
+                      placeholder="Seu melhor e-mail"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all duration-300 font-light"
+                      className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all duration-300"
+                      autoComplete="email"
                     />
                   </div>
                   <div>
-                    <label htmlFor="modal-phone" className="sr-only">{t('contact_form_phone')}</label>
+                    <label htmlFor="modal-phone" className="sr-only">WhatsApp com DDD</label>
                     <input
-                      type="text"
+                      type="tel"
                       id="modal-phone"
                       required
-                      placeholder={t('contact_form_phone').toUpperCase()}
+                      placeholder="WhatsApp com DDD"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all duration-300 font-light"
+                      className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all duration-300"
+                      autoComplete="tel"
+                      inputMode="tel"
                     />
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="modal-msg" className="sr-only">{t('contact_form_notes')}</label>
+                  <label htmlFor="modal-msg" className="sr-only">Mensagem</label>
                   <textarea
                     id="modal-msg"
-                    rows={3}
-                    placeholder={t('details_message_placeholder')}
+                    rows={4}
+                    placeholder={`Olá Silvia Helena, tenho interesse neste imóvel (ID: ${property.id}) e gostaria de agendar uma visita ou receber mais informações.`}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 p-4 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all duration-300 font-light resize-none"
+                    className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 p-4 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all duration-300 resize-none leading-relaxed"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-3 text-xs font-light uppercase tracking-[0.25em] rounded-xl transition-all duration-500 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-4 text-xs font-semibold uppercase tracking-[0.18em] rounded-xl transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-[0_4px_16px_rgba(212,163,115,0.25)]"
                 >
-                  <span>{t('details_contact_inquiry')}</span>
-                  <ArrowRight size={12} />
+                  <span>QUERO RECEBER DETALHES POR WHATSAPP</span>
+                  <ArrowRight size={14} aria-hidden="true" />
                 </button>
+                <p className="text-[10px] text-brand-muted text-center leading-relaxed">Resposta em até 2 horas • Canal protegido por NDA.</p>
               </form>
             )}
           </div>

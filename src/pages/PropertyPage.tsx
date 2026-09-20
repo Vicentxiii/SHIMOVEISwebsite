@@ -143,7 +143,7 @@ export const PropertyPage: React.FC = () => {
     ],
   };
 
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: `Tenho interesse no ${property.title} em ${property.location} (${property.formattedPrice}). Gostaria de agendar visita.` });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: `Olá Silvia Helena, tenho interesse neste imóvel (ID: ${property.id} • ${slug}) e gostaria de agendar uma visita ou receber mais informações.` });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,12 +180,13 @@ export const PropertyPage: React.FC = () => {
           {/* Left: Gallery */}
           <div className="lg:col-span-7 space-y-6">
             <div className="space-y-2">
-              <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light">{property.type} • {property.location}</span>
+              <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light">APRESENTAÇÃO DO IMÓVEL • {property.location}</span>
               <h1 className="font-serif text-3xl md:text-4xl text-brand-light font-light leading-tight">{property.title} em {regionName}</h1>
               <div className="flex items-center gap-2 text-xs text-brand-muted">
                 <MapPin size={12} className="text-brand-gold" aria-hidden="true" />
                 <span>{property.location}</span>
               </div>
+              <p className="text-[10px] tracking-widest text-brand-muted uppercase font-light">Cód: {property.id} • {slug}</p>
             </div>
 
             <div className="relative aspect-[16/10] overflow-hidden rounded-2xl bg-brand-bg border border-brand-light/5">
@@ -212,40 +213,77 @@ export const PropertyPage: React.FC = () => {
               ))}
             </div>
 
-            {/* Detalhes */}
+            {/* Detalhes — idioma corrigido */}
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 border-y border-brand-light/10 py-6">
                 <div>
-                  <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">Preço para comprar</p>
+                  <p className="text-[9px] tracking-[0.2em] text-brand-muted uppercase font-light">VALOR DO IMÓVEL</p>
                   <p className="font-serif text-2xl text-brand-gold font-light mt-1">{property.formattedPrice}</p>
                 </div>
                 <div className="border-l border-brand-light/10 pl-6">
-                  <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">Área privativa</p>
+                  <p className="text-[9px] tracking-[0.2em] text-brand-muted uppercase font-light">ÁREA PRIVATIVA</p>
                   <p className="font-serif text-2xl text-brand-light font-light mt-1">{property.area}</p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4 text-xs text-brand-muted">
-                {property.bedrooms > 0 && <span className="inline-flex items-center gap-1.5 bg-brand-light/[0.04] border border-brand-light/5 px-3 py-1.5"><Bed size={12} className="text-brand-gold" aria-hidden="true" /><span className="text-brand-light font-medium">{property.bedrooms}</span> quartos</span>}
-                {property.bathrooms > 0 && <span className="inline-flex items-center gap-1.5 bg-brand-light/[0.04] border border-brand-light/5 px-3 py-1.5"><Bath size={12} className="text-brand-gold" aria-hidden="true" /><span className="text-brand-light font-medium">{property.bathrooms}</span> banheiros</span>}
-                {property.garage > 0 && <span className="inline-flex items-center gap-1.5 bg-brand-light/[0.04] border border-brand-light/5 px-3 py-1.5"><Car size={12} className="text-brand-gold" aria-hidden="true" /><span className="text-brand-light font-medium">{property.garage}</span> vagas</span>}
-                <span className="inline-flex items-center gap-1.5 bg-brand-light/[0.04] border border-brand-light/5 px-3 py-1.5"><Maximize2 size={12} className="text-brand-gold" aria-hidden="true" />{property.area}</span>
-                {property.yearBuilt && <span className="inline-flex items-center gap-1.5 bg-brand-light/[0.04] border border-brand-light/5 px-3 py-1.5"><Calendar size={12} className="text-brand-gold" aria-hidden="true" />{property.yearBuilt}</span>}
+              {/* Lista unificada — O QUE A CORRETORA DESTACA AQUI — evita repetição visual */}
+              <div className="bg-brand-light/[0.02] border border-brand-light/5 rounded-2xl p-5 md:p-6 space-y-4">
+                <h2 className="font-serif text-sm tracking-[0.18em] uppercase text-brand-light font-medium">O QUE A CORRETORA DESTACA AQUI</h2>
+                <ul className="grid grid-cols-2 md:grid-cols-3 gap-3 text-xs" aria-label="Características do imóvel">
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <Bed size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Quartos</span>
+                    <span className="ml-auto text-brand-light font-semibold">{property.bedrooms}</span>
+                  </li>
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <Bath size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Banheiros</span>
+                    <span className="ml-auto text-brand-light font-semibold">{property.bathrooms}</span>
+                  </li>
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <Car size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Vagas</span>
+                    <span className="ml-auto text-brand-light font-semibold">{property.garage}</span>
+                  </li>
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <Maximize2 size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Área</span>
+                    <span className="ml-auto text-brand-light font-semibold">{property.area}</span>
+                  </li>
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <Award size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Tipo</span>
+                    <span className="ml-auto text-brand-light font-semibold truncate">{property.type}</span>
+                  </li>
+                  <li className="flex items-center gap-2 bg-brand-bg/40 border border-brand-light/5 rounded-xl px-3 py-2.5">
+                    <ShieldCheck size={14} className="text-brand-gold shrink-0" aria-hidden="true" />
+                    <span className="text-brand-muted">Finalidade</span>
+                    <span className="ml-auto text-brand-light font-semibold">{(property as any).finalidade || 'Venda'}</span>
+                  </li>
+                </ul>
+                {property.yearBuilt && (
+                  <p className="text-xs text-brand-muted flex items-center gap-1.5"><Calendar size={12} className="text-brand-gold" aria-hidden="true" /> Ano: <span className="text-brand-light">{property.yearBuilt}</span></p>
+                )}
               </div>
 
               <div>
-                <h2 className="font-serif text-xl text-brand-light font-light mb-3">Sobre este corretora de imóveis com corretora de imóveis em {regionName}</h2>
+                <h2 className="font-serif text-xl text-brand-light font-light mb-3">Sobre este imóvel em {regionName}</h2>
                 <p className="text-sm text-brand-muted leading-relaxed font-light">{property.description} Ideal para quem busca comprar com segurança ou investir para alugar em {regionName}, São Paulo, com suporte completo da Silvia Helena (CRECISP 125743).</p>
                 {property.architect && <p className="text-xs text-brand-muted mt-3">Arquiteto: <span className="text-brand-light">{property.architect}</span></p>}
                 <p className="text-xs text-brand-gold mt-2 italic">{property.tagline}</p>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {property.features.map((f, i) => (
-                  <span key={i} className="bg-brand-light/[0.04] text-[10px] text-brand-light tracking-widest px-3 py-1.5 border border-brand-light/5 rounded-xl uppercase inline-flex items-center gap-1.5">
-                    <span className="w-1 h-1 bg-brand-gold rounded-full" aria-hidden="true" />{f}
-                  </span>
-                ))}
+              {/* Localização — copy de autoridade em PT-BR */}
+              <div className="border border-brand-light/10 rounded-2xl p-5 md:p-6 bg-[#1a080f]/40 space-y-3">
+                <h3 className="font-serif text-sm tracking-[0.16em] uppercase text-brand-light flex items-center gap-2"><MapPin size={14} className="text-brand-gold" aria-hidden="true" /> Localização</h3>
+                <p className="text-xs text-brand-muted leading-relaxed font-light">Imóvel selecionado e verificado pela nossa equipe. Garantia de segurança jurídica e confidencialidade em todo o processo de negociação.</p>
+                <div className="relative h-36 rounded-xl bg-[#1f0912] border border-brand-light/5 flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(212,163,115,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,163,115,0.5) 1px, transparent 1px)`, backgroundSize: '30px 30px' }} aria-hidden="true" />
+                  <div className="relative text-center p-3 bg-brand-bg/90 backdrop-blur-md border border-brand-light/10 rounded-xl">
+                    <p className="text-[10px] tracking-[0.18em] text-brand-gold uppercase font-light">LOCALIZAÇÃO APROXIMADA</p>
+                    <p className="text-xs text-brand-muted mt-1 flex items-center justify-center gap-1"><MapPin size={10} className="text-brand-gold" aria-hidden="true" />{property.location} • {regionName}</p>
+                  </div>
+                </div>
               </div>
 
               {/* Links internos SEO */}
@@ -260,13 +298,13 @@ export const PropertyPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Form */}
+          {/* Right: Form — copy em PT-BR, fluido e responsivo */}
           <div className="lg:col-span-5 space-y-6">
             <div className="border border-brand-gold/25 p-6 md:p-8 space-y-6 bg-brand-gold/[0.01] rounded-2xl sticky top-24">
               <div className="space-y-2">
                 <span className="flex items-center gap-2 text-xs text-brand-gold tracking-widest uppercase font-light"><ShieldCheck size={12} aria-hidden="true" />Canal protegido por NDA</span>
-                <h2 className="font-serif text-xl text-brand-light font-light">Agendar visita para comprar ou alugar em {regionName}</h2>
-                <p className="text-xs text-brand-muted font-light">Fale com a corretora Silvia Helena e visite este corretora de imóveis em {property.location}. Atendimento com corretora de imóveis para compra, venda e aluguel.</p>
+                <h2 className="font-serif text-xl text-brand-light font-light leading-tight">Fale com a Silvia sobre este imóvel</h2>
+                <p className="text-xs text-brand-muted font-light leading-relaxed">Quer comprar, vender ou tirar dúvidas? Envie sua mensagem. Retorno em até 2 horas.</p>
               </div>
 
               {formSubmitted ? (
@@ -276,29 +314,29 @@ export const PropertyPage: React.FC = () => {
                   <p className="text-xs text-brand-muted leading-relaxed">A assessoria de Silvia Helena retornará em até 2 horas para agendar sua visita em {regionName}.</p>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                   <div>
-                    <label htmlFor="prop-name" className="sr-only">Seu nome completo</label>
-                    <input type="text" id="prop-name" required placeholder="SEU NOME COMPLETO" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all" />
+                    <label htmlFor="prop-name" className="sr-only">Seu nome</label>
+                    <input type="text" id="prop-name" required placeholder="Seu nome" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all" autoComplete="name" />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="prop-email" className="sr-only">Seu e-mail</label>
-                      <input type="email" id="prop-email" required placeholder="SEU E-MAIL" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all" />
+                      <label htmlFor="prop-email" className="sr-only">Seu melhor e-mail</label>
+                      <input type="email" id="prop-email" required placeholder="Seu melhor e-mail" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all" autoComplete="email" />
                     </div>
                     <div>
-                      <label htmlFor="prop-phone" className="sr-only">Seu telefone</label>
-                      <input type="text" id="prop-phone" required placeholder="SEU WHATSAPP" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold px-4 py-3 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none transition-all" />
+                      <label htmlFor="prop-phone" className="sr-only">WhatsApp com DDD</label>
+                      <input type="tel" id="prop-phone" required placeholder="WhatsApp com DDD" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 px-4 py-3 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none transition-all" autoComplete="tel" inputMode="tel" />
                     </div>
                   </div>
                   <div>
                     <label htmlFor="prop-msg" className="sr-only">Mensagem</label>
-                    <textarea id="prop-msg" rows={4} placeholder="MENSAGEM" value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold p-4 text-xs tracking-widest uppercase text-brand-light placeholder-brand-muted/70 rounded-xl outline-none resize-none" />
+                    <textarea id="prop-msg" rows={4} placeholder={`Olá Silvia Helena, tenho interesse neste imóvel (ID: ${property.id} • ${slug}) e gostaria de agendar uma visita ou receber mais informações.`} value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} className="w-full bg-brand-bg/50 border border-brand-light/10 focus:border-brand-gold hover:border-brand-gold/40 p-4 text-sm text-brand-light placeholder:text-brand-muted/60 placeholder:text-sm rounded-xl outline-none resize-none leading-relaxed" />
                   </div>
-                  <button type="submit" className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-3 text-xs uppercase tracking-[0.25em] rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer">
-                    <span>Enviar solicitação para visitar</span><ArrowRight size={12} aria-hidden="true" />
+                  <button type="submit" className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-4 text-xs font-semibold uppercase tracking-[0.18em] rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_16px_rgba(212,163,115,0.25)]">
+                    <span>QUERO RECEBER DETALHES POR WHATSAPP</span><ArrowRight size={14} aria-hidden="true" />
                   </button>
-                  <p className="text-[10px] text-brand-muted text-center">Ao enviar, você aceita contato da corretora Silvia Helena em {regionName}.</p>
+                  <p className="text-[10px] text-brand-muted text-center leading-relaxed">Ao enviar, você aceita contato da corretora Silvia Helena em {regionName} • Resposta em até 2h.</p>
                 </form>
               )}
 
