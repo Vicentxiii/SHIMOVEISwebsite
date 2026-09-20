@@ -11,6 +11,8 @@ import { useLanguage } from './LanguageContext';
 export const ContactSection: React.FC = () => {
   const { t } = useLanguage();
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,11 +22,24 @@ export const ContactSection: React.FC = () => {
     message: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTimeout(() => {
+    setSubmitError(null);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/contato', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data: any = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'Erro ao enviar. Tente WhatsApp.');
       setFormSubmitted(true);
-    }, 1000);
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Erro ao enviar. Me chama no WhatsApp (11) 94084-0966');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactOptions = [
@@ -269,12 +284,22 @@ export const ContactSection: React.FC = () => {
                   </label>
                 </div>
 
+                {submitError && (
+                  <div className="bg-red-500/10 border border-red-500/30 text-red-300 text-xs leading-relaxed px-4 py-3 rounded-xl">
+                    {submitError} — Se preferir, <a href="https://wa.me/5511940840966" target="_blank" rel="noopener noreferrer" className="underline text-brand-gold">me chama no WhatsApp</a>.
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full bg-brand-gold hover:bg-brand-gold/90 text-brand-bg py-4 text-xs font-light uppercase tracking-[0.3em] rounded-xl transition-all duration-500 cursor-pointer flex items-center justify-center gap-2"
+                  disabled={isSubmitting}
+                  className="w-full bg-brand-gold hover:bg-brand-gold/90 disabled:opacity-60 disabled:cursor-not-allowed text-brand-bg py-4 text-xs font-light uppercase tracking-[0.3em] rounded-xl transition-all duration-500 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <span>{t('contact_form_submit')}</span>
+                  <span>{isSubmitting ? t('contact_submitting') : t('contact_form_submit')}</span>
                 </button>
+                <p className="text-[11px] text-brand-muted/50 font-light text-center leading-relaxed">
+                  Ao clicar em “{t('contact_form_submit')}” sua mensagem vai direto para <span className="text-brand-gold">silvia.vic2018@gmail.com</span> — respondo em até 2h.
+                </p>
               </form>
             )}
           </div>

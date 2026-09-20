@@ -40,6 +40,31 @@ const REVIEWS: Review[] = [
     tag: 'Locação • Imóvel em Taboão da Serra',
     service: 'Locação em Taboão da Serra',
   },
+  // +3 do carrossel "Histórias reais" — agora também em estilo Google
+  {
+    quote:
+      'A Silvia não é apenas uma corretora; ela é uma conselheira de raríssimo calibre. Sua experiência em private banking, profunda compreensão do legado arquitetônico e total discrição tornaram nossa aquisição da Residência Cliffside Obsidian impecável.',
+    author: 'Ricardo & Beatrice de Alencar',
+    location: 'Zurich / Rio de Janeiro',
+    tag: 'Consultoria • Residência Cliffside Obsidian',
+    service: 'Consultoria de aquisição — Residência Cliffside Obsidian',
+  },
+  {
+    quote:
+      'Ao liquidar o principal ativo imobiliário da nossa família no Jardim Europa, precisávamos de um consultor que pudesse orquestrar uma transação altamente privada e restrita. A Silvia conduziu cada etapa com extrema precisão, inteligência e confidencialidade absoluta.',
+    author: 'Dr. Helena S. Villela',
+    location: 'São Paulo — Jardim Europa',
+    tag: 'Venda privada • Jardim Europa',
+    service: 'Venda privada em Jardim Europa',
+  },
+  {
+    quote:
+      'O processo de consultoria dela assemelha-se ao trabalho de um qualificado multi-family office. Ela trata o mercado imobiliário de luxo como uma classe de ativos críticos e uma poesia espacial pessoal. Uma mestre em seu ofício.',
+    author: 'Marcus Vance',
+    location: 'New York',
+    tag: 'Consultoria • Family Office',
+    service: 'Consultoria patrimonial — Family Office',
+  },
 ];
 
 const Stars: React.FC = () => (
@@ -89,6 +114,7 @@ export const SocialProofTestimonials: React.FC = () => {
 
   return (
     <section
+      id="testimonials"
       aria-label="Depoimentos de clientes"
       className="py-16 md:py-24 bg-[#1a080f] border-y border-brand-light/5 relative overflow-hidden"
     >
@@ -127,7 +153,7 @@ export const SocialProofTestimonials: React.FC = () => {
               ))}
             </span>
             <span className="text-[11px] text-brand-gold font-medium">5,0</span>
-            <span className="text-[10px] text-brand-muted">• 3 avaliações em destaque</span>
+            <span className="text-[10px] text-brand-muted">• 6 avaliações em destaque</span>
           </div>
         </div>
 

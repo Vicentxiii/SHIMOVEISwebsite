@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronLeft, ChevronRight, Compass, ShieldAlert, Award, Feather } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Compass, ShieldAlert, Award, Feather, Landmark, Crown, ShieldCheck, Sparkles, Trees } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 
 export const LifestyleSection: React.FC = () => {
@@ -133,18 +133,23 @@ export const LifestyleSection: React.FC = () => {
 
         </div>
 
-        {/* Curated Lifestyle Badges Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 border-t border-brand-light/10 pt-16 mt-20">
+        {/* Curated Lifestyle Badges Grid — ícones elegantes acima de cada categoria */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-6 border-t border-brand-light/10 pt-16 mt-20">
           {[
-            { label: t('life_cat_arch'), val: t('life_cat_arch_val') },
-            { label: t('life_cat_heritage'), val: t('life_cat_heritage_val') },
-            { label: t('life_cat_wealth'), val: t('life_cat_wealth_val') },
-            { label: t('life_cat_comfort'), val: t('life_cat_comfort_val') },
-            { label: t('life_cat_nature'), val: t('life_cat_nature_val') }
+            { label: t('life_cat_arch'), val: t('life_cat_arch_val'), Icon: Landmark },
+            { label: t('life_cat_heritage'), val: t('life_cat_heritage_val'), Icon: Crown },
+            { label: t('life_cat_wealth'), val: t('life_cat_wealth_val'), Icon: ShieldCheck },
+            { label: t('life_cat_comfort'), val: t('life_cat_comfort_val'), Icon: Sparkles },
+            { label: t('life_cat_nature'), val: t('life_cat_nature_val'), Icon: Trees }
           ].map((item, idx) => (
-            <div key={idx} className="space-y-1">
-              <p className="text-brand-gold text-xs tracking-widest font-light uppercase">{item.label}</p>
-              <p className="text-brand-muted text-[10px] tracking-wider font-light uppercase">{item.val}</p>
+            <div key={idx} className="space-y-2.5 text-center md:text-left flex flex-col items-center md:items-start">
+              <div className="w-10 h-10 rounded-full border border-brand-gold/15 bg-brand-gold/[0.06] flex items-center justify-center shadow-[0_2px_12px_rgba(212,163,115,0.12)]">
+                <item.Icon size={18} className="text-brand-gold" aria-hidden="true" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-brand-gold text-xs tracking-[0.18em] font-light uppercase">{item.label}</p>
+                <p className="text-brand-muted text-[10px] tracking-[0.14em] font-light uppercase">{item.val}</p>
+              </div>
             </div>
           ))}
         </div>

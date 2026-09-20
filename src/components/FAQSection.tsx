@@ -16,7 +16,7 @@ export const FAQ_DATA: FAQItem[] = [
     answer: 'Depende da rua, mas te dou uma média real de 2026: na região do Butantã, um 2 quartos perto do metrô gira em torno de R$ 380 mil a R$ 750 mil; em Taboão da Serra, nas áreas de Pirajussara e Parque Pinheiros, fica entre R$ 250 mil e R$ 500 mil; no Morumbi, o mesmo padrão já parte de R$ 900 mil. Se quiser, avalio o seu com base em vendas da própria rua — sem custo e sem compromisso.',
   },
   {
-    question: 'Vale a pena investir com corretora de imóveis para alugar no Morumbi e Butantã?',
+    question: 'Vale a pena investir em um bom corretor, para achar imóveis para alugar no Morumbi, Taboão e Butantã?',
     answer: 'No Butantã e Morumbi, sim — a procura é constante. No Butantã, muitos alunos e professores da USP buscam alugar perto do metrô; no Morumbi, famílias e executivos da Faria Lima/Berrini preferem prédios silenciosos. O retorno costuma ficar entre 0,4% e 0,6% ao mês. Eu cuido da seleção do inquilino, vistoria e contrato para você receber sem dor de cabeça.',
   },
   {
@@ -58,7 +58,7 @@ export const FAQSection: React.FC = () => {
             <HelpCircle size={12} /> Perguntas Frequentes
           </span>
           <h2 id="faq-heading" className="font-serif text-3xl md:text-4xl text-brand-light font-light mt-3">
-            Dúvidas sobre comprar, vender e alugar corretora de imóveis em São Paulo
+            Você tem dúvidas para vender, comprar ou alugar imóveis em São Paulo?
           </h2>
           <p className="text-sm text-brand-muted mt-3 font-light">
             Respostas curtas e diretas — do jeito que eu explicaria numa visita, e do jeito que Google e IAs gostam de citar.

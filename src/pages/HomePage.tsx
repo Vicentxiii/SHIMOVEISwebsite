@@ -26,11 +26,10 @@ import cliffsideVillaHero from '../assets/images/cliffside_villa_hero_1783897988
 import { Link } from 'react-router-dom';
 
 export const HomePage: React.FC = () => {
-  const { t, properties, testimonials } = useLanguage();
+  const { t, properties } = useLanguage();
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [showNoResultsModal, setShowNoResultsModal] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -52,7 +51,7 @@ export const HomePage: React.FC = () => {
   }, [properties]);
 
   useEffect(() => {
-    const sections = ['home', 'about', 'estates', 'lifestyle', 'testimonials', 'contact', 'faq'];
+    const sections = ['home', 'about', 'testimonials', 'estates', 'lifestyle', 'contact', 'faq'];
     const observers = sections.map((sectionId) => {
       const element = document.getElementById(sectionId);
       if (!element) return null;
@@ -77,7 +76,9 @@ export const HomePage: React.FC = () => {
         if (pt === f) return true;
         if (f === 'house' && pt.includes('casa')) return true;
         if (f === 'apartment' && (pt.includes('apartamento') || pt.includes('cobertura'))) return true;
-        if (f === 'luxury mansion' && pt.includes('mansão')) return true;
+        if (f === 'luxury mansion' && pt.includes('mans')) return true;
+        if (f === 'mansões' && pt.includes('mans')) return true;
+        if (f === 'mansão de luxo' && pt.includes('mans')) return true;
         if (f === 'kitnet' && pt.includes('kitnet')) return true;
         if (f === 'estúdio de luxo' && pt.includes('estúdio')) return true;
         if (f === 'studio/kitnet' && pt.includes('studio')) return true;
@@ -340,6 +341,8 @@ export const HomePage: React.FC = () => {
 
       <AboutSection />
 
+      <SocialProofTestimonials />
+
       {/* SEO Content Section — duas colunas: esquerda Signature, direita texto */}
       <section className="py-12 md:py-16 bg-[#1a080f] border-y border-brand-light/5" aria-labelledby="seo-content-heading">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
@@ -468,17 +471,37 @@ export const HomePage: React.FC = () => {
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.96, y: 12, opacity: 0 }}
               transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-              className="relative w-full max-w-[520px] bg-[#1d0a12] border border-brand-gold/20 rounded-[24px] shadow-[0_24px_64px_rgba(0,0,0,0.55)] overflow-hidden"
+              className="relative w-full max-w-[520px] p-[1.5px] rounded-[24px] overflow-hidden shadow-[0_24px_64px_rgba(0,0,0,0.55)]"
             >
-              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" aria-hidden="true" />
-              <button
-                onClick={() => setShowVIPModal(false)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/10 border border-white/10 text-brand-muted hover:text-brand-light flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Fechar"
-              >
-                <X size={14} />
-              </button>
-              <div className="p-7 md:p-8 text-center">
+              {/* Rastro dourado super elegante — gira na borda */}
+              <motion.div
+                className="absolute inset-[-70%] rounded-full pointer-events-none"
+                style={{
+                  background: 'conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 72%, #D4A373 88%, #FFEDC2 92%, transparent 100%)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
+                aria-hidden="true"
+              />
+              <motion.div
+                className="absolute inset-[-70%] rounded-full pointer-events-none opacity-50 blur-[6px]"
+                style={{
+                  background: 'conic-gradient(from 0deg at 50% 50%, transparent 0%, transparent 72%, #D4A373 88%, transparent 100%)',
+                }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: 'linear' }}
+                aria-hidden="true"
+              />
+              <div className="relative bg-[#1d0a12] rounded-[22px] overflow-hidden border border-white/[0.04]">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-gold/30 to-transparent" aria-hidden="true" />
+                <button
+                  onClick={() => setShowVIPModal(false)}
+                  className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/[0.06] hover:bg-white/10 border border-white/10 text-brand-muted hover:text-brand-light flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Fechar"
+                >
+                  <X size={14} />
+                </button>
+                <div className="p-7 md:p-8 text-center">
                 <div className="mx-auto w-12 h-12 rounded-full bg-brand-gold/15 border border-brand-gold/20 flex items-center justify-center mb-4">
                   <Crown size={20} className="text-brand-gold" aria-hidden="true" />
                 </div>
@@ -503,6 +526,7 @@ export const HomePage: React.FC = () => {
                 </a>
                 <p className="mt-3 text-[11px] text-brand-muted/60 font-light">Resposta em até 2h • Sem spam, só oportunidades reais</p>
               </div>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -511,35 +535,7 @@ export const HomePage: React.FC = () => {
       <PortalListingsCarousel />
       <LifestyleSection />
 
-      <section id="testimonials" className="py-24 md:py-36 bg-brand-bg relative overflow-hidden" aria-labelledby="testimonials-heading">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-full bg-brand-light/5" aria-hidden="true" />
-        <div className="max-w-5xl mx-auto px-6 relative z-10 text-center">
-          <div className="space-y-4 mb-12">
-            <span className="text-xs tracking-[0.3em] text-brand-gold uppercase font-light block">{t('test_badge')}</span>
-            <h2 id="testimonials-heading" className="font-serif text-3xl md:text-5xl text-brand-light font-light tracking-tight">{t('test_title')}</h2>
-          </div>
-          <div className="relative min-h-[360px] md:min-h-[280px] flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div key={activeTestimonial} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.8, ease: 'easeOut' }} className="space-y-6 bg-[#210c14]/40 border border-brand-light/5 rounded-2xl p-8 md:p-12 hover:border-brand-gold/40 hover:shadow-[0_0_25px_rgba(197,160,89,0.15)] transition-all duration-500 w-full max-w-4xl mx-auto">
-                <div className="font-serif text-5xl text-brand-gold/25 select-none leading-none -mt-4" aria-hidden="true">“</div>
-                <blockquote className="font-serif text-base md:text-xl text-brand-light font-light leading-relaxed max-w-3xl mx-auto tracking-wide italic">{testimonials[activeTestimonial]?.quote}</blockquote>
-                <div className="space-y-1">
-                  <p className="font-serif text-sm md:text-base text-brand-gold font-medium tracking-wide">{testimonials[activeTestimonial]?.author}</p>
-                  <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light">{testimonials[activeTestimonial]?.role} — {testimonials[activeTestimonial]?.location}</p>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-          <div className="flex justify-center items-center space-x-3 mt-10" role="tablist" aria-label="Depoimentos de clientes">
-            {testimonials.map((_, idx) => (
-              <button key={idx} onClick={() => setActiveTestimonial(idx)} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border cursor-pointer ${activeTestimonial === idx ? 'bg-brand-gold border-brand-gold scale-110' : 'bg-transparent border-brand-light/30 hover:border-brand-light/70'}`} aria-label={`Ver depoimento ${idx + 1} de ${testimonials[idx]?.author}`} role="tab" aria-selected={activeTestimonial === idx} />
-            ))}
-          </div>
-        </div>
-      </section>
-
       <FAQSection />
-      <SocialProofTestimonials />
       <ContactSection />
 
       <AnimatePresence>{selectedProperty && <PropertyDetailModal property={selectedProperty} onClose={() => setSelectedProperty(null)} />}</AnimatePresence>

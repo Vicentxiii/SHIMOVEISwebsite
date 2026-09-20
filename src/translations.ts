@@ -96,7 +96,7 @@ export const DICT = {
     portfolio_unlisted_desc: 'Muita venda boa aqui acontece no boca a boca. Tenho acesso a casas e apartamentos que os donos preferem não anunciar. Se me contar o perfil, te aviso primeiro.',
 
     // Card & Modal Details
-    card_view_details: 'Falar com a corretora sobre este corretora de imóveis',
+    card_view_details: 'Quero visitar esse imóvel',
     details_architect: 'Arquiteto',
     details_year: 'Ano de Construção',
     details_area: 'Área Privativa',
@@ -511,7 +511,7 @@ export const PROPERTIES_TRANSLATIONS = {
     {
       id: 'prop-1',
       title: 'Residência Cliffside Obsidian',
-      type: 'Mansão de Luxo',
+      type: 'Mansões',
       location: 'Joatinga, Rio de Janeiro',
       description: 'Esculpida diretamente nos penhascos verticais de granito da Joatinga, esta obra-prima arquitetônica representa o ápice absoluto do luxo modernista costeiro. Projetada pelo renomado escritório Bernardes, a residência mescla concreto bruto monolítico com vidro estrutural do piso ao teto, oferecendo vistas panorâmicas e desimpedidas do Oceano Atlântico. Apresenta uma piscina de borda infinita em balanço duplo, elevador privativo para todos os níveis, adega climatizada para 500 garrafas e segurança biométrica de alta tecnologia. Os espaços sociais são orientados para maximizar a ventilação cruzada natural e as dramáticas composições do pôr do sol.',
       features: ['Piscina', 'Vista para o Mar', 'Jardim', 'Aceita Pets', 'Elevador Privativo', 'Adega de Vinhos', 'Automação Residencial', 'Cinema em Casa'],

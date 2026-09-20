@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, SlidersHorizontal, RotateCcw, X, Home, Compass } from 'lucide-react';
+import { Search, SlidersHorizontal, RotateCcw, X, Home, Compass, ChevronDown } from 'lucide-react';
 import { PropertyType } from '../types';
 import { useLanguage } from './LanguageContext';
 
@@ -32,7 +32,7 @@ const initialFilters: FilterState = {
   type: 'all',
   location: 'all',
   minPrice: 80000,
-  maxPrice: 10000000, // teto literal 10.000.000 (80.000 → 10.000.000) — valores reais da região
+  maxPrice: 10000000,
   bedrooms: 'any',
   bathrooms: 'any',
   garage: 'any',
@@ -40,6 +40,138 @@ const initialFilters: FilterState = {
   hasGarden: false,
   hasOceanView: false,
   isPetFriendly: false
+};
+
+// ——— Submenu elegante custom ———
+const CustomSelect: React.FC<{
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}> = ({ value, onChange, options, placeholder }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const display = options.find(o => o.value === value)?.label || placeholder || value;
+  const isPlaceholder = value === 'all';
+  return (
+    <div ref={ref} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-between gap-3 bg-brand-bg border py-3 md:py-2.5 px-4 pr-3 text-[14px] md:text-xs tracking-wide normal-case rounded-xl outline-none cursor-pointer transition-colors ${
+          open ? 'border-brand-gold bg-brand-bg' : 'border-brand-light/10 hover:border-brand-gold/30'
+        } ${isPlaceholder ? 'text-brand-muted' : 'text-brand-light'}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className="truncate text-left flex-1">{display}</span>
+        <ChevronDown size={14} className={`text-brand-muted shrink-0 transition-transform duration-200 ${open ? 'rotate-180 text-brand-gold' : ''}`} aria-hidden="true" />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute z-50 top-full left-0 right-0 mt-2 bg-[#1a0a12]/95 backdrop-blur-xl border border-brand-gold/15 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(212,163,115,0.08)] overflow-hidden"
+            style={{ borderRadius: '12px 12px 20px 20px' }}
+            role="listbox"
+          >
+            {/* topo sutil */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-brand-gold/15 to-transparent pointer-events-none" aria-hidden="true" />
+            <div className="max-h-[260px] overflow-y-auto overscroll-contain py-1.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(212,163,115,0.3) transparent' }}>
+              {options.map(opt => {
+                const active = opt.value === value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => { onChange(opt.value); setOpen(false); }}
+                    className={`w-full text-left px-4 py-2.5 text-[13px] md:text-xs tracking-wide normal-case transition-colors flex items-center justify-between gap-2 ${
+                      active ? 'bg-brand-gold/10 text-brand-gold font-medium' : 'text-brand-light/90 hover:bg-white/[0.06] hover:text-brand-light'
+                    }`}
+                  >
+                    <span className="truncate">{opt.label}</span>
+                    {active && <span className="w-1.5 h-1.5 rounded-full bg-brand-gold shrink-0" aria-hidden="true" />}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const MiniSelect: React.FC<{
+  value: string | number;
+  onChange: (v: any) => void;
+  options: { value: any; label: string }[];
+}> = ({ value, onChange, options }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  const display = options.find(o => String(o.value) === String(value))?.label || String(value);
+  return (
+    <div ref={ref} className="relative w-full">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`w-full flex items-center justify-center gap-1 bg-brand-bg border py-3 md:py-2.5 px-2 text-[14px] md:text-xs rounded-xl outline-none cursor-pointer transition-colors ${open ? 'border-brand-gold text-brand-gold' : 'border-brand-light/10 text-brand-light hover:border-brand-gold/30'}`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span className="truncate">{display}</span>
+        <ChevronDown size={10} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 top-full left-0 right-0 mt-1.5 bg-[#1a0a12]/95 backdrop-blur-xl border border-brand-gold/15 shadow-[0_12px_32px_rgba(0,0,0,0.5)] overflow-hidden"
+            style={{ borderRadius: '12px 12px 20px 20px' }}
+            role="listbox"
+          >
+            <div className="max-h-[200px] overflow-y-auto py-1" style={{ scrollbarWidth: 'thin' }}>
+              {options.map(opt => {
+                const active = String(opt.value) === String(value);
+                return (
+                  <button
+                    key={String(opt.value)}
+                    type="button"
+                    role="option"
+                    aria-selected={active}
+                    onClick={() => { onChange(opt.value); setOpen(false); }}
+                    className={`w-full px-3 py-2 text-xs text-center transition-colors ${active ? 'bg-brand-gold/10 text-brand-gold font-medium' : 'text-brand-light/90 hover:bg-white/[0.06]'}`}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
 
 export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, availableLocations }) => {
@@ -51,7 +183,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
     'all',
     'Apartamento',
     'Casa',
-    'Mansão de Luxo',
+    'Mansões',
     'Kitnet',
     'Estúdio de Luxo',
     'Studio/Kitnet',
@@ -60,18 +192,16 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
     'Fazenda',
     'Casa de Praia',
     'Cobertura',
-    'Apartamento', // duplicata para garantir match
+    'Apartamento',
   ];
 
   const updateFilter = (key: keyof FilterState, value: any) => {
     const updated = { ...filters, [key]: value };
     setFilters(updated);
-    // Não aplica automaticamente — espera clique em Buscar (UX mais claro no mobile)
   };
 
   const handleBuscar = () => {
     onFilterChange(filters);
-    // não fecha automaticamente — deixa o modal pai decidir (se tiver resultado fecha e scrolla, se não mostra mensagem no mesmo modal)
   };
 
   const resetFilters = () => {
@@ -98,7 +228,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
     <div className="w-full bg-brand-bg relative z-20">
       {/* Search Header Bar */}
       <div className="border border-brand-light/10 p-4 md:p-6 bg-[#210c14] flex flex-col md:flex-row gap-4 justify-between items-center rounded-2xl hover:border-brand-gold/45 hover:shadow-[0_0_20px_rgba(197,160,89,0.18)] transition-all duration-500">
-        {/* Simple search overview status */}
         <div className="flex items-center gap-3 text-left w-full md:w-auto">
           <div className="p-2.5 bg-brand-gold/10 border border-brand-gold/20 text-brand-gold">
             <Search size={16} />
@@ -111,7 +240,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
           </div>
         </div>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-3 w-full md:w-auto justify-end">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -150,86 +278,63 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-x border-b border-brand-light/10 bg-[#1a080f]/90 backdrop-blur-md"
+            className="overflow-visible border-x border-b border-brand-light/10 bg-[#1a080f]/90 backdrop-blur-md"
+            style={{ borderRadius: '0 0 20px 20px' }}
           >
-            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 rounded-b-2xl border-t border-brand-light/5">
+            <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ borderRadius: '0 0 20px 20px' }}>
               
               {/* Filter 1: Property Type */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-[9px] tracking-widest text-brand-muted uppercase font-light block">
                   {t('filter_type')}
                 </label>
-                <div className="relative">
-                  <select
-                    value={filters.type}
-                    onChange={(e) => updateFilter('type', e.target.value)}
-                    className="w-full bg-brand-bg border border-brand-light/10 focus:border-brand-gold py-2.5 px-3 text-xs tracking-widest text-brand-light uppercase rounded-xl outline-none cursor-pointer"
-                  >
-                    {propertyTypes.map((tItem) => (
-                      <option key={tItem} value={tItem} className="bg-brand-bg text-brand-light">
-                        {tItem === 'all' ? t('filter_placeholder_type') : tItem}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <CustomSelect
+                  value={filters.type}
+                  onChange={(v) => updateFilter('type', v)}
+                  placeholder={t('filter_placeholder_type')}
+                  options={propertyTypes.map(pt => ({ value: pt, label: pt === 'all' ? t('filter_placeholder_type') : pt }))}
+                />
               </div>
 
               {/* Filter 2: Location */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-[9px] tracking-widest text-brand-muted uppercase font-light block">
                   {t('filter_location')}
                 </label>
-                <select
+                <CustomSelect
                   value={filters.location}
-                  onChange={(e) => updateFilter('location', e.target.value)}
-                  className="w-full bg-brand-bg border border-brand-light/10 focus:border-brand-gold py-2.5 px-3 text-xs tracking-widest text-brand-light uppercase rounded-xl outline-none cursor-pointer"
-                >
-                  <option value="all" className="bg-brand-bg text-brand-light">{t('filter_placeholder_location')}</option>
-                  {availableLocations.map((loc) => (
-                    <option key={loc} value={loc} className="bg-brand-bg text-brand-light">
-                      {loc}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => updateFilter('location', v)}
+                  placeholder={t('filter_placeholder_location')}
+                  options={[{ value: 'all', label: t('filter_placeholder_location') }, ...availableLocations.map(loc => ({ value: loc, label: loc }))]}
+                />
               </div>
 
               {/* Filter 3: Bedrooms, Bathrooms, Garage */}
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 <label className="text-[9px] tracking-widest text-brand-muted uppercase font-light block">
                   {t('filter_bedrooms')} / {t('filter_bathrooms')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
-                  <select
+                  <MiniSelect
                     value={filters.bedrooms}
-                    onChange={(e) => updateFilter('bedrooms', e.target.value === 'any' ? 'any' : Number(e.target.value))}
-                    className="bg-brand-bg border border-brand-light/10 focus:border-brand-gold py-2.5 text-center text-xs text-brand-light rounded-xl outline-none cursor-pointer"
-                  >
-                    <option value="any">{t('details_beds')}</option>
-                    {[1, 2, 4, 5, 6, 8].map(n => <option key={n} value={n}>{n}+</option>)}
-                  </select>
-
-                  <select
+                    onChange={(v) => updateFilter('bedrooms', v)}
+                    options={[{ value: 'any', label: t('details_beds') }, ...[1, 2, 4, 5, 6, 8].map(n => ({ value: n, label: `${n}+` }))]}
+                  />
+                  <MiniSelect
                     value={filters.bathrooms}
-                    onChange={(e) => updateFilter('bathrooms', e.target.value === 'any' ? 'any' : Number(e.target.value))}
-                    className="bg-brand-bg border border-brand-light/10 focus:border-brand-gold py-2.5 text-center text-xs text-brand-light rounded-xl outline-none cursor-pointer"
-                  >
-                    <option value="any">{t('details_baths')}</option>
-                    {[1, 2, 4, 5, 6, 8, 9].map(n => <option key={n} value={n}>{n}+</option>)}
-                  </select>
-
-                  <select
+                    onChange={(v) => updateFilter('bathrooms', v)}
+                    options={[{ value: 'any', label: t('details_baths') }, ...[1, 2, 4, 5, 6, 8, 9].map(n => ({ value: n, label: `${n}+` }))]}
+                  />
+                  <MiniSelect
                     value={filters.garage}
-                    onChange={(e) => updateFilter('garage', e.target.value === 'any' ? 'any' : Number(e.target.value))}
-                    className="bg-brand-bg border border-brand-light/10 focus:border-brand-gold py-2.5 text-center text-xs text-brand-light rounded-xl outline-none cursor-pointer"
-                  >
-                    <option value="any">{t('details_garages')}</option>
-                    {[1, 2, 4, 5, 6, 8, 10].map(n => <option key={n} value={n}>{n}+</option>)}
-                  </select>
+                    onChange={(v) => updateFilter('garage', v)}
+                    options={[{ value: 'any', label: t('details_garages') }, ...[1, 2, 4, 5, 6, 8, 10].map(n => ({ value: n, label: `${n}+` }))]}
+                  />
                 </div>
               </div>
 
-              {/* Filter 4: Price Range Slider — literal 80.000 → 10.000.000 */}
-              <div className="space-y-2">
+              {/* Filter 4: Price Range Slider */}
+              <div className="space-y-2 min-w-0">
                 <div className="flex justify-between text-[9px] tracking-widest text-brand-muted uppercase font-light">
                   <span>{t('filter_max_price')}</span>
                   <span className="text-brand-gold font-medium">Até R$ {filters.maxPrice.toLocaleString('pt-BR')}</span>
@@ -255,12 +360,11 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
             </div>
 
             {/* Premium Features Row */}
-            <div className="px-6 md:px-8 pb-6 border-t border-brand-light/5 pt-4">
+            <div className="px-6 md:px-8 pb-6 border-t border-brand-light/5 pt-4 rounded-b-[20px]">
               <p className="text-[9px] tracking-widest text-brand-muted uppercase font-light mb-3">
                 {t('filter_features')}
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {/* Checkbox 1: Pool */}
                 <label className="flex items-center space-x-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -270,8 +374,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_swimming')}</span>
                 </label>
-
-                {/* Checkbox 2: Garden */}
                 <label className="flex items-center space-x-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -281,8 +383,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_garden')}</span>
                 </label>
-
-                {/* Checkbox 3: Ocean View */}
                 <label className="flex items-center space-x-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -292,8 +392,6 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                   />
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_ocean')}</span>
                 </label>
-
-                {/* Checkbox 4: Pet Friendly */}
                 <label className="flex items-center space-x-3 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -306,8 +404,8 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
               </div>
             </div>
 
-            {/* Botão Buscar — criado pois não existia; otimizado para mobile */}
-            <div className="px-6 md:px-8 pb-6 pt-2 flex flex-col sm:flex-row gap-3 bg-[#1a080f]/90">
+            {/* Botão Buscar */}
+            <div className="px-6 md:px-8 pb-6 pt-2 flex flex-col sm:flex-row gap-3 bg-[#1a080f]/90 rounded-b-[20px]">
               <button
                 onClick={handleBuscar}
                 className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90 active:bg-brand-gold/80 text-brand-bg px-6 py-4 rounded-xl text-[13px] font-semibold uppercase tracking-[0.18em] transition-colors shadow-[0_4px_20px_rgba(212,163,115,0.25)] cursor-pointer"
