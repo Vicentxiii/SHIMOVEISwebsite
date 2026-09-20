@@ -67,7 +67,7 @@ export const BLOG_POSTS: BlogPost[] = [
         title: 'Butantã x vizinhos: vale comparar?',
         content: `<p>Se o seu orçamento está apertado, vale olhar:</p>
         <ul>
-          <li><strong>Taboão da Serra (Pirajuçara/Parque Pinheiros):</strong> o mesmo 2 quartos sai R$ 80 a R$ 150 mil mais barato, com casa com quintal por R$ 380 mil. Você troca metrô na porta por 12 minutos de ônibus + metrô.</li>
+          <li><strong>Taboão da Serra (Pirajussara/Parque Pinheiros):</strong> o mesmo 2 quartos sai R$ 80 a R$ 150 mil mais barato, com casa com quintal por R$ 380 mil. Você troca metrô na porta por 12 minutos de ônibus + metrô.</li>
           <li><strong>Morumbi (região do Shopping Morumbi):</strong> o 2 quartos já parte de R$ 900 mil, mas com lazer resort e segurança 24h. Para 3 quartos, o Morumbi fica em média 40% acima do Butantã.</li>
           <li><strong>Vila Sônia / Rio Pequeno:</strong> 10-15% abaixo do Butantã, mas com menos oferta de prédios novos — boa para quem busca pagar menos e não liga de andar um pouco mais.</li>
         </ul>
@@ -105,7 +105,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         id: 'resposta-direta',
         title: 'Resposta direta',
-        content: `<p><strong>Alugar apartamento em Taboão da Serra em 2026 custa, em média: 1 quarto/kitnet R$ 900 a R$ 1.300; 2 quartos de 50-65m² entre R$ 1.200 e R$ 1.900; 3 quartos com 2 vagas entre R$ 1.600 e R$ 2.800.</strong> Condomínio fica entre R$ 250 e R$ 550 e IPTU entre R$ 80 e R$ 220/mês. No total, um 2 quartos bem localizado sai por R$ 1.600 a R$ 2.400 “na ponta do lápis”.</p><p>Sou a Silvia Helena, corretora de imóveis aqui na divisa com o Butantã há 15 anos, e alugo toda semana em Jardim Mirna, Pirajuçara, Parque Pinheiros e Centro. O que mais ouço é: “Consigo casa com quintal por menos que um apertado em SP?” — e na maioria das vezes, sim.</p>`
+        content: `<p><strong>Alugar apartamento em Taboão da Serra em 2026 custa, em média: 1 quarto/kitnet R$ 900 a R$ 1.300; 2 quartos de 50-65m² entre R$ 1.200 e R$ 1.900; 3 quartos com 2 vagas entre R$ 1.600 e R$ 2.800.</strong> Condomínio fica entre R$ 250 e R$ 550 e IPTU entre R$ 80 e R$ 220/mês. No total, um 2 quartos bem localizado sai por R$ 1.600 a R$ 2.400 “na ponta do lápis”.</p><p>Sou a Silvia Helena, corretora de imóveis aqui na divisa com o Butantã há 15 anos, e alugo toda semana em Jardim Mirna, Pirajussara, Parque Pinheiros e Centro. O que mais ouço é: “Consigo casa com quintal por menos que um apertado em SP?” — e na maioria das vezes, sim.</p>`
       },
       {
         id: 'faixas-aluguel',
@@ -113,7 +113,7 @@ export const BLOG_POSTS: BlogPost[] = [
         content: `<ul>
           <li><strong>Kitnet / 1 quarto (30-45m²):</strong> R$ 900 a R$ 1.300. Muito procurado perto do Centro e da Aprígio Bezerra — ideal para quem trabalha em SP e quer economizar.</li>
           <li><strong>2 quartos (50-65m²):</strong> R$ 1.200 a R$ 1.600 em prédios simples; R$ 1.600 a R$ 1.900 em prédios novos com lazer, 1 vaga e portaria 24h. É o que mais sai — aluga em média em 21 dias.</li>
-          <li><strong>3 quartos (70-90m²):</strong> R$ 1.600 a R$ 2.200 em Pirajuçara/Parque Pinheiros; R$ 2.200 a R$ 2.800 no Jardim Mirna e perto do Shopping Taboão, com 2 vagas e varanda.</li>
+          <li><strong>3 quartos (70-90m²):</strong> R$ 1.600 a R$ 2.200 em Pirajussara/Parque Pinheiros; R$ 2.200 a R$ 2.800 no Jardim Mirna e perto do Shopping Taboão, com 2 vagas e varanda.</li>
           <li><strong>Casas / sobrados (90-140m² com quintal):</strong> R$ 1.500 a R$ 2.600 — o diferencial do Taboão. Por R$ 1.800 você aluga casa com 3 quartos e quintal que em SP custaria R$ 3.200.</li>
         </ul>
         <p>Esses valores já consideram imóveis em bom estado, sem mobília. Mobiliado acrescenta R$ 300 a R$ 500.</p>`
@@ -143,7 +143,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         id: 'onde-vale',
         title: 'Onde vale alugar dentro de Taboão da Serra',
-        content: `<p>Se você quer praticidade, vá de <strong>Centro e Jardim Mirna</strong> — comércio a pé, fácil acesso à Régis. Para quem busca mais tranquilidade, <strong>Parque Pinheiros e Pirajuçara</strong> têm ruas mais largas e prédios novos. Já <strong>Shopping Taboão</strong> é bom para quem trabalha em SP e quer volta rápida.</p>
+        content: `<p>Se você quer praticidade, vá de <strong>Centro e Jardim Mirna</strong> — comércio a pé, fácil acesso à Régis. Para quem busca mais tranquilidade, <strong>Parque Pinheiros e Pirajussara</strong> têm ruas mais largas e prédios novos. Já <strong>Shopping Taboão</strong> é bom para quem trabalha em SP e quer volta rápida.</p>
         <p>Me conta seu orçamento, se precisa de vaga coberta e se tem pet — tenho controle de prédios que aceitam cachorro grande (nem todos aceitam). Assim você não perde tempo visitando o que não se encaixa.</p>`
       }
     ]
@@ -516,7 +516,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         id: 'por-que-taboao-cresce',
         title: 'Por que Taboão da Serra cresce tanto em 2026?',
-        content: `<p><strong>Resposta direta:</strong> Taboão cresce porque entrega <strong>quintal + vaga coberta por menos que um 2 quartos apertado em SP</strong> — e em 2026 o crédito ficou mais acessível para a Região Metropolitana.</p><p>Sou a Silvia Helena — CRECISP 125743 — e em 15 anos vi Taboão sair de “cidade-dormitório” para bairro de escolha: Jardim Mirna, Pirajuçara e Parque Pinheiros têm hoje prédios novos com lazer e ruas com comércio completo. Você chega ao Butantã ou Morumbi em 10-18 min pela Régis/Aprígio Bezerra e volta para rua calma à noite.</p><p>Em 2026, programas de crédito com entrada parcelada e uso de FGTS até R$ 350 mil para a faixa de R$ 270-650 mil (padrão Taboão) destravaram a compra de 2-3 quartos — perfil que mais aluga e revende rápido aqui.</p>`
+        content: `<p><strong>Resposta direta:</strong> Taboão cresce porque entrega <strong>quintal + vaga coberta por menos que um 2 quartos apertado em SP</strong> — e em 2026 o crédito ficou mais acessível para a Região Metropolitana.</p><p>Sou a Silvia Helena — CRECISP 125743 — e em 15 anos vi Taboão sair de “cidade-dormitório” para bairro de escolha: Jardim Mirna, Pirajussara e Parque Pinheiros têm hoje prédios novos com lazer e ruas com comércio completo. Você chega ao Butantã ou Morumbi em 10-18 min pela Régis/Aprígio Bezerra e volta para rua calma à noite.</p><p>Em 2026, programas de crédito com entrada parcelada e uso de FGTS até R$ 350 mil para a faixa de R$ 270-650 mil (padrão Taboão) destravaram a compra de 2-3 quartos — perfil que mais aluga e revende rápido aqui.</p>`
       },
       {
         id: 'facilidades-credito-2026',
@@ -548,7 +548,7 @@ export const BLOG_POSTS: BlogPost[] = [
         title: 'Crescimento que protege seu investimento',
         content: `<p>Taboão valorizou 6-9% a.a. desde 2023 nos bairros planejados — estável porque a demanda é real (família que precisa de 3 quartos), não especulação.</p>
         <ul>
-          <li><strong>Liquidez:</strong> 2 quartos em Pirajuçara aluga em 21 dias em média; 3 quartos com quintal no Jardim Mirna, em 28 dias — procura constante de quem vende apertado em SP.</li>
+          <li><strong>Liquidez:</strong> 2 quartos em Pirajussara aluga em 21 dias em média; 3 quartos com quintal no Jardim Mirna, em 28 dias — procura constante de quem vende apertado em SP.</li>
           <li><strong>Infraestrutura:</strong> Shopping Taboão, centro com tudo a pé e acesso rápido à Régis — para quem trabalha no Butantã/Morumbi, o deslocamento é 12-18 min de ônibus + metrô.</li>
           <li><strong>Regra da rua:</strong> cada rua tem preço. Uma quadra a mais pode mudar R$ 30 mil. Eu avalio com vendas reais da própria rua, não com chute de portal.</li>
         </ul>
@@ -561,7 +561,7 @@ export const BLOG_POSTS: BlogPost[] = [
         <ul>
           <li>Valor máximo que o banco aprova</li>
           <li>Parcela estimada + custos de ITBI/registro</li>
-          <li>Lista de imóveis prontos para financiar em Taboão da Serra que cabem no seu bolso (e no Jardim Mirna, Pirajuçara, Parque Pinheiros)</li>
+          <li>Lista de imóveis prontos para financiar em Taboão da Serra que cabem no seu bolso (e no Jardim Mirna, Pirajussara, Parque Pinheiros)</li>
         </ul>
         <p>👉 <a href="https://wa.me/5511940840966?text=Ol%C3%A1%20Silvia%2C%20quero%20simular%20meu%20financiamento%20em%20Tabo%C3%A3o%20da%20Serra%20e%20sair%20do%20aluguel" target="_blank" rel="noopener noreferrer"><strong>Clique para simular seu crédito no WhatsApp com a corretora Silvia Helena (CRECISP 125743)</strong></a> — pré-análise gratuita, sem compromisso. Prefere ver antes? <a href="/imoveis/taboao-da-serra">Veja imóveis prontos para morar e financiar em Taboão da Serra</a>.</p>`
       }

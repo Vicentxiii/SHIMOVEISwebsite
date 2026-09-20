@@ -13,7 +13,7 @@ export const FAQ_DATA: FAQItem[] = [
   },
   {
     question: 'Quanto custa um apartamento de 2 quartos no Butantã ou Taboão da Serra?',
-    answer: 'Depende da rua, mas te dou uma média real de 2026: na região do Butantã, um 2 quartos perto do metrô gira em torno de R$ 380 mil a R$ 750 mil; em Taboão da Serra, nas áreas de Pirajuçara e Parque Pinheiros, fica entre R$ 250 mil e R$ 500 mil; no Morumbi, o mesmo padrão já parte de R$ 900 mil. Se quiser, avalio o seu com base em vendas da própria rua — sem custo e sem compromisso.',
+    answer: 'Depende da rua, mas te dou uma média real de 2026: na região do Butantã, um 2 quartos perto do metrô gira em torno de R$ 380 mil a R$ 750 mil; em Taboão da Serra, nas áreas de Pirajussara e Parque Pinheiros, fica entre R$ 250 mil e R$ 500 mil; no Morumbi, o mesmo padrão já parte de R$ 900 mil. Se quiser, avalio o seu com base em vendas da própria rua — sem custo e sem compromisso.',
   },
   {
     question: 'Vale a pena investir com corretora de imóveis para alugar no Morumbi e Butantã?',

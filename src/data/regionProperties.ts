@@ -91,9 +91,9 @@ export const REGION_PROPERTIES: Property[] = [
   // --- TABOÃO DA SERRA (3) ---
   {
     id: 'prop-taboao-1',
-    title: 'Casa 3 Quartos Pirajuçara Taboão da Serra',
+    title: 'Casa 3 Quartos Pirajussara Taboão da Serra',
     type: 'House',
-    location: 'Pirajuçara, Taboão da Serra',
+    location: 'Pirajussara, Taboão da Serra',
     price: 0.38,
     formattedPrice: 'R$ 380.000',
     bedrooms: 3,
@@ -106,7 +106,7 @@ export const REGION_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80',
     ],
-    description: 'Casa para comprar em Taboão da Serra, bairro Pirajuçara, com 3 quartos, 2 vagas e quintal. A 8 minutos do Butantã e com comércio completo na porta. Ideal para quem busca vender aluguel em SP e comprar casa própria com parcela menor que aluguel. Aceita FGTS e financiamento.',
+    description: 'Casa para comprar em Taboão da Serra, bairro Pirajussara, com 3 quartos, 2 vagas e quintal. A 8 minutos do Butantã e com comércio completo na porta. Ideal para quem busca vender aluguel em SP e comprar casa própria com parcela menor que aluguel. Aceita FGTS e financiamento.',
     features: ['Quintal', '2 Vagas', 'Próximo ao Butantã', 'Aceita FGTS', 'Financiamento'],
     hasSwimmingPool: false,
     hasGarden: true,
@@ -252,7 +252,7 @@ export const REGION_PROPERTIES: Property[] = [
 export function getPropertiesByRegion(regionSlug: string): typeof REGION_PROPERTIES {
   const map: Record<string, string[]> = {
     butanta: ['Butantã'],
-    'taboao-da-serra': ['Taboão da Serra', 'Pirajuçara', 'Parque Pinheiros', 'Jardim Mirna'],
+    'taboao-da-serra': ['Taboão da Serra', 'Pirajussara', 'Parque Pinheiros', 'Jardim Mirna'],
     morumbi: ['Morumbi'],
   };
   const keywords = map[regionSlug] || [];

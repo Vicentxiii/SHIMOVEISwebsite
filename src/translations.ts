@@ -28,9 +28,9 @@ export const DICT = {
     // About Section
     about_badge: 'Quem vai te atender',
     about_title: 'Conheço o Butantã, o Morumbi e o Taboão como quem mora aqui.',
-    about_p1: 'Sou a Silvia Helena, corretora há mais de 15 anos — CRECI 125743. Já conduzi mais de R$ 123 milhões em vendas e locações, de kitnets de 40m² perto do metrô Butantã a casas com quintal no Taboão e apartamentos de alto padrão no Morumbi. Não importa o valor: trato cada busca como se fosse da minha família.',
-    about_p2: 'Comprar a primeira casa, vender o apartamento onde os filhos cresceram ou alugar para recomeçar em outra região — sei que não é só transação. É mudança de vida. Por isso faço tudo pessoalmente: da visita à documentação no cartório, com fotos reais, preço justo e conversa franca. Sem promessa vazia, sem enrolação.',
-    about_p3: 'Moro a 10 minutos do Butantã. Conheço a Rua Alvarenga que enche aos sábados, a Vital Brasil perto do Instituto Butantan, o entorno tranquilo do Parque Villa-Lobos, o comércio da região da USP e o jeito acolhedor do Taboão (Jardim Mirna, Pirajuçara, Parque Pinheiros) e o lado mais reservado do Morumbi, perto do Shopping Morumbi e do Hospital Albert Einstein. Essa vivência me ajuda a dizer, com honestidade, onde vale investir, onde alugar é mais tranquilo e onde vender rende melhor agora.',
+    about_p1: 'Sou a Silvia Helena, corretora há mais de 15 anos, CRECI 125743. Já conduzi mais de R$ 123 milhões em vendas e locações, de kitnets de 40m² perto do metrô Butantã a casas com quintal no Taboão e apartamentos de alto padrão no Morumbi. Não importa o valor: trato cada busca como se fosse da minha família.',
+    about_p2: 'Comprar a primeira casa, vender o apartamento onde os filhos cresceram ou alugar para recomeçar em outra região, sei que não é só transação. É mudança de vida. Por isso faço tudo pessoalmente: da visita à documentação no cartório, com fotos reais, preço justo e conversa franca. Sem promessa vazia, sem enrolação.',
+    about_p3: 'Moro a 10 minutos do Butantã. Conheço a Rua Alvarenga que enche aos sábados, a Vital Brasil perto do Instituto Butantan, o entorno tranquilo do Parque Villa-Lobos, o comércio da região da USP e o jeito acolhedor do Taboão (Jardim Mirna, Pirajussara, Parque Pinheiros) e o lado mais reservado do Morumbi, perto do Shopping Morumbi e do Hospital Albert Einstein. Essa vivência me ajuda a dizer, com honestidade, onde vale investir, onde alugar é mais tranquilo e onde vender rende melhor agora.',
     about_ach_title1: 'Atendimento direto comigo',
     about_ach_desc1: 'Você fala sempre comigo, não com uma equipe. Visita, negociação e contrato: eu acompanho.',
     about_ach_title2: 'Preço justo, sem ilusão',
@@ -170,7 +170,7 @@ export const DICT = {
     contact_privacy_note: 'Seu contato vai direto para mim. Sem robô, sem spam.',
 
     // Footer
-    footer_creci_desc: 'Sou Silvia Helena, corretora há 15 anos na região do Butantã — CRECI 125743. Já ajudei famílias a comprar, vender e alugar de kitnets a casas com quintal, sempre com conversa franca e preço justo.',
+    footer_creci_desc: 'Sou Silvia Helena, corretora há 15 anos na região do Butantã, CRECI 125743. Já ajudei famílias a comprar, vender e alugar de kitnets a casas com quintal, sempre com conversa franca e preço justo.',
     footer_territories: 'Onde mais atuo',
     footer_sp: 'Grande São Paulo',
     footer_rio: 'Litoral do Rio de Janeiro',

@@ -31,8 +31,8 @@ export interface FilterState {
 const initialFilters: FilterState = {
   type: 'all',
   location: 'all',
-  minPrice: 0,
-  maxPrice: 30, // in Millions USD
+  minPrice: 80000,
+  maxPrice: 10000000, // teto literal 10.000.000 (80.000 → 10.000.000) — valores reais da região
   bedrooms: 'any',
   bathrooms: 'any',
   garage: 'any',
@@ -46,23 +46,32 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<FilterState>(initialFilters);
-
-  const propertyTypes: (PropertyType | 'all')[] = [
+  // Tipos reais que existem no banco (português Sanity + traduzidos) — garante que o filtro funciona
+  const propertyTypes: string[] = [
     'all',
-    'House',
-    'Apartment',
-    'Luxury Mansion',
+    'Apartamento',
+    'Casa',
+    'Mansão de Luxo',
     'Kitnet',
-    'Land',
-    'Commercial',
-    'Farm',
-    'Beach House'
+    'Estúdio de Luxo',
+    'Studio/Kitnet',
+    'Terreno',
+    'Comercial',
+    'Fazenda',
+    'Casa de Praia',
+    'Cobertura',
+    'Apartamento', // duplicata para garantir match
   ];
 
   const updateFilter = (key: keyof FilterState, value: any) => {
     const updated = { ...filters, [key]: value };
     setFilters(updated);
-    onFilterChange(updated);
+    // Não aplica automaticamente — espera clique em Buscar (UX mais claro no mobile)
+  };
+
+  const handleBuscar = () => {
+    onFilterChange(filters);
+    // não fecha automaticamente — deixa o modal pai decidir (se tiver resultado fecha e scrolla, se não mostra mensagem no mesmo modal)
   };
 
   const resetFilters = () => {
@@ -74,7 +83,7 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
     let count = 0;
     if (filters.type !== 'all') count++;
     if (filters.location !== 'all') count++;
-    if (filters.minPrice > 0 || filters.maxPrice < 30) count++;
+    if (filters.minPrice > 80000 || filters.maxPrice < 10000000) count++;
     if (filters.bedrooms !== 'any') count++;
     if (filters.bathrooms !== 'any') count++;
     if (filters.garage !== 'any') count++;
@@ -219,26 +228,26 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                 </div>
               </div>
 
-              {/* Filter 4: Price Range Slider */}
+              {/* Filter 4: Price Range Slider — literal 80.000 → 10.000.000 */}
               <div className="space-y-2">
                 <div className="flex justify-between text-[9px] tracking-widest text-brand-muted uppercase font-light">
                   <span>{t('filter_max_price')}</span>
-                  <span className="text-brand-gold font-medium">{t('filter_up_to', [filters.maxPrice])}</span>
+                  <span className="text-brand-gold font-medium">Até R$ {filters.maxPrice.toLocaleString('pt-BR')}</span>
                 </div>
                 <div className="pt-2">
                   <input
                     type="range"
-                    min="0"
-                    max="30"
-                    step="0.5"
+                    min="80000"
+                    max="10000000"
+                    step="50000"
                     value={filters.maxPrice}
                     onChange={(e) => updateFilter('maxPrice', Number(e.target.value))}
                     className="w-full accent-brand-gold bg-brand-light/10 h-1 cursor-pointer rounded-none outline-none"
                   />
                   <div className="flex justify-between text-[8px] text-brand-muted mt-1 uppercase">
-                    <span>R$ 0</span>
-                    <span>R$ 15 Mi</span>
-                    <span>R$ 30 Mi+</span>
+                    <span>R$ 80.000</span>
+                    <span>R$ 5.000.000</span>
+                    <span>R$ 10.000.000</span>
                   </div>
                 </div>
               </div>
@@ -295,6 +304,24 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({ onFilterChange, 
                   <span className="text-xs text-brand-muted font-light uppercase tracking-widest">{t('filter_pet')}</span>
                 </label>
               </div>
+            </div>
+
+            {/* Botão Buscar — criado pois não existia; otimizado para mobile */}
+            <div className="px-6 md:px-8 pb-6 pt-2 flex flex-col sm:flex-row gap-3 bg-[#1a080f]/90">
+              <button
+                onClick={handleBuscar}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90 active:bg-brand-gold/80 text-brand-bg px-6 py-4 rounded-xl text-[13px] font-semibold uppercase tracking-[0.18em] transition-colors shadow-[0_4px_20px_rgba(212,163,115,0.25)] cursor-pointer"
+              >
+                <Search size={16} aria-hidden="true" />
+                Buscar
+              </button>
+              <button
+                onClick={() => { resetFilters(); setIsOpen(false); }}
+                className="sm:w-auto w-full inline-flex items-center justify-center gap-2 border border-brand-light/15 hover:border-brand-light/30 text-brand-muted hover:text-brand-light px-6 py-4 rounded-xl text-xs uppercase tracking-widest transition-colors cursor-pointer"
+              >
+                <RotateCcw size={14} aria-hidden="true" />
+                Limpar
+              </button>
             </div>
 
           </motion.div>

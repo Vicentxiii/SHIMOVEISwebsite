@@ -17,6 +17,7 @@ import { BlogListPage } from './pages/BlogListPage';
 import { BlogPostPage } from './pages/BlogPostPage';
 import { AdminPage } from './pages/AdminPage';
 import { GoogleAnalytics } from './components/GoogleAnalytics';
+import { ProgressiveBlur } from './components/ProgressiveBlur';
 
 // Scroll to top on route change (SEO UX)
 const ScrollToTop: React.FC = () => {
@@ -56,6 +57,9 @@ export default function App() {
       <FavoritesProvider>
         <BrowserRouter>
           <AppRoutes />
+          {/* ProgressiveBlur premium em todo o site, exceto header — 20% menos blur */}
+          <ProgressiveBlur position="top" backgroundColor="#17060D" height="88px" blurAmount="8px" className="fixed top-0 z-20" />
+          <ProgressiveBlur position="bottom" backgroundColor="#17060D" height="120px" blurAmount="9.5px" className="fixed bottom-0 z-20" />
           <Analytics />
           <GoogleAnalytics />
         </BrowserRouter>

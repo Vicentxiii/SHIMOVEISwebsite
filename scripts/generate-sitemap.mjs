@@ -35,7 +35,7 @@ const regionProperties = [
   { id: 'prop-butanta-1', title: 'Apartamento 2 Quartos Jardim no Butantã', location: 'Butantã, São Paulo' },
   { id: 'prop-butanta-2', title: 'Casa 3 Quartos com Quintal no Butantã', location: 'Butantã, São Paulo' },
   { id: 'prop-butanta-3', title: 'Cobertura Linear 3 Suítes Butantã', location: 'Butantã, São Paulo' },
-  { id: 'prop-taboao-1', title: 'Casa 3 Quartos Pirajuçara Taboão da Serra', location: 'Pirajuçara, Taboão da Serra' },
+  { id: 'prop-taboao-1', title: 'Casa 3 Quartos Pirajussara Taboão da Serra', location: 'Pirajussara, Taboão da Serra' },
   { id: 'prop-taboao-2', title: 'Apartamento 2 Quartos Parque Pinheiros Taboão', location: 'Parque Pinheiros, Taboão da Serra' },
   { id: 'prop-taboao-3', title: 'Sobrado 4 Quartos Jardim Mirna Taboão da Serra', location: 'Jardim Mirna, Taboão da Serra' },
   { id: 'prop-morumbi-1', title: 'Mansão 5 Suítes Morumbi com Piscina e Gourmet', location: 'Morumbi, São Paulo' },
@@ -54,7 +54,7 @@ const regionProperties = [
 
 function getRegionSlugForLocation(location) {
   if (location.includes('Butantã')) return 'butanta';
-  if (location.includes('Taboão') || location.includes('Pirajuçara') || location.includes('Parque Pinheiros') || location.includes('Jardim Mirna')) return 'taboao-da-serra';
+  if (location.includes('Taboão') || location.includes('Pirajussara') || location.includes('Parque Pinheiros') || location.includes('Jardim Mirna')) return 'taboao-da-serra';
   if (location.includes('Morumbi')) return 'morumbi';
   // fallback: slugify primeira parte
   return slugify(location.split(',')[0]);

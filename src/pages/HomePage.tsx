@@ -6,7 +6,7 @@ import { Header } from '../components/Header';
 import { AboutSection } from '../components/AboutSection';
 import { PropertyCard } from '../components/PropertyCard';
 import { PropertyDetailModal } from '../components/PropertyDetailModal';
-import { AdvancedSearch, FilterState } from '../components/AdvancedSearch';
+import { FilterState } from '../components/AdvancedSearch';
 import { LifestyleSection } from '../components/LifestyleSection';
 import { ContactSection } from '../components/ContactSection';
 import { LoadingScreen } from '../components/LoadingScreen';
@@ -16,6 +16,8 @@ import { useLanguage } from '../components/LanguageContext';
 import { PortalListingsCarousel } from '../components/PortalListingsCarousel';
 import { FAQSection } from '../components/FAQSection';
 import { SocialProofTestimonials } from '../components/SocialProofTestimonials';
+import { NoResultsModal } from '../components/NoResultsModal';
+import { FilterSearchModal } from '../components/FilterSearchModal';
 import { SEO } from '../components/SEO';
 import { SITE_CONFIG, SEO_TEMPLATES, buildCanonical } from '../utils/seoConfig';
 import logoSrc from '../assets/images/logo_transparente.webp';
@@ -29,6 +31,9 @@ export const HomePage: React.FC = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [showNoResultsModal, setShowNoResultsModal] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [filterHasNoResults, setFilterHasNoResults] = useState(false);
   const { favorites } = useFavorites();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -63,17 +68,71 @@ export const HomePage: React.FC = () => {
 
   const handleFilterChange = (filters: FilterState) => {
     let result = [...properties];
-    if (filters.type !== 'all') result = result.filter((p) => p.type === filters.type);
-    if (filters.location !== 'all') result = result.filter((p) => p.location === filters.location);
+    if (filters.type !== 'all') {
+      const f = String(filters.type).toLowerCase();
+      result = result.filter((p) => {
+        const pt = String(p.type).toLowerCase();
+        if (pt === f) return true;
+        if (f === 'house' && pt.includes('casa')) return true;
+        if (f === 'apartment' && (pt.includes('apartamento') || pt.includes('cobertura'))) return true;
+        if (f === 'luxury mansion' && pt.includes('mansão')) return true;
+        if (f === 'kitnet' && pt.includes('kitnet')) return true;
+        if (f === 'estúdio de luxo' && pt.includes('estúdio')) return true;
+        if (f === 'studio/kitnet' && pt.includes('studio')) return true;
+        return pt.includes(f) || f.includes(pt);
+      });
+    }
+    if (filters.location !== 'all') {
+      const loc = String(filters.location).toLowerCase();
+      result = result.filter((p) => String(p.location).toLowerCase().includes(loc));
+    }
     if (filters.bedrooms !== 'any') result = result.filter((p) => p.bedrooms >= (filters.bedrooms as number));
     if (filters.bathrooms !== 'any') result = result.filter((p) => p.bathrooms >= (filters.bathrooms as number));
     if (filters.garage !== 'any') result = result.filter((p) => p.garage >= (filters.garage as number));
-    result = result.filter((p) => p.price <= filters.maxPrice);
+    // preço literal 80.000 → 10.000.000 (valores reais da região)
+    const getActualPrice = (p: any) => (p as any).valorRaw ?? Math.round((p.price as number) * 1000000);
+    if (filters.minPrice > 80000) result = result.filter((p) => getActualPrice(p) >= filters.minPrice);
+    if (filters.maxPrice < 10000000) result = result.filter((p) => getActualPrice(p) <= filters.maxPrice);
     if (filters.hasSwimmingPool) result = result.filter((p) => p.hasSwimmingPool);
     if (filters.hasGarden) result = result.filter((p) => p.hasGarden);
     if (filters.hasOceanView) result = result.filter((p) => p.hasOceanView);
     if (filters.isPetFriendly) result = result.filter((p) => p.isPetFriendly);
     setFilteredProperties(result);
+    // verifica se filtro está ativo
+    const hasActive =
+      filters.type !== 'all' ||
+      filters.location !== 'all' ||
+      filters.bedrooms !== 'any' ||
+      filters.bathrooms !== 'any' ||
+      filters.garage !== 'any' ||
+      filters.minPrice > 80000 ||
+      filters.maxPrice < 10000000 ||
+      filters.hasSwimmingPool ||
+      filters.hasGarden ||
+      filters.hasOceanView ||
+      filters.isPetFriendly;
+    const hasNoResults = result.length === 0 && hasActive;
+    setFilterHasNoResults(hasNoResults);
+    // se tem resultado, fecha o modal de filtro e scrolla até os imóveis — se não tem, mantém o MESMO modal aberto com a mensagem (evita modal sobre modal)
+    if (!hasNoResults) {
+      setShowNoResultsModal(false);
+      // fecha o modal de busca e vai até a lista
+      if (hasActive) {
+        setIsSearchModalOpen(false);
+        setTimeout(() => {
+          const el = document.getElementById('estates');
+          if (el) {
+            const headerOffset = 80;
+            const pos = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: pos, behavior: 'smooth' });
+          }
+        }, 150);
+      }
+    } else {
+      // mantém o modal de filtro aberto e mostra a mensagem dentro dele (mesmo modal)
+      setIsSearchModalOpen(true);
+      setShowNoResultsModal(false);
+    }
   };
 
   const uniqueLocations = React.useMemo(() => Array.from(new Set(properties.map((p) => p.location))).filter(Boolean), [properties]);
@@ -142,8 +201,18 @@ export const HomePage: React.FC = () => {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
       <LoadingScreen />
-      <Header onOpenFavorites={() => setIsFavoritesOpen(true)} activeSection={activeSection} />
+      <Header onOpenFavorites={() => setIsFavoritesOpen(true)} onOpenSearch={() => setIsSearchModalOpen(true)} activeSection={activeSection} />
       <FavoritesDrawer isOpen={isFavoritesOpen} onClose={() => setIsFavoritesOpen(false)} onSelectProperty={(p) => setSelectedProperty(p)} />
+      <FilterSearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => {
+          setIsSearchModalOpen(false);
+          setFilterHasNoResults(false);
+        }}
+        onFilterChange={handleFilterChange}
+        availableLocations={uniqueLocations}
+        hasNoResults={filterHasNoResults}
+      />
 
       {/* HERO - limpa, elegante e futurista - bordas redondas */}
       <section id="home" className="relative min-h-[100svh] flex flex-col justify-center items-center overflow-hidden bg-black" aria-label="Silvia Helena corretora de imóveis - corretora de imóveis em São Paulo">
@@ -163,45 +232,45 @@ export const HomePage: React.FC = () => {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
           {/* brilho sutil dourado */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-brand-gold/10 blur-[120px] rounded-full pointer-events-none" />
-          {/* grid futurista muito sutil */}
-          <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)`, backgroundSize: '72px 72px' }} aria-hidden="true" />
+          {/* grid futurista muito sutil - oculto no mobile para limpeza */}
+          <div className="absolute inset-0 opacity-[0.04] hidden md:block" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)`, backgroundSize: '72px 72px' }} aria-hidden="true" />
         </div>
 
-        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-8 flex flex-col items-center text-center pt-28 md:pt-32 pb-10">
-          {/* pill badge futurista */}
+        <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-8 flex flex-col items-center text-center pt-28 md:pt-32 pb-16 md:pb-10">
+          {/* pill badge futurista - texto levemente menor para hero mais limpo */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-xl px-4 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] backdrop-blur-xl px-3.5 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-gold text-brand-bg">
-              <Sparkles size={12} aria-hidden="true" />
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-gold text-brand-bg">
+              <Sparkles size={11} aria-hidden="true" />
             </span>
-            <span className="text-[11px] tracking-[0.28em] text-brand-light/90 uppercase font-light">{t('hero_badge')}</span>
+            <span className="text-[10px] tracking-[0.26em] text-brand-light/90 uppercase font-light">{t('hero_badge')}</span>
             <span className="hidden sm:inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" aria-hidden="true" />
           </motion.div>
 
-          {/* H1 otimizado SEO Local - corretora + imóveis à venda (sem ambiguidade) */}
+          {/* H1 otimizado SEO Local - textos levemente reduzidos para hero mais limpo */}
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 2.7, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif text-[42px] sm:text-6xl md:text-7xl lg:text-[78px] font-extralight uppercase text-brand-light tracking-[0.02em] leading-[0.9] mt-8 max-w-4xl"
+            className="font-serif text-[34px] sm:text-5xl md:text-6xl lg:text-[64px] font-extralight uppercase text-brand-light tracking-[0.02em] leading-[0.9] mt-6 max-w-4xl"
           >
             <span className="block font-extralight tracking-wide">Silvia Helena</span>
-            <span className="block text-[12px] sm:text-sm md:text-[15px] tracking-[0.18em] font-light normal-case mt-3 text-brand-light/90 leading-relaxed">Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743</span>
+            <span className="block text-[11px] sm:text-xs md:text-[13px] tracking-[0.16em] font-light normal-case mt-2.5 text-brand-light/90 leading-relaxed">Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743</span>
           </motion.h1>
 
-          {/* subtítulo / proposta de valor + meta description visível */}
+          {/* subtítulo / proposta de valor + meta description visível - reduzido para leveza */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 3.1, duration: 1 }}
-            className="mt-6 flex flex-col items-center gap-4 max-w-2xl"
+            className="mt-5 flex flex-col items-center gap-3 max-w-xl"
           >
-            <span className="h-px w-24 bg-gradient-to-r from-transparent via-brand-gold/40 to-transparent" aria-hidden="true" />
-            <p className="text-sm md:text-[15px] tracking-[0.14em] md:tracking-[0.16em] text-brand-light/80 uppercase font-light leading-relaxed">
+            <span className="h-px w-20 bg-gradient-to-r from-transparent via-brand-gold/40 to-transparent" aria-hidden="true" />
+            <p className="text-xs md:text-[13px] tracking-[0.12em] md:tracking-[0.14em] text-brand-light/75 uppercase font-light leading-relaxed">
               Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região.
             </p>
           </motion.div>
@@ -210,10 +279,11 @@ export const HomePage: React.FC = () => {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-10 flex flex-col sm:flex-row items-center gap-3">
             <button
               onClick={() => scrollToSection('estates')}
-              className="group inline-flex items-center gap-3 rounded-full bg-brand-gold px-8 py-4 text-[12px] font-medium tracking-[0.2em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer"
-              aria-label="Falar com corretora de imóveis no Butantã, Morumbi e Taboão da Serra"
+              className="group inline-flex items-center gap-3 rounded-full bg-brand-gold px-6 md:px-8 py-3.5 md:py-4 text-[12px] font-medium tracking-[0.18em] md:tracking-[0.2em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer"
+              aria-label="Falar com a corretora"
             >
-              <span>{t('hero_cta')}</span>
+              <span className="md:hidden">falar com a corretora</span>
+              <span className="hidden md:inline">{t('hero_cta')}</span>
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
                 <ArrowDown size={14} className="-rotate-90" aria-hidden="true" />
               </span>
@@ -226,8 +296,8 @@ export const HomePage: React.FC = () => {
             </button>
           </motion.div>
 
-          {/* pills de região - rounded full, futurista glass */}
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.7, duration: 0.8 }} className="mt-8 flex flex-wrap justify-center gap-2.5">
+          {/* pills de região - desktop apenas, mobile fica limpo */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.7, duration: 0.8 }} className="mt-8 hidden md:flex flex-wrap justify-center gap-2.5">
             <Link to="/imoveis/butanta" className="group inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.06] backdrop-blur-xl px-4 py-2.5 text-[11px] tracking-[0.14em] uppercase text-brand-light/85 hover:bg-white/10 hover:border-brand-gold/30 hover:text-brand-gold transition-all duration-300">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-gold group-hover:shadow-[0_0_8px_rgba(212,163,115,0.8)] transition-shadow" aria-hidden="true" />
               Butantã
@@ -243,12 +313,12 @@ export const HomePage: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* barra inferior minimal - rounded pills */}
+        {/* barra inferior minimal - oculta no mobile para hero mais limpo */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 4, duration: 1 }}
-          className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 pb-6 md:pb-8"
+          className="relative z-10 hidden md:block w-full max-w-7xl mx-auto px-6 md:px-12 pb-6 md:pb-8"
         >
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 rounded-full border border-white/10 bg-black/20 backdrop-blur-xl px-4 md:px-6 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]">
             <div className="inline-flex items-center gap-2.5 text-[10px] tracking-[0.2em] text-brand-light/70 uppercase font-light">
@@ -278,26 +348,20 @@ export const HomePage: React.FC = () => {
       {/* SEO Content Section - 300+ palavras para GEO */}
       <section className="py-12 md:py-16 bg-[#1a080f] border-y border-brand-light/5" aria-labelledby="seo-content-heading">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa comprar, vender ou alugar com corretora de imóveis? Eu cuido de tudo</h2>
+          <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa achar alguém de confiança para comprar, vender ou alugar seu imóvel? Eu cuido de tudo</h2>
           <div className="grid md:grid-cols-3 gap-8 text-sm text-brand-muted font-light leading-relaxed">
             <p>
-              Sou a <strong className="text-brand-light">Silvia Helena — CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
+              Sou a <strong className="text-brand-light">Silvia Helena, CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
             </p>
             <p>
-              Se você quer vender, faço conta com vendas reais da sua rua — não estimativa de portal. Para alugar, seleciono inquilino com critério e contrato que te protege. E se a ideia é encontrar um 2 quartos perto do metrô Butantã, uma casa com quintal no Taboão ou um apartamento tranquilo no Morumbi, te mostro o que vale a pena hoje, incluindo o que ainda nem foi anunciado.
+              Se você quer vender, faço conta com vendas reais da sua rua, não estimativa de portal. Para alugar, seleciono inquilino com critério e contrato que te protege. E se a ideia é encontrar um 2 quartos perto do metrô Butantã, uma casa com quintal no Taboão ou um apartamento tranquilo no Morumbi, te mostro o que vale a pena hoje, incluindo o que ainda nem foi anunciado.
             </p>
             <p>
-              Você fala sempre direto comigo, do primeiro oi no WhatsApp até a entrega das chaves. Sem equipe passando seu caso adiante. <Link to="/imoveis/butanta" className="text-brand-gold hover:underline">Veja com corretora de imóveis no Butantã</Link>, <Link to="/imoveis/taboao-da-serra" className="text-brand-gold hover:underline">opções com corretora de imóveis em Taboão da Serra</Link> ou <Link to="/imoveis/morumbi" className="text-brand-gold hover:underline">opções mais reservadas no Morumbi com corretora de imóveis</Link> — ou me chama para conversarmos sem compromisso.
+              Você fala sempre direto comigo, do primeiro oi no WhatsApp até a entrega das chaves. Sem equipe passando seu caso adiante. <Link to="/imoveis/butanta" className="text-brand-gold hover:underline">Veja com corretora de imóveis no Butantã</Link>, <Link to="/imoveis/taboao-da-serra" className="text-brand-gold hover:underline">opções com corretora de imóveis em Taboão da Serra</Link> ou <Link to="/imoveis/morumbi" className="text-brand-gold hover:underline">opções mais reservadas no Morumbi com corretora de imóveis</Link>, ou me chama para conversarmos sem compromisso.
             </p>
           </div>
         </div>
       </section>
-
-      <div className="sticky top-0 z-30 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <AdvancedSearch onFilterChange={handleFilterChange} availableLocations={uniqueLocations} />
-        </div>
-      </div>
 
       <section id="estates" className="py-24 md:py-36 bg-brand-bg relative">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -311,14 +375,21 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
           {filteredProperties.length === 0 ? (
-            <div className="py-24 text-center border border-brand-light/10 space-y-4 bg-brand-light/[0.01]">
-              <Compass size={28} className="text-brand-gold mx-auto animate-spin" aria-hidden="true" />
+            <div className="py-16 md:py-24 text-center border border-brand-light/10 space-y-4 bg-brand-light/[0.01] rounded-2xl px-6">
+              <Compass size={28} className="text-brand-gold mx-auto" aria-hidden="true" />
               <h3 className="font-serif text-xl text-brand-light font-light">{t('portfolio_empty_title')}</h3>
               <p className="text-xs text-brand-muted max-w-md mx-auto leading-relaxed font-light">{t('portfolio_empty_desc')}</p>
-              <button onClick={() => scrollToSection('contact')} className="inline-flex items-center gap-2 border border-brand-gold/30 hover:border-brand-gold text-brand-gold px-6 py-2.5 text-xs font-light uppercase tracking-widest mt-4 transition-all duration-300 cursor-pointer" aria-label="Iniciar busca privada com Silvia Helena">
-                <span>{t('portfolio_empty_cta')}</span>
-                <ChevronRight size={10} aria-hidden="true" />
-              </button>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
+                <button onClick={() => setShowNoResultsModal(true)} className="inline-flex items-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-bg px-6 py-3 rounded-full text-xs font-semibold uppercase tracking-widest transition-colors cursor-pointer" aria-label="Ver mensagem da Silvia sobre imóveis fora do site">
+                  <span>Ver opções da cartela</span>
+                  <ChevronRight size={12} aria-hidden="true" />
+                </button>
+                <button onClick={() => scrollToSection('contact')} className="inline-flex items-center gap-2 border border-brand-gold/30 hover:border-brand-gold text-brand-gold px-6 py-3 rounded-full text-xs font-light uppercase tracking-widest transition-all duration-300 cursor-pointer" aria-label="Iniciar busca privada com Silvia Helena">
+                  <span>{t('portfolio_empty_cta')}</span>
+                  <ChevronRight size={10} aria-hidden="true" />
+                </button>
+              </div>
+              <p className="text-[11px] text-brand-muted/70 font-light">Dica: clique em <strong className="text-brand-gold font-medium">Buscar</strong> após selecionar os filtros</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-10 md:gap-16">
@@ -334,6 +405,8 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <NoResultsModal isOpen={showNoResultsModal} onClose={() => setShowNoResultsModal(false)} />
 
       <PortalListingsCarousel />
       <LifestyleSection />

@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, Heart, MessageSquare, Compass, Award, Globe } from 'lucide-react';
+import { Menu, X, Heart, MessageSquare, Compass, Award, Globe, Search } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useFavorites } from './FavoritesContext';
 import { useLanguage, Language } from './LanguageContext';
@@ -13,10 +13,11 @@ import logoSrc from '../assets/images/logo_transparente.webp';
 
 interface HeaderProps {
   onOpenFavorites: () => void;
+  onOpenSearch?: () => void;
   activeSection: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, onOpenSearch, activeSection }) => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -73,11 +74,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
   };
 
   const navItems = [
-    { label: t('nav_advisor'), target: 'about' },
-    { label: t('nav_estates'), target: 'estates' },
-    { label: t('nav_philosophy'), target: 'lifestyle' },
-    { label: t('nav_testimonials'), target: 'testimonials' },
-    { label: t('nav_consultation'), target: 'contact' },
+    { label: 'Imóveis', target: 'estates' },
+    { label: 'Depoimentos', target: 'testimonials' },
+    { label: 'Contato', target: 'contact' },
   ];
 
   return (
@@ -209,14 +208,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
               </AnimatePresence>
             </button>
 
-            {/* Quick Consultation CTA */}
+            {/* Procurar imóvel — ícone minimalista glassmorphism */}
             <button
-              onClick={() => scrollToSection('contact')}
-              className="hidden lg:flex items-center gap-2 border border-brand-gold/30 hover:border-brand-gold bg-brand-gold/5 hover:bg-brand-gold/15 text-brand-gold px-5 py-2 rounded-none text-xs font-light uppercase tracking-[0.2em] transition-all duration-500 cursor-pointer"
-              aria-label="Agendar com corretora de imóveis no Butantã, Morumbi ou Taboão da Serra"
+              onClick={() => onOpenSearch?.()}
+              className="hidden lg:inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] backdrop-blur-xl hover:bg-white/10 hover:border-white/25 text-brand-light/90 hover:text-brand-light px-5 py-2.5 text-[11px] tracking-[0.18em] uppercase font-light transition-all duration-300 cursor-pointer"
+              aria-label="Procurar imóvel — abrir filtros"
             >
-              <MessageSquare size={12} />
-              <span>{t('header_cta_consultation')}</span>
+              <Search size={14} className="text-brand-gold" aria-hidden="true" />
+              <span>procurar imóvel</span>
             </button>
 
             {/* Mobile Hamburger Menu */}
@@ -290,11 +289,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenFavorites, activeSection }
                   <span>{t('mobile_menu_favs', [favorites.length])}</span>
                 </button>
                 <button
-                  onClick={() => scrollToSection('contact')}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setTimeout(() => onOpenSearch?.(), 200);
+                  }}
                   className="flex items-center gap-3 text-brand-gold text-sm font-light uppercase tracking-widest"
                 >
-                  <MessageSquare size={16} />
-                  <span>{t('mobile_menu_contact')}</span>
+                  <Search size={16} />
+                  <span>procurar imóvel</span>
                 </button>
               </div>
 
