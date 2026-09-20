@@ -28,6 +28,18 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+const GlobalBlur: React.FC = () => {
+  const { pathname } = useLocation();
+  const isAdmin = pathname.startsWith('/admin');
+  if (isAdmin) return null;
+  return (
+    <>
+      <ProgressiveBlur position="top" backgroundColor="#17060D" height="88px" blurAmount="8px" className="fixed top-0 z-20" />
+      <ProgressiveBlur position="bottom" backgroundColor="#17060D" height="120px" blurAmount="9.5px" className="fixed bottom-0 z-20" />
+    </>
+  );
+};
+
 const AppRoutes: React.FC = () => {
   return (
     <>
@@ -47,6 +59,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/taboao-da-serra" element={<Navigate to="/imoveis/taboao-da-serra" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <GlobalBlur />
     </>
   );
 };
@@ -57,9 +70,6 @@ export default function App() {
       <FavoritesProvider>
         <BrowserRouter>
           <AppRoutes />
-          {/* ProgressiveBlur premium em todo o site, exceto header — 20% menos blur */}
-          <ProgressiveBlur position="top" backgroundColor="#17060D" height="88px" blurAmount="8px" className="fixed top-0 z-20" />
-          <ProgressiveBlur position="bottom" backgroundColor="#17060D" height="120px" blurAmount="9.5px" className="fixed bottom-0 z-20" />
           <Analytics />
           <GoogleAnalytics />
         </BrowserRouter>

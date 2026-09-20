@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Trash2, AlertTriangle, X } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
 
@@ -150,6 +152,8 @@ export const AdminPage: React.FC = () => {
   const [modoForm, setModoForm] = useState<null | 'novo' | 'editar'>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [imovelParaRemover, setImovelParaRemover] = useState<SanityImovel | null>(null);
+  const [removendo, setRemovendo] = useState(false);
 
   // Toast
   const [toast, setToast] = useState<{ tipo: 'sucesso' | 'erro'; msg: string } | null>(null);
@@ -447,7 +451,6 @@ export const AdminPage: React.FC = () => {
 
   const handleTogglePublicado = async (im: SanityImovel) => {
     try {
-      // Verifica sessão antes de mutação
       if (!isSessionValid()) {
         handleSessionExpired();
         return;
@@ -469,6 +472,37 @@ export const AdminPage: React.FC = () => {
         return;
       }
       setToast({ tipo: 'erro', msg: e?.message || 'Ops, algo deu errado. Tenta de novo ou me chama no WhatsApp' });
+    }
+  };
+
+  const handleRemover = async () => {
+    if (!imovelParaRemover) return;
+    if (!isSessionValid()) {
+      handleSessionExpired('Sessão expirada. Faça login novamente para remover.');
+      return;
+    }
+    setRemovendo(true);
+    try {
+      await fetchJson('/api/deletar-imovel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: imovelParaRemover._id }),
+      });
+      setImoveis((prev) => prev.filter((p) => p._id !== imovelParaRemover._id));
+      setToast({ tipo: 'sucesso', msg: `🗑️ "${imovelParaRemover.titulo}" removido com sucesso.` });
+      setImovelParaRemover(null);
+    } catch (e: any) {
+      console.error('[remover] erro', e);
+      const msg = e?.message || '';
+      const isAuth = /session not found|unauthorized|não autorizado|não configurado|SANITY_WRITE_TOKEN|SANITY_API_WRITE_TOKEN|401|403/i.test(msg);
+      if (isAuth) {
+        handleSessionExpired('Sessão expirada. Faça login novamente para remover.');
+        setToast({ tipo: 'erro', msg: '🔒 Sessão expirada. Faça login novamente.' });
+        return;
+      }
+      setToast({ tipo: 'erro', msg: e?.message || 'Ops, não deu para remover. Tenta de novo.' });
+    } finally {
+      setRemovendo(false);
     }
   };
 
@@ -740,8 +774,8 @@ export const AdminPage: React.FC = () => {
           noindex={true}
         />
 
-        {/* header form */}
-        <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-black/5">
+        {/* header form — sem blur */}
+        <div className="sticky top-0 z-30 bg-white border-b border-black/5">
           <div className="max-w-[720px] mx-auto px-4 h-[64px] flex items-center justify-between">
             <button
               onClick={() => {
@@ -961,16 +995,20 @@ export const AdminPage: React.FC = () => {
     <div className="min-h-screen bg-[#F8F2EF]">
       <SEO title="Admin — Imóveis" description="Painel administrativo" canonical="https://silviahelenacorretora.com.br/admin" noindex={true} />
 
-      {/* Header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-black/5">
+      {/* Header — mais elegante sem blur */}
+      <div className="sticky top-0 z-30 bg-white border-b border-black/5 shadow-[0_2px_20px_rgba(23,6,13,0.04)]">
+        <div className="h-[2px] bg-gradient-to-r from-transparent via-[#D4A373]/60 to-transparent" aria-hidden="true" />
         <div className="max-w-[960px] mx-auto px-4 h-[64px] flex items-center justify-between">
-          <div>
-            <h1 className="font-serif text-[20px] font-light text-[#17060D] tracking-wide">Meus Imóveis</h1>
-            <p className="text-[12px] tracking-widest uppercase text-[#8F7E7E]">Silvia Helena • {imoveis.length} imóveis</p>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#17060D] flex items-center justify-center text-[#D4A373] font-serif text-sm">SH</div>
+            <div>
+              <h1 className="font-serif text-[20px] font-light text-[#17060D] tracking-wide">Meus Imóveis</h1>
+              <p className="text-[12px] tracking-widest uppercase text-[#8F7E7E]">Silvia Helena • {imoveis.length} imóveis • CRECISP 125743</p>
+            </div>
           </div>
           <button
             onClick={handleSair}
-            className="text-[14px] font-medium text-[#8F7E7E] border border-black/10 rounded-full px-4 py-2 hover:bg-black/5 transition"
+            className="text-[13px] font-medium tracking-wide text-[#8F7E7E] border border-black/10 rounded-full px-4 py-2 hover:bg-black/5 hover:border-black/15 hover:text-[#17060D] transition"
           >
             Sair
           </button>
@@ -1019,11 +1057,16 @@ export const AdminPage: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {imoveisFiltrados.map((im) => {
+              {imoveisFiltrados.map((im, idx) => {
                 const thumb = im.fotos?.[0] ? (() => { try { return urlFor(im.fotos[0]).width(400).height(300).fit('crop').auto('format').url(); } catch { return ''; } })() : '';
                 const pausado = im.publicado === false;
                 return (
-                  <div key={im._id} className={`bg-white rounded-[20px] overflow-hidden border shadow-sm flex flex-col ${pausado ? 'border-amber-200 opacity-90' : 'border-black/5'}`}>
+                  <motion.div
+                    key={im._id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] as any }}
+                    className={`bg-white rounded-[20px] overflow-hidden border shadow-sm hover:shadow-[0_8px_32px_rgba(23,6,13,0.07)] hover:border-[#D4A373]/15 flex flex-col transition-all duration-300 ${pausado ? 'border-amber-200 opacity-90' : 'border-black/5'}`}>
                     {pausado && <div className="bg-amber-100 text-amber-800 text-[12px] font-bold tracking-widest uppercase text-center py-1.5">⏸️ Pausado — não aparece no site</div>}
                     <div className="aspect-[16/10] bg-[#F8F2EF] relative overflow-hidden">
                       {thumb ? <img src={thumb} alt={im.titulo} className="w-full h-full object-cover" loading="lazy" /> : <div className="w-full h-full flex items-center justify-center text-[#8F7E7E]">Sem foto</div>}
@@ -1050,8 +1093,15 @@ export const AdminPage: React.FC = () => {
                           {pausado ? '▶️ Ativar' : '⏸️ Pausar'}
                         </button>
                       </div>
+                      <button
+                        onClick={() => setImovelParaRemover(im)}
+                        className="w-full mt-3 h-[44px] rounded-[12px] border border-red-200 bg-white text-red-600 text-[14px] font-semibold hover:bg-red-50 hover:border-red-300 hover:text-red-700 flex items-center justify-center gap-2 transition active:scale-[0.98] group"
+                      >
+                        <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
+                        Remover imóvel
+                      </button>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -1064,6 +1114,69 @@ export const AdminPage: React.FC = () => {
           </a>
         </div>
       </div>
+
+      {/* Modal confirmação remover — elegante com detalhe dourado */}
+      <AnimatePresence>
+        {imovelParaRemover && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[90] flex items-center justify-center p-4"
+            aria-modal="true"
+            role="dialog"
+          >
+            <div className="absolute inset-0 bg-[#0a0206]/70 backdrop-blur-[8px]" onClick={() => !removendo && setImovelParaRemover(null)} aria-hidden="true" />
+            <motion.div
+              initial={{ scale: 0.96, y: 12, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.96, y: 12, opacity: 0 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+              className="relative w-full max-w-[480px] bg-white rounded-[20px] shadow-[0_24px_64px_rgba(0,0,0,0.25)] overflow-hidden border border-red-100"
+            >
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-300/50 to-transparent" aria-hidden="true" />
+              <div className="p-6 md:p-7">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
+                    <AlertTriangle size={20} className="text-red-600" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[18px] font-bold text-[#17060D]">Remover imóvel?</h3>
+                    <p className="text-[14px] text-[#8F7E7E] leading-relaxed mt-1">
+                      Tem certeza que deseja remover <span className="font-semibold text-[#17060D]">"{imovelParaRemover.titulo}"</span> em {imovelParaRemover.regiao}? Essa ação não pode ser desfeita e o imóvel sumirá do site.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => !removendo && setImovelParaRemover(null)}
+                    className="w-8 h-8 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center transition shrink-0"
+                    aria-label="Fechar"
+                  >
+                    <X size={16} className="text-[#8F7E7E]" />
+                  </button>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setImovelParaRemover(null)}
+                    disabled={removendo}
+                    className="flex-1 h-[48px] rounded-[12px] border border-black/10 bg-white text-[#17060D] text-[15px] font-semibold hover:bg-black/5 disabled:opacity-50 transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleRemover}
+                    disabled={removendo}
+                    className="flex-1 h-[48px] rounded-[12px] bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-[15px] font-bold flex items-center justify-center gap-2 transition active:scale-[0.98]"
+                  >
+                    {removendo ? <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" /> : <Trash2 size={16} aria-hidden="true" />}
+                    {removendo ? 'Removendo...' : 'Sim, remover'}
+                  </button>
+                </div>
+                <p className="text-[11px] text-[#8F7E7E] text-center mt-3">O imóvel será apagado permanentemente do Sanity.</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
