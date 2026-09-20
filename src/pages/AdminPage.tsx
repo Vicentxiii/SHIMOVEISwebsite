@@ -219,7 +219,6 @@ export const AdminPage: React.FC = () => {
     };
 
     try {
-      // tenta api serverless (traz pausados também) — repassa cabeçalho de autorização da sessão do LocalStorage
       const headers = { ...getSessionHeader() } as Record<string, string>;
       const r = await fetch('/api/listar-imoveis', { headers });
       if (r.ok) {
@@ -230,13 +229,16 @@ export const AdminPage: React.FC = () => {
           return;
         }
       } else {
-        // Tenta extrair erro JSON para detectar 401/Session not found
         let errText = '';
         try {
           const errJ = await r.clone().json();
           errText = errJ?.error || errJ?.details || '';
         } catch {
           errText = await r.text().catch(() => '');
+        }
+        // Se for 404 por rewrites antigo, não mostra toast genérico — deixa cair no fallback silencioso
+        if (r.status === 404 && (!errText || errText.trim().startsWith('<!doctype'))) {
+          throw new Error('fallback');
         }
         if (errText) throw new Error(errText);
         throw new Error(`HTTP ${r.status}`);
@@ -247,18 +249,25 @@ export const AdminPage: React.FC = () => {
         setLoadingLista(false);
         return;
       }
-      // fallback público (sem token) — não exige sessão
+      // Fallback silencioso: tenta clientes com token se disponível, sem toast a cada entrada
       try {
+        // Tenta com token se houver (dataset pode ser privado para leitura pública)
+        const fallbackClient = hasAdminToken() && sanityAdminClient ? sanityAdminClient : sanityClient;
         const q = `*[_type == "imovel"] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
-        const dados = await sanityClient.fetch<SanityImovel[]>(q);
+        const dados = await (fallbackClient as any).fetch<SanityImovel[]>(q);
         setImoveis(dados || []);
-      } catch (e2: any) {
-        const isAuth2 = (e2?.message || '').toLowerCase().includes('session');
-        if (isAuth2) {
-          handleSessionExpired();
-        } else {
-          setToast({ tipo: 'erro', msg: 'Ops, algo deu errado ao carregar os imóveis. Tente recarregar ou faça login novamente.' });
+        if (!dados || dados.length === 0) {
+          console.warn('[carregarImoveis] fallback retornou vazio — pode ser dataset privado ou sem imóveis');
         }
+      } catch (e2: any) {
+        console.warn('[carregarImoveis] fallback falhou (silencioso)', e2);
+        const msg2 = String(e2?.message || '').toLowerCase();
+        if (msg2.includes('session') || msg2.includes('unauthorized') || msg2.includes('401') || msg2.includes('permission')) {
+          handleSessionExpired();
+          return;
+        }
+        // Não mostra mais o toast "Ops, algo deu errado" a cada entrada — mantém lista vazia e UI mostra "Nenhum imóvel encontrado" com retry
+        setImoveis([]);
       }
     } finally {
       setLoadingLista(false);
