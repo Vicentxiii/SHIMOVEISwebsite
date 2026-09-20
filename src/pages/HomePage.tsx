@@ -18,6 +18,7 @@ import { FAQSection } from '../components/FAQSection';
 import { SocialProofTestimonials } from '../components/SocialProofTestimonials';
 import { NoResultsModal } from '../components/NoResultsModal';
 import { FilterSearchModal } from '../components/FilterSearchModal';
+import { Signature } from '@/components/ui/signature';
 import { SEO } from '../components/SEO';
 import { SITE_CONFIG, SEO_TEMPLATES, buildCanonical } from '../utils/seoConfig';
 import logoSrc from '../assets/images/logo_transparente.webp';
@@ -345,20 +346,37 @@ export const HomePage: React.FC = () => {
 
       <AboutSection />
 
-      {/* SEO Content Section - 300+ palavras para GEO */}
+      {/* SEO Content Section — duas colunas: esquerda Signature, direita texto */}
       <section className="py-12 md:py-16 bg-[#1a080f] border-y border-brand-light/5" aria-labelledby="seo-content-heading">
-        <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa achar alguém de confiança para comprar, vender ou alugar seu imóvel? Eu cuido de tudo</h2>
-          <div className="grid md:grid-cols-3 gap-8 text-sm text-brand-muted font-light leading-relaxed">
-            <p>
-              Sou a <strong className="text-brand-light">Silvia Helena, CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
-            </p>
-            <p>
-              Se você quer vender, faço conta com vendas reais da sua rua, não estimativa de portal. Para alugar, seleciono inquilino com critério e contrato que te protege. E se a ideia é encontrar um 2 quartos perto do metrô Butantã, uma casa com quintal no Taboão ou um apartamento tranquilo no Morumbi, te mostro o que vale a pena hoje, incluindo o que ainda nem foi anunciado.
-            </p>
-            <p>
-              Você fala sempre direto comigo, do primeiro oi no WhatsApp até a entrega das chaves. Sem equipe passando seu caso adiante. <Link to="/imoveis/butanta" className="text-brand-gold hover:underline">Veja com corretora de imóveis no Butantã</Link>, <Link to="/imoveis/taboao-da-serra" className="text-brand-gold hover:underline">opções com corretora de imóveis em Taboão da Serra</Link> ou <Link to="/imoveis/morumbi" className="text-brand-gold hover:underline">opções mais reservadas no Morumbi com corretora de imóveis</Link>, ou me chama para conversarmos sem compromisso.
-            </p>
+        <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-12 items-center">
+          {/* Coluna esquerda — efeito Signature (corrigido: fontUrl explícito + tamanho responsivo) */}
+          <div className="flex flex-col items-center justify-center text-center py-2 md:py-6 order-1 overflow-visible">
+            <div className="w-full max-w-[320px] md:max-w-[420px]">
+              <Signature text="Silvia Helena" fontSize={44} duration={1.5} delay={0.2} color="#D4A373" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto text-brand-gold overflow-visible" />
+            </div>
+            <div className="w-full max-w-[280px] md:max-w-[360px] -mt-2 md:-mt-1">
+              <Signature text="corretora de imóveis" fontSize={22} duration={1.4} delay={1.1} color="#F8F2EF" fontUrl="/LastoriaBoldRegular.otf" className="w-full h-auto opacity-85 overflow-visible" />
+            </div>
+            <p className="mt-4 text-[10px] tracking-[0.22em] text-brand-muted uppercase font-light">CRECI 125743 • Assinatura de confiança</p>
+            {/* fallback caso fonte não carregue — garante que algo apareça */}
+            <noscript>
+              <p className="font-serif text-2xl text-brand-gold mt-2">Silvia Helena — corretora de imóveis</p>
+            </noscript>
+          </div>
+          {/* Coluna direita — texto */}
+          <div className="order-2">
+            <h2 id="seo-content-heading" className="font-serif text-2xl md:text-3xl text-brand-light font-light mb-6">Precisa achar alguém de confiança para comprar, vender ou alugar seu imóvel? Eu cuido de tudo</h2>
+            <div className="space-y-4 text-sm text-brand-muted font-light leading-relaxed">
+              <p>
+                Sou a <strong className="text-brand-light">Silvia Helena, CRECI 125743</strong>. Há 15 anos vivo e trabalho entre o Butantã, Taboão da Serra e Morumbi. Já acompanhei de perto a valorização da Vital Brasil, a procura por casas com quintal no Taboão e a busca por prédios silenciosos no Morumbi. Cada visita que faço leva essa vivência.
+              </p>
+              <p>
+                Se você quer vender, faço conta com vendas reais da sua rua, não estimativa de portal. Para alugar, seleciono inquilino com critério e contrato que te protege. E se a ideia é encontrar um 2 quartos perto do metrô Butantã, uma casa com quintal no Taboão ou um apartamento tranquilo no Morumbi, te mostro o que vale a pena hoje, incluindo o que ainda nem foi anunciado.
+              </p>
+              <p>
+                Você fala sempre direto comigo, do primeiro oi no WhatsApp até a entrega das chaves. Sem equipe passando seu caso adiante. <Link to="/imoveis/butanta" className="text-brand-gold hover:underline">Veja com corretora de imóveis no Butantã</Link>, <Link to="/imoveis/taboao-da-serra" className="text-brand-gold hover:underline">opções com corretora de imóveis em Taboão da Serra</Link> ou <Link to="/imoveis/morumbi" className="text-brand-gold hover:underline">opções mais reservadas no Morumbi com corretora de imóveis</Link>, ou me chama para conversarmos sem compromisso.
+              </p>
+            </div>
           </div>
         </div>
       </section>
