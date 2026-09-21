@@ -1,17 +1,16 @@
 import { setCors } from '../src/lib/sanity-server.js';
 
-const SYSTEM_PROMPT = `Você é redatora exclusiva da corretora Silvia Helena (CRECISP 125743), 15 anos entre Butantã, Morumbi e Taboão da Serra. Escreve descrições que vendem sem parecer IA.
+const SYSTEM_PROMPT = `Você é redatora exclusiva da corretora Silvia Helena (CRECISP 125743), 15 anos entre Butantã, Morumbi e Taboão da Serra. Escreve descrições que vendem sem parecer IA — humanas, elegantes e que instigam visita.
 
 REGRAS INQUEBRÁVEIS:
 - Você SÓ gera descrições de imóveis. Se pedirem outra coisa, responda: "Só gero descrições de imóveis para a Silvia Helena."
-- NUNCA invente dados (não crie metragem, quartos, banheiros, vagas, endereço ou valor falsos). Use apenas o que foi fornecido.
-- OBRIGATÓRIO citar com naturalidade, no corpo do texto: tipo, bairro/região, área em m², número de quartos, banheiros e vagas, valor e finalidade. Esses números precisam aparecer escritos (ex: "3 quartos sendo 1 suíte, 2 banheiros, 2 vagas, 85m²").
-- Tom humano, elegante e sofisticado, mas mastigado para leigo — como a Silvia explica na visita: calmo, confiante, sem jargão de luxo ("ativo/portfólio/off-market"), sem clichê de IA ("excelente oportunidade", "não perca").
-- Grande e dedicada: 280 a 380 palavras, 4 a 5 parágrafos fluidos, com storytelling de rotina (ex: café na varanda, quintal no Taboão, silêncio do Morumbi, metrô Butantã). Parece escrita por pessoa, não por robô — varie ritmo, use 1 pergunta retórica suave.
-- SEO forte e natural: inclua com fluidez "corretora de imóveis em [Região]", "corretora de imóveis no Butantã/Morumbi/Taboão da Serra", "imóvel à venda/aluguel em [Região]" 2-3x sem forçar, mais o tipo + bairro.
-- Estrutura: 1) Abertura sofisticada com título e localização + ficha técnica em frase; 2) Vida/rotina no bairro (benefício específico da região); 3) Detalhes técnicos elegantes (área, planta, iluminação, acabamento) + endereço; 4) Condição comercial e documentação com Silvia (preço justo, sem estimativa de portal, visita sem pressa); 5) Convite humano para visita + hashtags.
-- Finalize com linha de hashtags dedicadas (5 a 7): #CorretoraDeImoveis #ImoveisEm[RegiaoSemAcento] #Butanta #Morumbi #TaboaoDaSerra #ApartamentoAVenda #CasaParaAlugar etc — adapte à região e finalidade.
-- Português do Brasil, elegante, sem emojis no corpo (pode 1 no convite se sutil), sem inglês desnecessário.`;
+- NUNCA invente dados. Use apenas o que foi fornecido. É PROIBIDO omitir números: você DEVE escrever no texto, com naturalidade, TODOS estes dados quando existirem: área em m², número de quartos, banheiros e vagas, valor, tipo, região, endereço e finalidade. Exemplo obrigatório no primeiro parágrafo: "São 85m² com 2 quartos, 2 banheiros e 2 vagas..." — se algum for 0, escreva "sem vaga" ou omita com elegância, mas NUNCA deixe de citar área, quartos, banheiros e vagas quando >0.
+- Tom humano, elegante, sofisticado e instigante, mas mastigado para leigo — como a Silvia explica na visita: calmo, confiante, sem jargão de luxo ("ativo/portfólio/off-market"), sem clichê de IA ("excelente oportunidade", "não perca", "impecável oportunidade"). Crie desejo com storytelling sensorial (luz da manhã na sala, silêncio do Morumbi, quintal no Taboão para churrasco, 7 min do metrô Butantã), use 1 pergunta retórica que instiga ("Já imaginou tomar café na varanda com essa vista?").
+- Grande, completa e sem cortes: 320 a 420 palavras, 4 a 5 parágrafos fluidos + linha final de hashtags. NUNCA corte no meio da frase. Se precisar, finalize com reticências elegantes, nunca com "Tr". Entregue texto 100% completo.
+- SEO forte e natural: inclua com fluidez "corretora de imóveis em [Região]", "corretora de imóveis no Butantã/Morumbi/Taboão da Serra", "imóvel à venda/aluguel em [Região]" 2-3x, mais tipo + bairro, sem forçar.
+- Estrutura OBRIGATÓRIA: 1) Abertura sofisticada com título + endereço completo + ficha técnica completa em frase (com todos os números); 2) Vida/rotina no bairro (benefício específico da região, instigante); 3) Detalhes técnicos elegantes (planta, iluminação, acabamento, condomínio) com área/quartos/banheiros/vagas repetidos com variação elegante; 4) Condição comercial + documentação com Silvia (preço justo, sem estimativa de portal, sem pressa, direto com a corretora); 5) Convite humano instigante para visita + hashtags.
+- Finalize SEMPRE com linha de 5 a 7 hashtags dedicadas em linha separada: #CorretoraDeImoveis #ImoveisEm[RegiaoSemAcento] #Butanta #Morumbi #TaboaoDaSerra #ApartamentoAVenda #CasaParaAlugar etc — adapte à região e finalidade.
+- Português do Brasil, elegante, sem emojis no corpo, sem inglês desnecessário. PROIBIDO cortar no meio.`;
 
 // Modelos tentados em ordem — 1.5-flash foi descontinuado, 2.5-flash exige gemini-3.6 para novos users
 // gemini-flash-latest funcionou no teste, mas pode dar 503 (alta demanda) — tenta gemma como último recurso
@@ -21,28 +20,40 @@ function gerarDescricaoFallback(data: any): string {
   const { titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas } = data || {};
   const valorFmt = valor ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(String(valor).replace(/\D/g, '')) || 0) : 'a consultar';
   const regiaoSlug = (regiao || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '');
-  const areaTxt = area ? `${area} m²` : 'metragem sob consulta';
-  const quartosTxt = quartos != null ? `${quartos} quarto(s)` : 'quartos a confirmar';
-  const banheirosTxt = banheiros != null ? `${banheiros} banheiro(s)` : 'banheiros a confirmar';
-  const vagasTxt = vagas != null ? `${vagas} vaga(s)` : 'vagas a confirmar';
-  const p1 = `${titulo} — ${tipo} em ${regiao}${endereco ? `, ${endereco}` : ''}. São ${areaTxt} com ${quartosTxt} sendo ${Number(quartos) >= 2 ? 'posições com boa iluminação' : 'planta eficiente'}, ${banheirosTxt} e ${vagasTxt}, pensados para rotina leve e bem resolvida.`;
+  const areaNum = Number(area) || 0;
+  const quartosNum = Number(quartos) || 0;
+  const banheirosNum = Number(banheiros) || 0;
+  const vagasNum = Number(vagas) || 0;
+  const ficha = `${areaNum ? `${areaNum}m²` : 'metragem sob consulta'} com ${quartosNum} quarto${quartosNum === 1 ? '' : 's'}${quartosNum >= 2 ? ' bem iluminados' : ''}, ${banheirosNum} banheiro${banheirosNum === 1 ? '' : 's'} e ${vagasNum} vaga${vagasNum === 1 ? '' : 's'}${vagasNum === 0 ? ' (sem vaga, rua tranquila para estacionar)' : ''}`;
+  const p1 = `${titulo} — ${tipo} em ${regiao}${endereco ? `, ${endereco}` : ''}. São ${ficha}, pensados para quem busca conforto sem abrir mão de praticidade. Já imaginou tomar café da manhã com luz natural invadindo a sala?`;
   const regiaoDetalhe: Record<string, string> = {
-    'Butantã': 'Acorda e em 7 minutos está no metrô Butantã, deixa os filhos na USP e no fim do dia caminha no Parque Villa-Lobos sem carro. A Vital Brasil concentra farmácia, padaria e mercado a pé — vizinhança que facilita sem barulho da marginal.',
-    'Taboão da Serra': 'Quintal de verdade, churrasqueira coberta e vagas lado a lado por menos que um 2 quartos apertado em SP. Saindo pela Régis ou Aprígio Bezerra você está no Butantã/Morumbi em 12 minutos e volta para rua calma e arborizada à noite.',
-    'Morumbi': 'Rua silenciosa, condomínio com portaria dupla e lazer completo, a 10 minutos do Shopping Morumbi e do Einstein. Ideal para quem valoriza privacidade sem se isolar da Faria Lima/Berrini.',
+    'Butantã': 'Acorda e em 7 minutos está no metrô Butantã, deixa os filhos na USP e no fim do dia caminha no Parque Villa-Lobos sem carro. A Vital Brasil concentra farmácia, padaria e mercado a pé — vizinhança que facilita sem barulho da marginal. Como corretora de imóveis no Butantã, vejo procura constante por essa praticidade.',
+    'Taboão da Serra': 'Quintal de verdade, churrasqueira coberta e vagas lado a lado por menos que um 2 quartos apertado em SP. Saindo pela Régis ou Aprígio Bezerra você está no Butantã/Morumbi em 12 minutos e volta para rua calma e arborizada à noite. Como corretora de imóveis em Taboão da Serra, sei o valor de cada rua.',
+    'Morumbi': 'Rua silenciosa e arborizada, condomínio com portaria dupla e lazer completo, a 10 minutos do Shopping Morumbi e do Einstein. Ideal para quem valoriza privacidade sem se isolar da Faria Lima/Berrini. Como corretora de imóveis no Morumbi, seleciono com critério para seu sossego.',
   };
-  const p2 = regiaoDetalhe[regiao] || `Região valorizada com procura constante para moradia e renda, bem servida de comércio e transporte.`;
-  const p3 = `Planta bem resolvida em ${areaTxt}: salas com luz natural, quartos com armários, cozinha com espaço para mesa e área de serviço independente. Acabamento em porcelanato, janelas amplas e ventilação cruzada — fotos reais, sem filtro, e visita sem pressa para sentir o imóvel.`;
-  const p4 = `Valor ${valorFmt} para ${finalidade || 'Venda'}, com documentação checada (matrícula, certidões, IPTU) e avaliação com base em vendas reais da rua — nada de estimativa de portal. Conduzo da visita à assinatura no cartório, direto com você, sem repasse para equipe.`;
-  const p5 = `Quer sentir na visita? Me chama para conhecer com a Silvia Helena (CRECISP 125743) — respondo em até 2h no WhatsApp.\n\n#CorretoraDeImoveis #ImoveisEm${regiaoSlug || 'SaoPaulo'} #${(regiao || '').replace(/\s/g, '')} #${(tipo || '').replace(/\s/g, '')} #ImovelA${finalidade || 'Venda'} #Butanta #Morumbi #TaboaoDaSerra`;
+  const p2 = regiaoDetalhe[regiao] || `Região valorizada com procura constante para moradia e renda, bem servida de comércio e transporte. Corretora de imóveis em ${regiao} com atendimento direto.`;
+  const p3 = `Planta inteligente em ${areaNum ? `${areaNum}m²` : 'ótima metragem'}: ${quartosNum} quarto(s) com armários planejados, ${banheirosNum} banheiro(s) com box e ventilação, ${vagasNum} vaga(s) coberta(s) e área de serviço independente. Acabamento em porcelanato, janelas amplas e ventilação cruzada — fotos reais, sem filtro, e visita sem pressa para você sentir o imóvel com calma. Um imóvel à venda em ${regiao} que une espaço e localização.`;
+  const p4 = `Valor ${valorFmt} para ${finalidade || 'Venda'}, com documentação checada (matrícula atualizada, certidões, IPTU) e avaliação com base em vendas reais da rua — nada de estimativa de portal. Conduzo da visita à assinatura no cartório, direto com você, sem repasse para equipe. Corretora de imóveis em ${regiao} com preço justo e conversa franca.`;
+  const p5 = `Quer sentir na visita se é aqui que sua rotina vai acontecer melhor? Me chama para conhecer com a Silvia Helena (CRECISP 125743) — respondo em até 2h no WhatsApp e te mostro com calma. Imóvel para ${String(finalidade || 'venda').toLowerCase()} em ${regiao} com quem entende da região.\n\n#CorretoraDeImoveis #ImoveisEm${regiaoSlug || 'SaoPaulo'} #${(regiao || '').replace(/\s/g, '')} #${(tipo || '').replace(/\s/g, '')} #ImovelA${finalidade || 'Venda'} #${areaNum}m2 #${quartosNum}Quartos #${banheirosNum}Banheiros #${vagasNum}Vagas #Butanta #Morumbi #TaboaoDaSerra`;
   return `${p1}\n\n${p2}\n\n${p3}\n\n${p4}\n\n${p5}`;
 }
 
 function buildUserPrompt(data: any): string {
   const { titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao } = data || {};
   const valorFmt = valor ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(String(valor).replace(/\D/g, '')) || 0) : 'a consultar';
-  return `Gere a descrição GRANDE, elegante e com SEO forte para anúncio (280-380 palavras, 4-5 parágrafos + hashtags). Use estes dados REAIS e cite todos com naturalidade no texto (não deixe de mencionar quartos, banheiros, vagas, área, valor, tipo, região e endereço):
+  return `Gere a descrição GRANDE, completa, elegante e com SEO forte para anúncio (320-420 palavras, 4-5 parágrafos + linha final de hashtags). É OBRIGATÓRIO que o texto final contenha, com naturalidade, TODOS estes dados (não omita nenhum):
 
+OBRIGATÓRIO citar no texto:
+- Área exata: ${area || 0} m²
+- Quartos: ${quartos ?? 0}
+- Banheiros: ${banheiros ?? 0}
+- Vagas: ${vagas ?? 0}
+- Tipo: ${tipo || 'não informado'}
+- Região: ${regiao || 'não informada'}
+- Endereço: ${endereco || 'não informado'}
+- Valor: ${valorFmt} • Finalidade: ${finalidade || 'Venda'}
+
+Dados completos:
 - Título: ${titulo || 'a definir'}
 - Tipo: ${tipo || 'não informado'}
 - Região: ${regiao || 'não informada'} (Butantã, Taboão da Serra ou Morumbi)
@@ -52,10 +63,11 @@ function buildUserPrompt(data: any): string {
 - Rascunho atual (se houver, melhore sem copiar igual): ${descricao ? `"${String(descricao).slice(0, 400)}"` : '(vazio — crie do zero)'}
 
 Exija no texto final:
-- Ficha técnica em frase elegante com todos os números (ex: "São 85m² com 3 quartos, 2 banheiros e 2 vagas...")
-- 2-3 ocorrências naturais de "corretora de imóveis em [Região]" / "imóvel à venda/aluguel em [Região]"
-- Tom humano, sofisticado e mastigado — sem cara de IA, sem "excelente oportunidade"
-- Final com convite da Silvia + linha de 5-7 hashtags (ex: #CorretoraDeImoveis #Morumbi #Butanta #TaboaoDaSerra #ApartamentoAVenda)
+- Primeiro parágrafo JÁ traz ficha técnica completa em frase elegante com todos os números (ex: "São 85m² com 2 quartos, 2 banheiros e 2 vagas em Morumbi, na Rua X...")
+- Tom humano, sofisticado, instigante e mastigado — sem cara de IA, sem "excelente oportunidade", com 1 pergunta retórica que cria desejo
+- 2-3 ocorrências naturais de "corretora de imóveis em [Região]" / "imóvel à venda/aluguel em [Região]" para SEO
+- Texto 100% completo, NUNCA corte no meio da frase
+- Final com convite da Silvia + linha de 5-7 hashtags (ex: #CorretoraDeImoveis #Morumbi #Butanta #TaboaoDaSerra #85m2 #2Quartos #2Banheiros #2Vagas)
 - Entregue apenas a descrição final pronta para colar.`;
 }
 }
@@ -104,7 +116,7 @@ export default async function handler(req: any, res: any) {
             systemInstruction: SYSTEM_PROMPT,
             temperature: 0.88,
             topP: 0.96,
-            maxOutputTokens: 950,
+            maxOutputTokens: 1200,
           },
         });
         text = result?.text || result?.candidates?.[0]?.content?.parts?.[0]?.text || null;
@@ -132,7 +144,12 @@ export default async function handler(req: any, res: any) {
     }
 
     let descricao = String(text).trim().replace(/^"+|"+$/g, '').trim();
-    if (descricao.length > 1800) descricao = descricao.slice(0, 1797) + '...';
+    // Só corta se realmente extrapolar 2800, e corta em fim de frase para não quebrar no meio
+    if (descricao.length > 2800) {
+      const corte = descricao.slice(0, 2797);
+      const ultimoPonto = Math.max(corte.lastIndexOf('.'), corte.lastIndexOf('\n'));
+      descricao = (ultimoPonto > 2000 ? corte.slice(0, ultimoPonto + 1) : corte) + '...';
+    }
 
     return res.status(200).json({ ok: true, descricao });
   } catch (e: any) {

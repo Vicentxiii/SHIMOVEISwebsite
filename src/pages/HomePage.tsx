@@ -150,12 +150,17 @@ export const HomePage: React.FC = () => {
     }
   };
 
-  // JSON-LD RealEstateAgent + FAQ + Breadcrumb
+  // JSON-LD RealEstateAgent + Person - desambiguação máxima: CORRETORA autônoma SP vs Silvia Helena Imóveis J-7324 Barra Mansa
   const realEstateAgentJsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'RealEstateAgent',
-    name: 'Silvia Helena corretora de imóveis',
-    image: `${SITE_CONFIG.getSiteUrl()}/favicon.webp`,
+    '@type': ['RealEstateAgent', 'Person'],
+    name: 'Silvia Helena Corretora - CRECISP 125743',
+    alternateName: ['Silvia Helena Corretora', 'Silvia Helena CRECISP 125743'],
+    description: SEO_TEMPLATES.home.description,
+    jobTitle: 'Corretora de Imóveis Autônoma',
+    identifier: 'CRECISP 125743',
+    logo: `${SITE_CONFIG.getSiteUrl()}/favicon.png`,
+    image: `${SITE_CONFIG.getSiteUrl()}/og-image.webp`,
     url: SITE_CONFIG.getSiteUrl(),
     telephone: SITE_CONFIG.phone,
     email: SITE_CONFIG.email,
@@ -175,8 +180,7 @@ export const HomePage: React.FC = () => {
       { '@type': 'Place', name: 'Morumbi, São Paulo' },
     ],
     openingHours: 'Mo-Sa 09:00-19:00',
-    description: SEO_TEMPLATES.home.description,
-    knowsAbout: ['corretora de imóveis para comprar', 'corretora de imóveis para vender', 'corretora de imóveis para alugar', 'corretora de imóveis Butantã', 'corretora de imóveis Morumbi', 'corretora de imóveis Taboão da Serra'],
+    knowsAbout: ['corretora de imóveis para comprar', 'corretora de imóveis para vender', 'corretora de imóveis para alugar', 'corretora de imóveis Butantã', 'corretora de imóveis Morumbi', 'corretora de imóveis Taboão da Serra', 'corretora autônoma CRECISP 125743', 'atendimento direto com corretora'],
   };
 
   const websiteJsonLd = {
@@ -197,8 +201,8 @@ export const HomePage: React.FC = () => {
         title={SEO_TEMPLATES.home.title}
         description={SEO_TEMPLATES.home.description}
         canonical={buildCanonical('/')}
-        keywords="Corretora de imóveis São Paulo, corretora de imóveis Butantã, corretora de imóveis Morumbi, corretora de imóveis Taboão da Serra, corretora no Butantã, Silvia Helena"
-        ogImage="/favicon.webp"
+        keywords="Silvia Helena Corretora, Silvia Helena Corretora CRECISP 125743, Corretora de imóveis São Paulo, corretora de imóveis Butantã, corretora de imóveis Morumbi, corretora de imóveis Taboão da Serra, corretora autônoma"
+        ogImage="/og-image.webp"
       />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateAgentJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />

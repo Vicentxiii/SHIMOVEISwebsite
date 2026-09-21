@@ -43,8 +43,8 @@ export const REGIONS: Record<string, RegionData> = {
   'taboao-da-serra': {
     slug: 'taboao-da-serra',
     name: 'Taboão da Serra',
-    title: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena',
-    metaTitle: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena',
+    title: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena Corretora - CRECISP 125743',
+    metaTitle: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena Corretora - CRECISP 125743',
     metaDescription: 'Saia do aluguel em 2026: imóveis prontos para morar e financiar em Taboão da Serra com crédito facilitado, documentação com CRECISP e parcelas que cabem no bolso. Veja casas e apartamentos com Silvia Helena.',
     h1: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra — Do Aluguel para a Casa Própria',
     intro: 'Taboão da Serra é para quem quer quintal e espaço sem pagar preço de São Paulo, mas continuar a 10 minutos do Butantã — agora com crédito facilitado e imóveis prontos para financiar em 2026.',
@@ -65,8 +65,8 @@ export const REGIONS: Record<string, RegionData> = {
   morumbi: {
     slug: 'morumbi',
     name: 'Morumbi',
-    title: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Imóveis',
-    metaTitle: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Imóveis',
+    title: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Corretora - CRECISP 125743',
+    metaTitle: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Corretora - CRECISP 125743',
     metaDescription: 'Morar no Morumbi é viver com segurança em condomínios fechados, colégios de ponta como Porto Seguro e Santo Américo, e apartamentos de luxo com lazer completo. Veja casas e apartamentos de luxo à venda no Morumbi com Silvia Helena.',
     h1: 'Casas e Apartamentos de Luxo à Venda no Morumbi — Condomínios Fechados e Sofisticação',
     intro: 'O Morumbi é sossego com conveniência: ruas arborizadas, condomínios fechados com segurança 24h, colégios de ponta e ainda 15 minutos da Faria Lima.',

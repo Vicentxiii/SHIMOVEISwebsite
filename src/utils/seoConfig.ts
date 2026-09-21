@@ -7,7 +7,7 @@
 export const SITE_CONFIG = {
   // ALTERAR para domínio real em produção
   siteUrl: 'https://silviahelenacorretora.com.br',
-  siteName: 'Silvia Helena corretora de imóveis',
+  siteName: 'Silvia Helena Corretora - CRECISP 125743',
   // fallback se env var definida
   getSiteUrl(): string {
     // Vite expõe import.meta.env
@@ -53,20 +53,20 @@ export interface SEOProps {
 
 export const SEO_TEMPLATES = {
   home: {
-    title: 'Silvia Helena | Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743',
-    description: 'Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região. Fale com a corretora Silvia Helena.',
+    title: 'Silvia Helena Corretora | Corretora de Imóveis no Butantã, Morumbi e Taboão da Serra - CRECISP 125743',
+    description: 'Silvia Helena Corretora - CRECISP 125743: atendimento 100% direto com a corretora, sem imobiliária ou repasse. Encontre casas e apartamentos para comprar, vender ou alugar no Butantã, Morumbi e Taboão da Serra com quem entende da região.',
   },
   butanta: {
     title: 'Imóveis à Venda e para Alugar no Butantã | Silvia Helena Corretora - CRECISP 125743',
     description: 'Descubra por que o Butantã atrai tantas famílias: proximidade com o metrô Linha 4-Amarela, USP, Parque Villa-Lobos e comércio da Vital Brasil. Veja imóveis à venda e para alugar no Butantã com a corretora Silvia Helena - CRECISP 125743.',
   },
   taboao: {
-    title: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena',
-    description: 'Saia do aluguel em 2026: imóveis prontos para morar e financiar em Taboão da Serra com crédito facilitado, documentação com CRECISP e parcelas que cabem no bolso. Veja casas e apartamentos com Silvia Helena.',
+    title: 'Imóveis Prontos para Morar e Financiar em Taboão da Serra | Silvia Helena Corretora - CRECISP 125743',
+    description: 'Saia do aluguel em 2026: imóveis prontos para morar e financiar em Taboão da Serra com a corretora Silvia Helena - CRECISP 125743. Crédito facilitado, documentação com CRECISP e parcelas que cabem no bolso.',
   },
   morumbi: {
-    title: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Imóveis',
-    description: 'Morar no Morumbi é viver com segurança em condomínios fechados, colégios de ponta como Porto Seguro e Santo Américo, e apartamentos de luxo com lazer completo. Veja casas e apartamentos de luxo à venda no Morumbi com Silvia Helena.',
+    title: 'Casas e Apartamentos de Luxo à Venda no Morumbi | Silvia Helena Corretora - CRECISP 125743',
+    description: 'Morar no Morumbi é viver com segurança em condomínios fechados, colégios de ponta como Porto Seguro e Santo Américo, e apartamentos de luxo com lazer completo. Veja casas e apartamentos de luxo à venda no Morumbi com a corretora Silvia Helena - CRECISP 125743.',
   },
 };
 

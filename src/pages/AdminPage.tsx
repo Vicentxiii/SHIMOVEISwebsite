@@ -534,7 +534,7 @@ export const AdminPage: React.FC = () => {
                 {gerandoDescricao ? 'Gerando...' : '✨ Gerar com IA'}
               </button>
             </div>
-            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={5} className="w-full p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-none" />
+            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={12} className="w-full min-h-[320px] max-h-[520px] p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap" />
             <p className="text-[11px] text-brand-muted/60 font-light mt-2 leading-relaxed">IA exclusiva para descrições — usa título, tipo, região, área e quartos. Só gera descrição, nada mais. Você revisa antes de salvar.</p>
           </div>
 

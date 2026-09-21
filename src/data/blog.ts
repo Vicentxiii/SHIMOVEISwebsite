@@ -432,7 +432,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'mercado-imobiliario-morumbi-alto-padrao-antes-de-comprar',
     title: 'Mercado Imobiliário no Morumbi: O que Você Precisa Saber Antes de Comprar um Imóvel de Alto Padrão',
     excerpt: 'Morumbi valorizou acima da média em 2024-2026. Entenda segurança em condomínios fechados, colégios como Porto Seguro e Santo Américo, e o perfil real dos apartamentos de luxo antes de decidir.',
-    metaTitle: 'Mercado Imobiliário no Morumbi: Antes de Comprar Alto Padrão | Silvia Helena Imóveis',
+    metaTitle: 'Mercado Imobiliário no Morumbi: Antes de Comprar Alto Padrão | Silvia Helena Corretora - CRECISP 125743',
     metaDescription: 'Guia do mercado imobiliário no Morumbi 2026: valorização do m², segurança em condomínios fechados, colégios de ponta e perfil dos apartamentos de luxo. Consultoria com Silvia Helena - alto padrão.',
     author: 'Silvia Helena',
     datePublished: '2026-04-10',

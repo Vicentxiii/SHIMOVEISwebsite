@@ -1,4 +1,4 @@
-# robots.txt — Silvia Helena Imóveis
+# robots.txt — Silvia Helena Corretora de Imóveis - CRECISP 125743
 # Permite indexação total e aponta para sitemap
 
 User-agent: *
