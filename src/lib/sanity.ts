@@ -45,7 +45,7 @@ export function urlFor(source: any) {
   return builder.image(source)
 }
 
-// Tipo que vem do Sanity (conforme schema imovel)
+// Tipo que vem do Sanity (conforme schema imovel) - inclui comodidades para filtro
 export interface SanityImovel {
   _id: string
   _createdAt: string
@@ -63,12 +63,16 @@ export interface SanityImovel {
   descricao?: any[] // Portable Text
   fotos: any[]
   publicado: boolean
+  isPetFriendly?: boolean
+  hasSwimmingPool?: boolean
+  hasGarden?: boolean
+  hasOceanView?: boolean
 }
 
 // Busca todos os imóveis publicados, mais recentes primeiro
 export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
   const query = `*[_type == "imovel" && publicado == true] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado
+    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView
   }`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query)
@@ -82,7 +86,7 @@ export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
 // Busca por região específica
 export async function fetchImoveisPorRegiao(regiao: string): Promise<SanityImovel[]> {
   const query = `*[_type == "imovel" && publicado == true && regiao == $regiao] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado
+    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView
   }`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query, {regiao})
@@ -130,10 +134,10 @@ export function sanityToProperty(imovel: SanityImovel) {
     description: descricaoTexto || `Imóvel ${imovel.tipo} em ${imovel.regiao} - ${imovel.endereco}`,
     endereco: imovel.endereco,
     features: [imovel.tipo, imovel.finalidade, `${imovel.area}m²`],
-    hasSwimmingPool: false,
-    hasGarden: false,
-    hasOceanView: false,
-    isPetFriendly: true,
+    hasSwimmingPool: !!(imovel as any).hasSwimmingPool,
+    hasGarden: !!(imovel as any).hasGarden,
+    hasOceanView: !!(imovel as any).hasOceanView,
+    isPetFriendly: (imovel as any).isPetFriendly !== undefined ? !!(imovel as any).isPetFriendly : true,
     tagline: `${imovel.tipo} em ${imovel.regiao} • ${formattedPrice}`,
     slug: imovel.slug?.current || '',
     _createdAt: imovel._createdAt,

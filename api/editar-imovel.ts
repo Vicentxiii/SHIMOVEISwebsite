@@ -25,6 +25,10 @@ export default async function handler(req: any, res: any) {
       vagas,
       descricao,
       fotos,
+      isPetFriendly,
+      hasSwimmingPool,
+      hasGarden,
+      hasOceanView,
     } = body || {};
 
     if (!id) return res.status(400).json({ error: 'ID do imóvel é obrigatório' });
@@ -59,6 +63,10 @@ export default async function handler(req: any, res: any) {
       vagas: Number(vagas) || 0,
       descricao: descricaoToPortableText(descricao || ''),
       fotos: fotosSanity,
+      isPetFriendly: isPetFriendly !== undefined ? !!isPetFriendly : true,
+      hasSwimmingPool: !!hasSwimmingPool,
+      hasGarden: !!hasGarden,
+      hasOceanView: !!hasOceanView,
     };
 
     // Se título mudou, atualiza slug também para manter URL consistente (opcional)

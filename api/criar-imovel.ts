@@ -22,6 +22,10 @@ export default async function handler(req: any, res: any) {
       vagas,
       descricao,
       fotos,
+      isPetFriendly,
+      hasSwimmingPool,
+      hasGarden,
+      hasOceanView,
     } = body || {};
 
     // Validações simples
@@ -66,6 +70,10 @@ export default async function handler(req: any, res: any) {
       descricao: descricaoToPortableText(descricao || ''),
       fotos: fotosSanity,
       publicado: true,
+      isPetFriendly: isPetFriendly !== undefined ? !!isPetFriendly : true,
+      hasSwimmingPool: !!hasSwimmingPool,
+      hasGarden: !!hasGarden,
+      hasOceanView: !!hasOceanView,
     };
 
     const created = await client.create(doc as any);
