@@ -282,12 +282,22 @@ export const AdminPage: React.FC = () => {
         headers,
         body: JSON.stringify({ titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao }),
       });
-      const j: any = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(j.error || 'Erro ao gerar descrição');
+      const text = await r.text();
+      let j: any = {};
+      try { j = text ? JSON.parse(text) : {}; } catch {
+        const isHtml = text.trim().startsWith('<!doctype') || text.trim().startsWith('<html');
+        if (isHtml) throw new Error('API não encontrada (recebeu HTML). Você está em "npm run dev" sem serverless — use "vercel dev" (porta 3000) ou faça deploy na Vercel para testar a IA.');
+        throw new Error(text.slice(0, 400) || `Erro ${r.status}`);
+      }
+      if (!r.ok) throw new Error(j.error || `Erro ${r.status} ao gerar`);
       setDescricao(j.descricao);
-      setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada com IA — revise e ajuste antes de salvar.' });
+      if (j.fallback) {
+        setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada (fallback local) — IA em alta demanda, revise antes de salvar.' });
+      } else {
+        setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada com IA — revise e ajuste antes de salvar.' });
+      }
     } catch (e: any) {
-      setToast({ tipo: 'erro', msg: e?.message || 'Erro ao gerar descrição' });
+      setToast({ tipo: 'erro', msg: e?.message?.slice(0, 500) || 'Erro ao gerar descrição' });
     } finally {
       setGerandoDescricao(false);
     }

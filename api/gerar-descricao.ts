@@ -11,9 +11,24 @@ REGRAS INQUEBRÁVEIS:
 - Finalize com convite leve para visita com a Silvia.
 - Não use emojis, não use hashtags, não use inglês.`;
 
-// Modelo rápido e barato para descrições — flash é ideal
-const MODEL = 'gemini-1.5-flash';
-const MODEL_FALLBACK = 'gemini-1.5-flash-8b';
+// Modelos tentados em ordem — 1.5-flash foi descontinuado, 2.5-flash exige gemini-3.6 para novos users
+// gemini-flash-latest funcionou no teste, mas pode dar 503 (alta demanda) — tenta gemma como último recurso
+const MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemma-4-31b-it', 'gemma-4-26b-a4b-it'];
+
+function gerarDescricaoFallback(data: any): string {
+  const { titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas } = data || {};
+  const valorFmt = valor ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(Number(String(valor).replace(/\D/g, '')) || 0) : 'a consultar';
+  const regiaoBeneficio: Record<string, string> = {
+    'Butantã': 'a poucos passos do metrô Butantã e da USP, com comércio da Vital Brasil e acesso rápido à Faria Lima',
+    'Taboão da Serra': 'com quintal e vagas cobertas por menos que um 2 quartos em SP, a 10 minutos do Butantã pela Régis',
+    'Morumbi': 'em rua tranquila e arborizada, perto do Shopping Morumbi e com segurança de condomínio fechado',
+  };
+  const beneficio = regiaoBeneficio[regiao] || 'em região valorizada e com boa procura';
+  const p1 = `${titulo} — ${tipo} em ${regiao}${endereco ? `, ${endereco}` : ''}. São ${area || 0} m² bem distribuídos, com ${quartos ?? 0} quarto(s), ${banheiros ?? 0} banheiro(s) e ${vagas ?? 0} vaga(s), ideal para quem busca conforto e praticidade ${beneficio}.`;
+  const p2 = `Valor ${valorFmt} para ${finalidade || 'Venda'}, com documentação checada e preço baseado em vendas reais da rua — sem estimativa de portal. Fotos reais, sem filtro, e visita sem pressa para você sentir a luz e a ventilação.`;
+  const p3 = `Falo direto com você, do primeiro contato à entrega das chaves. Me chama para uma visita com a Silvia Helena — respondo em até 2 horas.`;
+  return `${p1}\n\n${p2}\n\n${p3}`;
+}
 
 function buildUserPrompt(data: any): string {
   const { titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao } = data || {};
@@ -66,7 +81,7 @@ export default async function handler(req: any, res: any) {
 
     let text: string | null = null;
     let lastError: any = null;
-    for (const model of [MODEL, MODEL_FALLBACK]) {
+    for (const model of MODELS) {
       try {
         const result: any = await (genAI as any).models.generateContent({
           model,
@@ -78,17 +93,28 @@ export default async function handler(req: any, res: any) {
             maxOutputTokens: 600,
           },
         });
-        // SDK retorna .text ou .candidates[0].content.parts[0].text
         text = result?.text || result?.candidates?.[0]?.content?.parts?.[0]?.text || null;
+        if (text && String(text).trim().length > 20) break;
+        // se veio vazio (gemma às vezes), tenta próximo
         if (text) break;
-      } catch (e) {
+      } catch (e: any) {
         lastError = e;
-        console.warn(`[gerar-descricao] modelo ${model} falhou`, e);
+        const msg = e?.message || String(e);
+        // Se for 503 alta demanda, tenta próximo modelo rapidamente
+        if (/503|UNAVAILABLE|high demand/i.test(msg)) {
+          console.warn(`[gerar-descricao] modelo ${model} em alta demanda, tentando próximo`);
+        } else {
+          console.warn(`[gerar-descricao] modelo ${model} falhou`, msg.slice(0, 300));
+        }
+        // espera 400ms antes de tentar próximo para não bater rate limit
+        await new Promise(r => setTimeout(r, 400));
       }
     }
 
     if (!text || !String(text).trim()) {
-      throw new Error(lastError?.message || 'IA não retornou texto. Tente novamente.');
+      console.warn('[gerar-descricao] IA falhou em todos os modelos, usando fallback template', lastError?.message);
+      const fallback = gerarDescricaoFallback(body);
+      return res.status(200).json({ ok: true, descricao: fallback, fallback: true, warning: lastError?.message?.slice(0, 300) });
     }
 
     // Limpeza leve: remove aspas externas e espaços
