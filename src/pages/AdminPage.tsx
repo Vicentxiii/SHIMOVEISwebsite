@@ -112,6 +112,7 @@ export const AdminPage: React.FC = () => {
   const [descricao, setDescricao] = useState('');
   const [imovelParaRemover, setImovelParaRemover] = useState<SanityImovel | null>(null);
   const [removendo, setRemovendo] = useState(false);
+  const [gerandoDescricao, setGerandoDescricao] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -267,6 +268,31 @@ export const AdminPage: React.FC = () => {
       setToast({ tipo: 'erro', msg: e?.message || 'Não deu para remover.' });
     } finally { setRemovendo(false); }
   };
+
+  const handleGerarDescricao = async () => {
+    if (!titulo.trim() || !tipo || !regiao || !valor) {
+      setToast({ tipo: 'erro', msg: 'Preencha título, tipo, região e valor antes de gerar com IA.' });
+      return;
+    }
+    setGerandoDescricao(true);
+    try {
+      const headers = { 'Content-Type': 'application/json', ...getSessionHeader() } as Record<string, string>;
+      const r = await fetch('/api/gerar-descricao', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao }),
+      });
+      const j: any = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || 'Erro ao gerar descrição');
+      setDescricao(j.descricao);
+      setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada com IA — revise e ajuste antes de salvar.' });
+    } catch (e: any) {
+      setToast({ tipo: 'erro', msg: e?.message || 'Erro ao gerar descrição' });
+    } finally {
+      setGerandoDescricao(false);
+    }
+  };
+
   const handleSalvar = async () => {
     if (!titulo.trim()) return setToast({ tipo: 'erro', msg: 'Escreve o título do anúncio' });
     if (!tipo) return setToast({ tipo: 'erro', msg: 'Escolhe o tipo de imóvel' });
@@ -491,8 +517,15 @@ export const AdminPage: React.FC = () => {
           </div>
 
           <div className="bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10">
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><FileText size={14} /> 9. Descrição <span className="font-light text-brand-muted normal-case tracking-normal text-[11px]">(opcional)</span></label>
-            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional)" rows={5} className="w-full p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-none" />
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light"><FileText size={14} /> 9. Descrição <span className="font-light text-brand-muted normal-case tracking-normal text-[11px]">(opcional)</span></label>
+              <button type="button" onClick={handleGerarDescricao} disabled={gerandoDescricao} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95 shrink-0">
+                {gerandoDescricao ? <span className="w-3.5 h-3.5 border-2 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin" aria-hidden="true" /> : <Sparkles size={12} aria-hidden="true" />}
+                {gerandoDescricao ? 'Gerando...' : '✨ Gerar com IA'}
+              </button>
+            </div>
+            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={5} className="w-full p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-none" />
+            <p className="text-[11px] text-brand-muted/60 font-light mt-2 leading-relaxed">IA exclusiva para descrições — usa título, tipo, região, área e quartos. Só gera descrição, nada mais. Você revisa antes de salvar.</p>
           </div>
 
           <div className="h-4" />
