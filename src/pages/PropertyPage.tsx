@@ -15,6 +15,7 @@ import { Property } from '../types';
 import logoSrc from '../assets/images/logo_transparente.webp';
 import { MapPin, Heart, Maximize2, Bed, Bath, Car, Calendar, Award, ShieldCheck, ArrowRight, Check } from 'lucide-react';
 import { motion } from 'motion/react';
+import { MiniMap } from '../components/MiniMap';
 
 export const PropertyPage: React.FC = () => {
   const { regiao, slug } = useParams<{ regiao: string; slug: string }>();
@@ -45,7 +46,7 @@ export const PropertyPage: React.FC = () => {
     let alive = true;
     setLoadingSanity(true);
     // Tenta buscar por slug exato ou por _id parcial
-    const q = `*[_type == "imovel" && slug.current == $slug][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
+    const q = `*[_type == "imovel" && slug.current == $slug][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, latitude, longitude, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
     sanityClient.fetch(q, { slug })
       .then((doc: any) => {
         if (!alive) return;
@@ -91,6 +92,9 @@ export const PropertyPage: React.FC = () => {
   const fav = isFavorite(property.id);
 
   // JSON-LD RealEstateListing (Apartment / Residence etc.)
+  const propLat = (property as any).latitude as number | undefined
+  const propLng = (property as any).longitude as number | undefined
+  const hasRealCoords = propLat != null && propLng != null
   const realEstateListingJsonLd = {
     '@context': 'https://schema.org',
     '@type': property.type === 'Apartment' ? 'Apartment' : property.type === 'House' ? 'House' : 'Residence',
@@ -100,12 +104,16 @@ export const PropertyPage: React.FC = () => {
     image: property.gallery,
     address: {
       '@type': 'PostalAddress',
-      streetAddress: property.location,
+      streetAddress: (property as any).endereco || property.location,
       addressLocality: property.location.includes('São Paulo') ? 'São Paulo' : regionName,
       addressRegion: 'SP',
       addressCountry: 'BR',
     },
-    geo: regionData ? {
+    geo: hasRealCoords ? {
+      '@type': 'GeoCoordinates',
+      latitude: propLat,
+      longitude: propLng,
+    } : regionData ? {
       '@type': 'GeoCoordinates',
       latitude: regionData.coords.lat,
       longitude: regionData.coords.lng,
@@ -273,17 +281,24 @@ export const PropertyPage: React.FC = () => {
                 <p className="text-xs text-brand-gold mt-2 italic">{property.tagline}</p>
               </div>
 
-              {/* Localização — copy de autoridade em PT-BR */}
+              {/* Localização — mapa real OSM + link Google Maps */}
               <div className="border border-brand-light/10 rounded-2xl p-5 md:p-6 bg-[#1a080f]/40 space-y-3">
                 <h3 className="font-serif text-sm tracking-[0.16em] uppercase text-brand-light flex items-center gap-2"><MapPin size={14} className="text-brand-gold" aria-hidden="true" /> Localização</h3>
-                <p className="text-xs text-brand-muted leading-relaxed font-light">Imóvel selecionado e verificado pela nossa equipe. Garantia de segurança jurídica e confidencialidade em todo o processo de negociação.</p>
-                <div className="relative h-36 rounded-xl bg-[#1f0912] border border-brand-light/5 flex items-center justify-center overflow-hidden">
-                  <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: `linear-gradient(rgba(212,163,115,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(212,163,115,0.5) 1px, transparent 1px)`, backgroundSize: '30px 30px' }} aria-hidden="true" />
-                  <div className="relative text-center p-3 bg-brand-bg/90 backdrop-blur-md border border-brand-light/10 rounded-xl">
-                    <p className="text-[10px] tracking-[0.18em] text-brand-gold uppercase font-light">LOCALIZAÇÃO APROXIMADA</p>
-                    <p className="text-xs text-brand-muted mt-1 flex items-center justify-center gap-1"><MapPin size={10} className="text-brand-gold" aria-hidden="true" />{property.location} • {regionName}</p>
-                  </div>
-                </div>
+                <p className="text-xs text-brand-muted leading-relaxed font-light">
+                  {(property as any).endereco
+                    ? <>Endereço: <span className="text-brand-light">{(property as any).endereco}</span> — {regionName}. Confira no mapa abaixo o local exato cadastrado pela corretora.</>
+                    : <>Imóvel selecionado e verificado pela nossa equipe em {regionName}. Veja no mapa a localização aproximada.</>}
+                </p>
+                <MiniMap
+                  latitude={(property as any).latitude}
+                  longitude={(property as any).longitude}
+                  endereco={(property as any).endereco}
+                  regiao={regionName}
+                  title={`${property.title} - ${regionName}`}
+                  heightClass="h-[280px]"
+                  provider="osm"
+                />
+                <p className="text-[11px] text-brand-muted/50 font-light">Pin posicionado pelo endereço cadastrado no Admin. Clique em “Abrir no Google Maps” para traçar rota.</p>
               </div>
 
               {/* Links internos SEO */}

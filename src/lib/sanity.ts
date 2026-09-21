@@ -67,12 +67,14 @@ export interface SanityImovel {
   hasSwimmingPool?: boolean
   hasGarden?: boolean
   hasOceanView?: boolean
+  latitude?: number
+  longitude?: number
 }
 
 // Busca todos os imóveis publicados, mais recentes primeiro
 export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
   const query = `*[_type == "imovel" && publicado == true] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView
+    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude
   }`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query)
@@ -86,7 +88,7 @@ export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
 // Busca por região específica
 export async function fetchImoveisPorRegiao(regiao: string): Promise<SanityImovel[]> {
   const query = `*[_type == "imovel" && publicado == true && regiao == $regiao] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView
+    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude
   }`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query, {regiao})
@@ -118,7 +120,7 @@ export function sanityToProperty(imovel: SanityImovel) {
     id: imovel._id,
     title: imovel.titulo,
     type: imovel.tipo as any,
-    location: `${imovel.regiao}, São Paulo`,
+    location: imovel.endereco ? `${imovel.endereco} — ${imovel.regiao}, São Paulo` : `${imovel.regiao}, São Paulo`,
     // Para filtros numéricos, mantemos valor original (em reais) mas também calculamos em milhões para compatibilidade antiga
     price: imovel.valor / 1000000,
     formattedPrice,
@@ -133,6 +135,8 @@ export function sanityToProperty(imovel: SanityImovel) {
     gallery: galeria.length ? galeria : [primeiraFoto],
     description: descricaoTexto || `Imóvel ${imovel.tipo} em ${imovel.regiao} - ${imovel.endereco}`,
     endereco: imovel.endereco,
+    latitude: (imovel as any).latitude as number | undefined,
+    longitude: (imovel as any).longitude as number | undefined,
     features: [imovel.tipo, imovel.finalidade, `${imovel.area}m²`],
     hasSwimmingPool: !!(imovel as any).hasSwimmingPool,
     hasGarden: !!(imovel as any).hasGarden,

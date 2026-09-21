@@ -17,6 +17,8 @@ export default async function handler(req: any, res: any) {
       tipo,
       regiao,
       endereco,
+      latitude,
+      longitude,
       valor,
       finalidade,
       area,
@@ -68,6 +70,18 @@ export default async function handler(req: any, res: any) {
       hasGarden: !!hasGarden,
       hasOceanView: !!hasOceanView,
     };
+    if (latitude != null && longitude != null && String(latitude) !== '' && String(longitude) !== '') {
+      const latNum = Number(latitude);
+      const lngNum = Number(longitude);
+      if (!isNaN(latNum) && !isNaN(lngNum)) {
+        patch.latitude = latNum;
+        patch.longitude = lngNum;
+      }
+    } else if (latitude === null || longitude === null) {
+      // permite limpar coords se endereço apagado
+      patch.latitude = null;
+      patch.longitude = null;
+    }
 
     // Se título mudou, atualiza slug também para manter URL consistente (opcional)
     if (titulo) {

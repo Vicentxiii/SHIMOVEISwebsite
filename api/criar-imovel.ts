@@ -14,6 +14,8 @@ export default async function handler(req: any, res: any) {
       tipo,
       regiao,
       endereco,
+      latitude,
+      longitude,
       valor,
       finalidade,
       area,
@@ -54,7 +56,7 @@ export default async function handler(req: any, res: any) {
     const baseSlug = slugify(titulo);
     const slugWithId = `${baseSlug}-${Date.now().toString().slice(-6)}`;
 
-    const doc = {
+    const doc: any = {
       _type: 'imovel',
       titulo: titulo.trim(),
       slug: { _type: 'slug', current: slugWithId },
@@ -75,6 +77,10 @@ export default async function handler(req: any, res: any) {
       hasGarden: !!hasGarden,
       hasOceanView: !!hasOceanView,
     };
+    if (latitude != null && longitude != null && !isNaN(Number(latitude)) && !isNaN(Number(longitude))) {
+      doc.latitude = Number(latitude);
+      doc.longitude = Number(longitude);
+    }
 
     const created = await client.create(doc as any);
 

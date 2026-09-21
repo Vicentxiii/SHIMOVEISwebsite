@@ -35,6 +35,9 @@ export interface Property {
   tagline: string;
   architect?: string;
   yearBuilt?: number;
+  endereco?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Testimonial {

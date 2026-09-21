@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft, Maximize2, Minimize2, Sun, Moon } from 'lucide-react';
+import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft, Maximize2, Minimize2, Sun, Moon, Navigation, Loader2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
 import { getRegionSlug, slugify } from '../utils/slugify';
+import { MiniMap } from '../components/MiniMap';
+import { searchAddress, geocodeAddress, getGoogleMapsLink } from '../utils/geocode';
 
 const ADMIN_PASSWORD = ((import.meta as any).env?.VITE_ADMIN_PASSWORD as string | undefined) || 'silvia2026';
 const LS_KEY = 'sh_admin_auth';
@@ -130,6 +132,13 @@ export const AdminPage: React.FC = () => {
   const [isPetFriendly, setIsPetFriendly] = useState(true);
   const [hasSwimmingPool, setHasSwimmingPool] = useState(false);
   const [hasGarden, setHasGarden] = useState(false);
+  // geocoding / mapa
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [sugestoes, setSugestoes] = useState<{ lat: number; lng: number; displayName: string }[]>([]);
+  const [buscandoEndereco, setBuscandoEndereco] = useState(false);
+  const [showSugestoes, setShowSugestoes] = useState(false);
+  const [geocodingStatus, setGeocodingStatus] = useState<string | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     try {
       const saved = localStorage.getItem('sh_admin_theme');
@@ -182,8 +191,8 @@ export const AdminPage: React.FC = () => {
       if (handleListError(e)) { setLoadingLista(false); return; }
       try {
         const fallbackClient = hasAdminToken() && sanityAdminClient ? sanityAdminClient : sanityClient;
-        const q = `*[_type == "imovel"] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView }`;
-        const dados = await (fallbackClient as any).fetch<SanityImovel[]>(q);
+        const q = `*[_type == "imovel"] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude }`;
+        const dados = await (fallbackClient as any).fetch(q) as SanityImovel[];
         setImoveis(dados || []);
         if (!dados || dados.length === 0) console.warn('[carregarImoveis] fallback vazio');
       } catch (e2: any) {
@@ -198,6 +207,55 @@ export const AdminPage: React.FC = () => {
   useEffect(() => { if (autenticado) carregarImoveis(); }, [autenticado]);
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), toast.tipo === 'sucesso' ? 3500 : 5000); return () => clearTimeout(t); } }, [toast]);
 
+  // debounce busca de endereço via Nominatim
+  const enderecoDebounceRef = useRef<number | null>(null);
+  const handleEnderecoChange = (val: string) => {
+    setEndereco(val);
+    // se usuário apagou ou está editando, limpa coords antigas até confirmar nova
+    if (!val.trim()) { setSugestoes([]); setShowSugestoes(false); setLatitude(null); setLongitude(null); setGeocodingStatus(null); return; }
+    if (val.trim().length < 4) { setSugestoes([]); setShowSugestoes(false); return; }
+    if (enderecoDebounceRef.current) window.clearTimeout(enderecoDebounceRef.current);
+    enderecoDebounceRef.current = window.setTimeout(async () => {
+      try {
+        setBuscandoEndereco(true);
+        const results = await searchAddress(val, regiao);
+        setSugestoes(results.map(r => ({ lat: r.lat, lng: r.lng, displayName: r.displayName })));
+        setShowSugestoes(results.length > 0);
+      } catch (e) {
+        console.warn('[geocode search] falhou', e);
+      } finally { setBuscandoEndereco(false); }
+    }, 700) as unknown as number;
+  };
+  const selecionarSugestao = (s: { lat: number; lng: number; displayName: string }) => {
+    // pega só parte da rua + número para manter campo limpo, mas guarda display completo no status
+    const short = s.displayName.split(',').slice(0, 3).join(',').trim();
+    setEndereco(short);
+    setLatitude(s.lat);
+    setLongitude(s.lng);
+    setGeocodingStatus('✓ Endereço confirmado no mapa');
+    setSugestoes([]);
+    setShowSugestoes(false);
+  };
+  const handleGeocodeClick = async () => {
+    if (!endereco.trim()) { setToast({ tipo: 'erro', msg: 'Digite a rua e número primeiro' }); return; }
+    setBuscandoEndereco(true);
+    setGeocodingStatus('Buscando no mapa...');
+    try {
+      const r = await geocodeAddress(endereco, regiao);
+      if (r) {
+        setLatitude(r.lat); setLongitude(r.lng);
+        setGeocodingStatus('✓ Local encontrado! Confira no preview abaixo');
+        setToast({ tipo: 'sucesso', msg: '📍 Local encontrado! Veja o preview do mapa.' });
+      } else {
+        setGeocodingStatus('Não encontrei com esse texto — tente Rua + número + bairro');
+        setToast({ tipo: 'erro', msg: 'Não achei esse endereço. Tente "Rua X, 123, Bairro"' });
+      }
+    } catch (e: any) {
+      setGeocodingStatus('Erro ao buscar — tente de novo');
+      setToast({ tipo: 'erro', msg: e?.message?.slice(0, 200) || 'Erro ao buscar endereço' });
+    } finally { setBuscandoEndereco(false); }
+  };
+
   const handleSessionExpired = (msg = 'Sua sessão expirou. Faça login novamente.') => {
     localStorage.removeItem(LS_KEY);
     setAutenticado(false); setSenhaInput(''); setErroSenha(msg);
@@ -210,10 +268,10 @@ export const AdminPage: React.FC = () => {
     else setErroSenha('Senha incorreta. Tenta de novo.');
   };
   const handleSair = () => { localStorage.removeItem(LS_KEY); setAutenticado(false); setSenhaInput(''); setErroSenha(''); };
-  const limparForm = () => { setFotos([]); setTitulo(''); setTipo(''); setRegiao(''); setEndereco(''); setValor(''); setFinalidade('Venda'); setArea(70); setQuartos(2); setBanheiros(1); setVagas(1); setDescricao(''); setIsPetFriendly(true); setHasSwimmingPool(false); setHasGarden(false); setEditId(null); };
+  const limparForm = () => { setFotos([]); setTitulo(''); setTipo(''); setRegiao(''); setEndereco(''); setLatitude(null); setLongitude(null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(''); setFinalidade('Venda'); setArea(70); setQuartos(2); setBanheiros(1); setVagas(1); setDescricao(''); setIsPetFriendly(true); setHasSwimmingPool(false); setHasGarden(false); setEditId(null); };
   const abrirNovo = () => { limparForm(); setModoForm('novo'); window.scrollTo(0, 0); };
   const abrirEditar = (im: SanityImovel) => {
-    setEditId(im._id); setTitulo(im.titulo || ''); setTipo(im.tipo || ''); setRegiao(im.regiao || ''); setEndereco(im.endereco || ''); setValor(String(im.valor || '')); setFinalidade(im.finalidade || 'Venda');
+    setEditId(im._id); setTitulo(im.titulo || ''); setTipo(im.tipo || ''); setRegiao(im.regiao || ''); setEndereco(im.endereco || ''); setLatitude((im as any).latitude ?? null); setLongitude((im as any).longitude ?? null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(String(im.valor || '')); setFinalidade(im.finalidade || 'Venda');
     setArea(Number(im.area) || 0); setQuartos(Number(im.quartos) || 0); setBanheiros(Number(im.banheiros) || 0); setVagas(Number(im.vagas) || 0);
     setIsPetFriendly((im as any).isPetFriendly !== undefined ? !!(im as any).isPetFriendly : true);
     setHasSwimmingPool(!!(im as any).hasSwimmingPool);
@@ -371,7 +429,19 @@ export const AdminPage: React.FC = () => {
         }
       }
       const valorNum = Number(valor.toString().replace(/\D/g, ''));
-      const payload = { titulo: titulo.trim(), tipo, regiao, endereco: endereco.trim(), valor: valorNum, finalidade, area: Number(area), quartos: Number(quartos), banheiros: Number(banheiros), vagas: Number(vagas), descricao: descricao.trim(), fotos: fotosParaEnviar, isPetFriendly, hasSwimmingPool, hasGarden };
+      // se tem endereço mas ainda sem coords, tenta geocodificar automaticamente antes de salvar
+      let latToSave = latitude;
+      let lngToSave = longitude;
+      if (endereco.trim() && (latToSave == null || lngToSave == null)) {
+        try {
+          setGeocodingStatus('Localizando endereço antes de salvar...');
+          const r = await geocodeAddress(endereco.trim(), regiao);
+          if (r) { latToSave = r.lat; lngToSave = r.lng; setLatitude(r.lat); setLongitude(r.lng); setGeocodingStatus('✓ Local encontrado automaticamente'); }
+          else { setGeocodingStatus('Endereço não geocodificado — mapa usará busca por texto'); }
+        } catch (e) { console.warn('[geocode auto] falhou', e); }
+      }
+      const payload: any = { titulo: titulo.trim(), tipo, regiao, endereco: endereco.trim(), valor: valorNum, finalidade, area: Number(area), quartos: Number(quartos), banheiros: Number(banheiros), vagas: Number(vagas), descricao: descricao.trim(), fotos: fotosParaEnviar, isPetFriendly, hasSwimmingPool, hasGarden };
+      if (latToSave != null && lngToSave != null) { payload.latitude = latToSave; payload.longitude = lngToSave; }
       if (modoForm === 'editar' && editId) {
         await fetchJson('/api/editar-imovel', { method: 'POST', headers: { 'Content-Type': 'application/json', ...headersSnapshot }, body: JSON.stringify({ id: editId, ...payload }) }, 120000);
       } else {
@@ -527,8 +597,43 @@ export const AdminPage: React.FC = () => {
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Home size={14} /> 5. Endereço</label>
-            <input type="text" value={endereco} onChange={(e) => setEndereco(e.target.value)} placeholder="Rua, número e bairro" className={isLight ? 'w-full h-[52px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400 focus:bg-white' : 'w-full h-[52px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'} />
+            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Home size={14} /> 5. Endereço * <span className="text-[10px] tracking-normal normal-case text-brand-muted/60 font-light">— aparece no mapa do anúncio</span></label>
+            <div className="relative">
+              <input type="text" value={endereco} onChange={(e) => handleEnderecoChange(e.target.value)} onFocus={() => { if (sugestoes.length > 0) setShowSugestoes(true); }} onBlur={() => setTimeout(() => setShowSugestoes(false), 200)} placeholder="Rua, número e bairro — ex: Rua Alvarenga, 1450, Butantã" className={isLight ? 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400 focus:bg-white' : 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'} />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted">
+                {buscandoEndereco ? <Loader2 size={16} className="animate-spin text-brand-gold" /> : <Search size={16} className="text-brand-gold/40" />}
+              </span>
+              {showSugestoes && sugestoes.length > 0 && (
+                <div className={isLight ? 'absolute z-20 top-[56px] left-0 right-0 bg-white border border-zinc-200 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12)] overflow-hidden max-h-[220px] overflow-y-auto' : 'absolute z-20 top-[56px] left-0 right-0 bg-[#1d0a12] border border-brand-light/10 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.4)] overflow-hidden max-h-[220px] overflow-y-auto'}>
+                  {sugestoes.map((s, idx) => (
+                    <button key={idx} type="button" onClick={() => selecionarSugestao(s)} className={isLight ? 'w-full text-left px-4 py-3 hover:bg-zinc-50 border-b last:border-0 border-zinc-100 flex items-start gap-2.5 transition' : 'w-full text-left px-4 py-3 hover:bg-white/[0.04] border-b last:border-0 border-brand-light/5 flex items-start gap-2.5 transition'}>
+                      <MapPin size={14} className="text-brand-gold mt-0.5 shrink-0" />
+                      <span className={isLight ? 'text-[13px] leading-snug text-zinc-700 line-clamp-2' : 'text-[13px] leading-snug text-brand-light line-clamp-2'}>{s.displayName}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 mt-3">
+              <button type="button" onClick={handleGeocodeClick} disabled={buscandoEndereco || !endereco.trim()} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95">
+                {buscandoEndereco ? <Loader2 size={12} className="animate-spin" /> : <Navigation size={12} />}
+                {buscandoEndereco ? 'Buscando...' : latitude && longitude ? 'Atualizar no mapa' : 'Confirmar no mapa'}
+              </button>
+              {latitude && longitude && (
+                <a href={getGoogleMapsLink(latitude, longitude)} target="_blank" rel="noopener noreferrer" className={isLight ? 'inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-white border border-zinc-200 text-zinc-600 text-[12px] hover:bg-zinc-50 transition' : 'inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-white/[0.04] border border-brand-light/10 text-brand-muted hover:text-brand-light text-[12px] hover:bg-white/[0.06] transition'}>
+                  <ExternalLink size={12} /> Abrir no Google Maps
+                </a>
+              )}
+            </div>
+            {geocodingStatus && <p className={`text-[12px] mt-2 font-light ${geocodingStatus.includes('✓') ? 'text-emerald-400' : 'text-brand-muted'}`}>{geocodingStatus}</p>}
+            <p className={isLight ? 'text-[11px] font-light mt-2 leading-relaxed text-zinc-500' : 'text-[11px] font-light mt-2 leading-relaxed text-brand-muted/60'}>Digite rua + número e selecione na lista. O pin será salvo e aparece logo abaixo do anúncio.</p>
+            {/* preview do mapa no admin */}
+            {(latitude && longitude) || endereco.trim().length >= 6 ? (
+              <div className="mt-4">
+                <p className="text-[11px] tracking-[0.14em] uppercase text-brand-gold/70 font-light mb-2 flex items-center gap-1.5"><MapPin size={11} /> Preview — como vai aparecer no anúncio</p>
+                <MiniMap latitude={latitude} longitude={longitude} endereco={endereco} regiao={regiao} heightClass="h-[220px]" provider="osm" />
+              </div>
+            ) : null}
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
