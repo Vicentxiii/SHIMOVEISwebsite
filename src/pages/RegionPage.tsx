@@ -189,18 +189,21 @@ export const RegionPage: React.FC = () => {
             <p className="text-brand-muted text-center py-12">Nenhum resultado encontrado em {region.name} no momento. Fale com a corretora Silvia Helena para acesso off-market.</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {regionProperties.map((property, idx) => (
+              {regionProperties.map((property, idx) => {
+                const propSlug = (property as any).slug || `${slugify(property.title)}-${property.id}`;
+                return (
                 <div key={property.id} className="flex flex-col">
                   <PropertyCard property={property} onSelect={setSelectedProperty} index={idx} />
                   <Link
-                    to={`/imoveis/${region.slug}/${slugify(property.title)}-${property.id}`}
+                    to={`/imoveis/${region.slug}/${propSlug}`}
                     className="mt-3 inline-flex items-center justify-center gap-2 border border-brand-gold/20 hover:border-brand-gold bg-brand-light/[0.02] hover:bg-brand-gold/10 text-brand-gold text-[11px] uppercase tracking-widest px-4 py-2.5 transition-colors"
                     aria-label={`Ver detalhes do ${property.title} em ${property.location} — ${property.formattedPrice}`}
                   >
                     Falar com corretora de imóveis em {region.name} <span aria-hidden="true">→</span>
                   </Link>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

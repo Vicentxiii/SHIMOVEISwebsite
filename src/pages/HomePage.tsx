@@ -278,16 +278,16 @@ export const HomePage: React.FC = () => {
             </p>
           </motion.div>
 
-          {/* CTA principal - único botão centralizado */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-10 flex justify-center w-full px-2 sm:px-0">
+          {/* CTA principal - único botão centralizado — menor */}
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 3.4, duration: 0.8 }} className="mt-8 flex justify-center w-full px-2 sm:px-0">
             <button
               onClick={() => scrollToSection('estates')}
-              className="group inline-flex items-center justify-center gap-3 rounded-full bg-brand-gold px-5 sm:px-6 md:px-8 py-3.5 md:py-4 text-[10px] sm:text-[11px] md:text-[12px] font-medium tracking-[0.12em] sm:tracking-[0.15em] md:tracking-[0.18em] uppercase text-brand-bg shadow-[0_10px_30px_rgba(212,163,115,0.35)] hover:shadow-[0_12px_36px_rgba(212,163,115,0.45)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer text-center max-w-[92vw] sm:max-w-xl md:max-w-none"
+              className="group inline-flex items-center justify-center gap-2.5 rounded-full bg-brand-gold px-4 sm:px-5 md:px-6 py-2.5 md:py-3 text-[9px] sm:text-[10px] md:text-[11px] font-medium tracking-[0.14em] md:tracking-[0.16em] uppercase text-brand-bg shadow-[0_8px_20px_rgba(212,163,115,0.30)] hover:shadow-[0_10px_28px_rgba(212,163,115,0.40)] hover:bg-[#e0b48a] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 cursor-pointer text-center max-w-[90vw] sm:max-w-xl md:max-w-none"
               aria-label={t('hero_cta')}
             >
               <span className="leading-[1.35] text-center whitespace-normal break-words">{t('hero_cta')}</span>
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
-                <ArrowDown size={14} className="-rotate-90" aria-hidden="true" />
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-bg text-brand-gold group-hover:rotate-45 transition-transform duration-300">
+                <ArrowDown size={12} className="-rotate-90" aria-hidden="true" />
               </span>
             </button>
           </motion.div>
