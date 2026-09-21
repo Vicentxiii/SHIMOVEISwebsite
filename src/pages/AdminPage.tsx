@@ -71,14 +71,27 @@ function fileToBase64(file: File): Promise<string> {
 
 const Stepper: React.FC<{ label: string; value: number; onChange: (v: number) => void; min?: number }> = ({ label, value, onChange, min = 0 }) => {
   return (
-    <div className="flex items-center justify-between py-4 border-b border-brand-light/5 last:border-0">
-      <span className="text-[14px] font-light tracking-wide text-brand-light">{label}</span>
+    <div className="flex items-center justify-between py-4 border-b border-brand-light/5 last:border-0 gap-4">
+      <span className="text-[14px] font-light tracking-wide text-brand-light shrink-0">{label}</span>
       <div className="flex items-center gap-3">
-        <button type="button" onClick={() => onChange(Math.max(min, value - 1))} className="w-10 h-10 rounded-full border border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 hover:border-brand-gold flex items-center justify-center transition active:scale-95">
+        <button type="button" onClick={() => onChange(Math.max(min, value - 1))} className="w-10 h-10 rounded-full border border-brand-gold/30 text-brand-gold hover:bg-brand-gold/10 hover:border-brand-gold flex items-center justify-center transition active:scale-95 shrink-0">
           −
         </button>
-        <span className="w-12 text-center text-[18px] font-light text-brand-light tabular-nums">{value}</span>
-        <button type="button" onClick={() => onChange(value + 1)} className="w-10 h-10 rounded-full bg-brand-gold text-brand-bg hover:bg-[#e0b48a] flex items-center justify-center transition active:scale-95 shadow-[0_2px_10px_rgba(212,163,115,0.3)]">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={String(value)}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\D/g, '');
+            if (raw === '') { onChange(min); return; }
+            const n = parseInt(raw, 10);
+            if (!isNaN(n)) onChange(Math.max(min, n));
+          }}
+          onFocus={(e) => e.currentTarget.select()}
+          className="w-[72px] h-10 text-center text-[18px] font-light text-brand-light tabular-nums bg-brand-bg/40 border border-brand-light/10 rounded-full focus:outline-none focus:border-brand-gold focus:bg-brand-bg transition placeholder:text-brand-muted/40"
+          aria-label={label}
+        />
+        <button type="button" onClick={() => onChange(value + 1)} className="w-10 h-10 rounded-full bg-brand-gold text-brand-bg hover:bg-[#e0b48a] flex items-center justify-center transition active:scale-95 shadow-[0_2px_10px_rgba(212,163,115,0.3)] shrink-0">
           +
         </button>
       </div>
