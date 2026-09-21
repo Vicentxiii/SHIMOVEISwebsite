@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft } from 'lucide-react';
+import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft, Maximize2, Minimize2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
 import { getRegionSlug, slugify } from '../utils/slugify';
@@ -113,6 +113,7 @@ export const AdminPage: React.FC = () => {
   const [imovelParaRemover, setImovelParaRemover] = useState<SanityImovel | null>(null);
   const [removendo, setRemovendo] = useState(false);
   const [gerandoDescricao, setGerandoDescricao] = useState(false);
+  const [descricaoExpandida, setDescricaoExpandida] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -529,14 +530,41 @@ export const AdminPage: React.FC = () => {
           <div className="bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10">
             <div className="flex items-center justify-between gap-3 mb-3">
               <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light"><FileText size={14} /> 9. Descrição <span className="font-light text-brand-muted normal-case tracking-normal text-[11px]">(opcional)</span></label>
-              <button type="button" onClick={handleGerarDescricao} disabled={gerandoDescricao} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95 shrink-0">
-                {gerandoDescricao ? <span className="w-3.5 h-3.5 border-2 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin" aria-hidden="true" /> : <Sparkles size={12} aria-hidden="true" />}
-                {gerandoDescricao ? 'Gerando...' : '✨ Gerar com IA'}
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button type="button" onClick={() => setDescricaoExpandida((v) => !v)} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-white/[0.04] border border-brand-light/10 text-brand-light text-[12px] font-medium hover:bg-white/[0.08] hover:border-brand-gold/30 hover:text-brand-gold transition active:scale-95" title={descricaoExpandida ? 'Recolher' : 'Expandir para tela cheia'}>
+                  {descricaoExpandida ? <Minimize2 size={12} aria-hidden="true" /> : <Maximize2 size={12} aria-hidden="true" />}
+                  {descricaoExpandida ? 'Recolher' : 'Expandir'}
+                </button>
+                <button type="button" onClick={handleGerarDescricao} disabled={gerandoDescricao} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95">
+                  {gerandoDescricao ? <span className="w-3.5 h-3.5 border-2 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin" aria-hidden="true" /> : <Sparkles size={12} aria-hidden="true" />}
+                  {gerandoDescricao ? 'Gerando...' : '✨ Gerar com IA'}
+                </button>
+              </div>
             </div>
-            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={12} className="w-full min-h-[320px] max-h-[520px] p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap" />
-            <p className="text-[11px] text-brand-muted/60 font-light mt-2 leading-relaxed">IA exclusiva para descrições — usa título, tipo, região, área e quartos. Só gera descrição, nada mais. Você revisa antes de salvar.</p>
+            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={14} className="w-full min-h-[420px] p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[14px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap" />
+            <p className="text-[11px] text-brand-muted/60 font-light mt-2 leading-relaxed">IA exclusiva para descrições — usa título, tipo, região, área e quartos. Só gera descrição, nada mais. Você revisa antes de salvar. Dica: clique em Expandir para ver o texto grande sem rolar.</p>
           </div>
+
+          {/* Modal expandido - tela cheia para editar com conforto */}
+          <AnimatePresence>
+            {descricaoExpandida && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[80] flex flex-col p-4 md:p-6" aria-modal="true" role="dialog" aria-label="Editar descrição em tela cheia">
+                <div className="absolute inset-0 bg-[#0a0206]/80 backdrop-blur-[12px]" onClick={() => setDescricaoExpandida(false)} aria-hidden="true" />
+                <motion.div initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }} transition={{ type: 'spring', damping: 28, stiffness: 320 }} className="relative flex-1 flex flex-col bg-[#1d0a12] rounded-[20px] border border-brand-light/10 shadow-[0_24px_64px_rgba(0,0,0,0.6)] overflow-hidden max-w-[900px] w-full mx-auto">
+                  <div className="flex items-center justify-between px-5 md:px-6 py-4 border-b border-brand-light/10 shrink-0">
+                    <span className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light"><FileText size={14} /> Descrição — edição em tela cheia</span>
+                    <button type="button" onClick={() => setDescricaoExpandida(false)} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-brand-gold text-brand-bg text-[12px] font-medium hover:bg-[#e0b48a] transition active:scale-95">
+                      <Minimize2 size={12} aria-hidden="true" /> Fechar e voltar
+                    </button>
+                  </div>
+                  <div className="flex-1 p-4 md:p-6 flex flex-col min-h-0">
+                    <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Escreva ou gere com IA..." autoFocus className="flex-1 w-full p-4 rounded-[12px] border border-brand-light/10 bg-brand-bg/60 text-[15px] leading-relaxed text-brand-light placeholder:text-brand-muted/40 focus:outline-none focus:border-brand-gold transition resize-none overflow-y-auto whitespace-pre-wrap min-h-[400px]" />
+                    <p className="text-[11px] text-brand-muted/60 font-light mt-3">Fica à vontade para rolar - aqui você vê o texto inteiro sem espremer. Ao fechar, o conteúdo já fica salvo no formulário.</p>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="h-4" />
         </div>
