@@ -24,30 +24,33 @@ export const PropertyPage: React.FC = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const { toggleFavorite, isFavorite } = useFavorites();
   const [sanityProperty, setSanityProperty] = useState<Property | null>(null);
-  const [loadingSanity, setLoadingSanity] = useState(false);
+  const [loadingSanity, setLoadingSanity] = useState(true);
 
-  // Encontrar propriedade: busca em ambos datasets por ID contido no slug
+  // Encontrar propriedade em datasets estáticos
+  // Apenas faz match se o slug contiver o ID exato (ex: prop-butanta-1) ou o slug exato do título,
+  // NUNCA por match parcial de 20 caracteres que causava conflito com imóveis do Sanity
   const allProps = [...PROPERTIES, ...REGION_PROPERTIES];
-  // slug format: titulo-slug-id  (ex: apartamento-2-quartos-jardim-butanta-prop-butanta-1)
-  const idFromSlug = slug?.split('-').slice(-3).join('-') || slug?.split('-').pop(); // fallback
-  // Tenta match exato por id incluído
-  let staticProperty = allProps.find(p => slug?.includes(p.id));
+  const idFromSlug = slug?.split('-').slice(-3).join('-') || slug?.split('-').pop();
+  let staticProperty = allProps.find(p => slug === p.id || slug?.endsWith(`-${p.id}`));
   if (!staticProperty && idFromSlug) {
     staticProperty = allProps.find(p => p.id === idFromSlug);
   }
-  // Fallback: busca por slugify title
   if (!staticProperty && slug) {
-    staticProperty = allProps.find(p => slugify(p.title) === slug || slug.includes(slugify(p.title).slice(0, 20)));
+    staticProperty = allProps.find(p => slugify(p.title) === slug);
   }
 
-  // Se não achou no estático, busca no Sanity por slug
+  // Busca no Sanity por slug (prioritário para imóveis cadastrados no Admin)
   useEffect(() => {
-    if (staticProperty || !slug) return;
+    if (!slug) {
+      setLoadingSanity(false);
+      return;
+    }
     let alive = true;
     setLoadingSanity(true);
-    // Tenta buscar por slug exato ou por _id parcial
-    const q = `*[_type == "imovel" && slug.current == $slug][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, latitude, longitude, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
-    sanityClient.fetch(q, { slug })
+    // Busca por slug.current exato, ou fallback por _id no final do slug
+    const idSuffix = slug.split('-').pop() || '';
+    const q = `*[_type == "imovel" && (slug.current == $slug || _id == $slug || _id match $idSuffix)][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, latitude, longitude, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
+    sanityClient.fetch(q, { slug, idSuffix: `*${idSuffix}*` })
       .then((doc: any) => {
         if (!alive) return;
         if (doc) {
@@ -55,10 +58,14 @@ export const PropertyPage: React.FC = () => {
           setSanityProperty(mapped);
         }
       })
-      .catch(() => {})
-      .finally(() => { if (alive) setLoadingSanity(false); });
+      .catch((err) => {
+        console.warn('[PropertyPage] Erro ao buscar imóvel no Sanity:', err);
+      })
+      .finally(() => {
+        if (alive) setLoadingSanity(false);
+      });
     return () => { alive = false; };
-  }, [slug, staticProperty]);
+  }, [slug]);
 
   const property = (staticProperty as Property) || sanityProperty;
 

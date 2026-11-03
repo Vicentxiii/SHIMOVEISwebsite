@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft, Maximize2, Minimize2, Sun, Moon, Navigation, Loader2 } from 'lucide-react';
+import { Trash2, AlertTriangle, X, ExternalLink, Eye, Lock, LogOut, Plus, Search, Sparkles, Home, MapPin, Building2, Image as ImageIcon, FileText, DollarSign, Check, ChevronLeft, Maximize2, Minimize2, Sun, Moon, Navigation, Loader2, GripVertical, Layers } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { sanityClient, urlFor, SanityImovel, sanityAdminClient, hasAdminToken } from '../lib/sanity';
 import { getRegionSlug, slugify } from '../utils/slugify';
@@ -62,6 +62,46 @@ function getImovelUrl(im: SanityImovel): string {
   if (regiaoSlug) return `/imoveis/${regiaoSlug}`;
   return '/imoveis';
 }
+function detectarRegiaoPorCep(data: { localidade?: string; bairro?: string; logradouro?: string }, cleanCep: string): 'Butantã' | 'Taboão da Serra' | 'Morumbi' {
+  const cidade = (data.localidade || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const bairro = (data.bairro || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const logradouro = (data.logradouro || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  if (cidade.includes('taboao') || bairro.includes('taboao') || logradouro.includes('taboao')) {
+    return 'Taboão da Serra';
+  }
+  if (cleanCep.startsWith('0675') || cleanCep.startsWith('0676') || cleanCep.startsWith('0677') || cleanCep.startsWith('0678') || cleanCep.startsWith('0679')) {
+    return 'Taboão da Serra';
+  }
+
+  const bairrosMorumbi = [
+    'morumbi', 'leonor', 'guedala', 'panamby', 'vila andrade', 'real parque',
+    'fazenda morumbi', 'panorama', 'tramontano', 'portal do morumbi',
+    'super quadra morumbi', 'paineiras', 'paraisopolis', 'cidade jardim',
+    'everest', 'suzana', 'colombo', 'monte kemel'
+  ];
+  if (bairrosMorumbi.some((b) => bairro.includes(b))) {
+    return 'Morumbi';
+  }
+  if (cleanCep.startsWith('056') || cleanCep.startsWith('057')) {
+    return 'Morumbi';
+  }
+
+  const bairrosButanta = [
+    'butanta', 'bonfiglioli', 'vila gomes', 'rio pequeno', 'caxingui',
+    'indiana', 'vila sonia', 'rolinvania', 'peri peri', 'rizzo',
+    'esmeralda', 'ester', 'sarah', 'adalgisa', 'previdencia', 'trussardi'
+  ];
+  if (bairrosButanta.some((b) => bairro.includes(b))) {
+    return 'Butantã';
+  }
+  if (cleanCep.startsWith('055')) {
+    return 'Butantã';
+  }
+
+  return 'Butantã';
+}
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -127,11 +167,16 @@ export const AdminPage: React.FC = () => {
   const [descricao, setDescricao] = useState('');
   const [imovelParaRemover, setImovelParaRemover] = useState<SanityImovel | null>(null);
   const [removendo, setRemovendo] = useState(false);
-  const [gerandoDescricao, setGerandoDescricao] = useState(false);
   const [descricaoExpandida, setDescricaoExpandida] = useState(false);
   const [isPetFriendly, setIsPetFriendly] = useState(true);
   const [hasSwimmingPool, setHasSwimmingPool] = useState(false);
   const [hasGarden, setHasGarden] = useState(false);
+  const [watermarkEnabled, setWatermarkEnabled] = useState(false);
+  const [watermarkFile, setWatermarkFile] = useState('/Logo SHV transparente marc d agua.png');
+  const [cep, setCep] = useState('');
+  const [buscandoCep, setBuscandoCep] = useState(false);
+  const [bairroDetectado, setBairroDetectado] = useState('');
+  const [cidadeDetectada, setCidadeDetectada] = useState('');
   // geocoding / mapa
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -149,6 +194,8 @@ export const AdminPage: React.FC = () => {
   const isLight = theme === 'light';
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const raw = readSessionSnapshot();
@@ -206,6 +253,74 @@ export const AdminPage: React.FC = () => {
 
   useEffect(() => { if (autenticado) carregarImoveis(); }, [autenticado]);
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), toast.tipo === 'sucesso' ? 3500 : 5000); return () => clearTimeout(t); } }, [toast]);
+
+  const handleCepChange = (raw: string) => {
+    const nums = raw.replace(/\D/g, '').slice(0, 8);
+    let formatado = nums;
+    if (nums.length > 5) {
+      formatado = `${nums.slice(0, 5)}-${nums.slice(5)}`;
+    }
+    setCep(formatado);
+    if (nums.length === 8) {
+      executarBuscaCep(nums);
+    }
+  };
+
+  const executarBuscaCep = async (cleanCepOverride?: string) => {
+    const clean = (cleanCepOverride || cep).replace(/\D/g, '');
+    if (clean.length !== 8) {
+      setToast({ tipo: 'erro', msg: 'Digite um CEP completo com 8 dígitos (ex: 05501-000)' });
+      return;
+    }
+    setBuscandoCep(true);
+    setGeocodingStatus('Buscando CEP nos Correios...');
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+      const data = await res.json();
+      if (data.erro) {
+        setToast({ tipo: 'erro', msg: 'CEP não encontrado nos Correios. Verifique os números.' });
+        setGeocodingStatus('CEP não encontrado');
+        return;
+      }
+      const novaRegiao = detectarRegiaoPorCep(data, clean);
+      setRegiao(novaRegiao);
+      setBairroDetectado(data.bairro || '');
+      setCidadeDetectada(data.localidade || '');
+
+      // Monta o endereço com logradouro e bairro
+      const partes = [data.logradouro, data.bairro].filter(Boolean);
+      const enderecoSugerido = partes.join(', ');
+      setEndereco(enderecoSugerido);
+
+      setGeocodingStatus(`✓ CEP encontrado: ${data.logradouro || 'Logradouro'} - ${data.bairro || ''} (${novaRegiao})`);
+      setToast({
+        tipo: 'sucesso',
+        msg: `📍 Bairro: ${data.bairro || 'Localizado'} • Região: ${novaRegiao}! Complete com o número.`,
+      });
+
+      // Dispara geocodificação no mapa
+      if (enderecoSugerido) {
+        setBuscandoEndereco(true);
+        try {
+          const r = await geocodeAddress(enderecoSugerido, novaRegiao);
+          if (r) {
+            setLatitude(r.lat);
+            setLongitude(r.lng);
+            setGeocodingStatus(`✓ Confirmado no mapa: ${data.bairro || ''} (${novaRegiao})`);
+          }
+        } catch (e) {
+          console.warn('[geocode auto cep]', e);
+        } finally {
+          setBuscandoEndereco(false);
+        }
+      }
+    } catch (e: any) {
+      setToast({ tipo: 'erro', msg: 'Erro ao consultar CEP: ' + (e?.message || 'Tente novamente') });
+      setGeocodingStatus('Erro ao consultar CEP');
+    } finally {
+      setBuscandoCep(false);
+    }
+  };
 
   // debounce busca de endereço via Nominatim
   const enderecoDebounceRef = useRef<number | null>(null);
@@ -268,10 +383,10 @@ export const AdminPage: React.FC = () => {
     else setErroSenha('Senha incorreta. Tenta de novo.');
   };
   const handleSair = () => { localStorage.removeItem(LS_KEY); setAutenticado(false); setSenhaInput(''); setErroSenha(''); };
-  const limparForm = () => { setFotos([]); setTitulo(''); setTipo(''); setRegiao(''); setEndereco(''); setLatitude(null); setLongitude(null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(''); setFinalidade('Venda'); setArea(70); setQuartos(2); setBanheiros(1); setVagas(1); setDescricao(''); setIsPetFriendly(true); setHasSwimmingPool(false); setHasGarden(false); setEditId(null); };
+  const limparForm = () => { setFotos([]); setTitulo(''); setTipo(''); setRegiao(''); setEndereco(''); setCep(''); setBairroDetectado(''); setCidadeDetectada(''); setLatitude(null); setLongitude(null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(''); setFinalidade('Venda'); setArea(70); setQuartos(2); setBanheiros(1); setVagas(1); setDescricao(''); setIsPetFriendly(true); setHasSwimmingPool(false); setHasGarden(false); setEditId(null); };
   const abrirNovo = () => { limparForm(); setModoForm('novo'); window.scrollTo(0, 0); };
   const abrirEditar = (im: SanityImovel) => {
-    setEditId(im._id); setTitulo(im.titulo || ''); setTipo(im.tipo || ''); setRegiao(im.regiao || ''); setEndereco(im.endereco || ''); setLatitude((im as any).latitude ?? null); setLongitude((im as any).longitude ?? null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(String(im.valor || '')); setFinalidade(im.finalidade || 'Venda');
+    setEditId(im._id); setTitulo(im.titulo || ''); setTipo(im.tipo || ''); setRegiao(im.regiao || ''); setEndereco(im.endereco || ''); setCep(''); setBairroDetectado(''); setCidadeDetectada(''); setLatitude((im as any).latitude ?? null); setLongitude((im as any).longitude ?? null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(String(im.valor || '')); setFinalidade(im.finalidade || 'Venda');
     setArea(Number(im.area) || 0); setQuartos(Number(im.quartos) || 0); setBanheiros(Number(im.banheiros) || 0); setVagas(Number(im.vagas) || 0);
     setIsPetFriendly((im as any).isPetFriendly !== undefined ? !!(im as any).isPetFriendly : true);
     setHasSwimmingPool(!!(im as any).hasSwimmingPool);
@@ -304,6 +419,59 @@ export const AdminPage: React.FC = () => {
       return prev.filter((p) => p.id !== id);
     });
   };
+  const handleDragStart = (index: number) => { dragIndexRef.current = index; };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    if (dragOverIndex !== index) setDragOverIndex(index);
+  };
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, toIndex: number) => {
+    e.preventDefault();
+    const from = dragIndexRef.current;
+    if (from === null || from === toIndex) { dragIndexRef.current = null; setDragOverIndex(null); return; }
+    setFotos((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(from, 1);
+      next.splice(toIndex, 0, item);
+      return next;
+    });
+    dragIndexRef.current = null;
+    setDragOverIndex(null);
+  };
+  const handleDragEnd = () => { dragIndexRef.current = null; setDragOverIndex(null); };
+  const applyWatermark = (file) =>
+    new Promise((resolve, reject) => {
+      const photoImg = new window.Image();
+      const wmImg = new window.Image();
+      photoImg.onload = () => {
+        wmImg.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = photoImg.naturalWidth;
+          canvas.height = photoImg.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { reject(new Error('Canvas nao disponivel')); return; }
+          ctx.drawImage(photoImg, 0, 0);
+          const wmW = canvas.width * 0.55;
+          const wmH = (wmImg.naturalHeight / wmImg.naturalWidth) * wmW;
+          const x = (canvas.width - wmW) / 2;
+          const y = (canvas.height - wmH) / 2;
+          ctx.globalAlpha = 0.52;
+          ctx.drawImage(wmImg, x, y, wmW, wmH);
+          ctx.globalAlpha = 1;
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { reject(new Error("Falha ao gerar imagem com marca dagua")); return; }
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+            },
+            'image/jpeg', 0.92
+          );
+        };
+        wmImg.onerror = () => reject(new Error('Marca dagua nao encontrada: ' + watermarkFile));
+        wmImg.crossOrigin = 'anonymous';
+        wmImg.src = watermarkFile + '?t=' + Date.now();
+      };
+      photoImg.onerror = () => reject(new Error('Falha ao carregar foto'));
+      photoImg.src = URL.createObjectURL(file);
+    });
   const fetchJson = async (url: string, opts: RequestInit, timeoutMs = 45000) => {
     const sessionHeaders = getSessionHeader();
     const mergedHeaders = { ...(opts.headers as Record<string, string> | undefined), ...sessionHeaders } as Record<string, string>;
@@ -356,40 +524,6 @@ export const AdminPage: React.FC = () => {
     } finally { setRemovendo(false); }
   };
 
-  const handleGerarDescricao = async () => {
-    if (!titulo.trim() || !tipo || !regiao || !valor) {
-      setToast({ tipo: 'erro', msg: 'Preencha título, tipo, região e valor antes de gerar com IA.' });
-      return;
-    }
-    setGerandoDescricao(true);
-    try {
-      const headers = { 'Content-Type': 'application/json', ...getSessionHeader() } as Record<string, string>;
-      const r = await fetch('/api/gerar-descricao', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ titulo, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao }),
-      });
-      const text = await r.text();
-      let j: any = {};
-      try { j = text ? JSON.parse(text) : {}; } catch {
-        const isHtml = text.trim().startsWith('<!doctype') || text.trim().startsWith('<html');
-        if (isHtml) throw new Error('API não encontrada (recebeu HTML). Você está em "npm run dev" sem serverless — use "vercel dev" (porta 3000) ou faça deploy na Vercel para testar a IA.');
-        throw new Error(text.slice(0, 400) || `Erro ${r.status}`);
-      }
-      if (!r.ok) throw new Error(j.error || `Erro ${r.status} ao gerar`);
-      setDescricao(j.descricao);
-      if (j.fallback) {
-        setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada (fallback local) — IA em alta demanda, revise antes de salvar.' });
-      } else {
-        setToast({ tipo: 'sucesso', msg: '✨ Descrição gerada com IA — revise e ajuste antes de salvar.' });
-      }
-    } catch (e: any) {
-      setToast({ tipo: 'erro', msg: e?.message?.slice(0, 500) || 'Erro ao gerar descrição' });
-    } finally {
-      setGerandoDescricao(false);
-    }
-  };
-
   const handleSalvar = async () => {
     if (!titulo.trim()) return setToast({ tipo: 'erro', msg: 'Escreve o título do anúncio' });
     if (!tipo) return setToast({ tipo: 'erro', msg: 'Escolhe o tipo de imóvel' });
@@ -410,16 +544,22 @@ export const AdminPage: React.FC = () => {
       const fotosParaEnviar: any[] = [];
       for (const f of fotos) {
         if (f.isNew && f.file) {
+          // aplica marca d'agua se ativada
+          let fileToUpload = f.file;
+          if (watermarkEnabled) {
+            try { fileToUpload = await applyWatermark(f.file); }
+            catch (wmErr) { console.warn('[watermark] falhou, usando original:', wmErr?.message); }
+          }
           let assetId: string | null = null;
           if (hasToken && sanityAdminClient) {
             try {
-              const asset = await (sanityAdminClient as any).assets.upload('image', f.file, { filename: f.file.name, contentType: f.file.type || 'image/jpeg' });
+              const asset = await (sanityAdminClient as any).assets.upload('image', fileToUpload, { filename: fileToUpload.name, contentType: fileToUpload.type || 'image/jpeg' });
               assetId = asset._id;
             } catch (directErr: any) { console.warn('[Admin] fallback upload', directErr?.message); }
           }
           if (!assetId) {
-            const base64 = await fileToBase64(f.file);
-            const j = await fetchJson('/api/upload-imagem', { method: 'POST', headers: { 'Content-Type': 'application/json', ...headersSnapshot }, body: JSON.stringify({ imageBase64: base64, filename: f.file.name, contentType: f.file.type || 'image/jpeg' }) }, 120000);
+            const base64 = await fileToBase64(fileToUpload);
+            const j = await fetchJson('/api/upload-imagem', { method: 'POST', headers: { 'Content-Type': 'application/json', ...headersSnapshot }, body: JSON.stringify({ imageBase64: base64, filename: fileToUpload.name, contentType: fileToUpload.type || 'image/jpeg' }) }, 120000);
             if (!j.assetId) throw new Error(j.error || 'Erro no upload da foto');
             assetId = j.assetId;
           }
@@ -553,20 +693,81 @@ export const AdminPage: React.FC = () => {
               <span className="text-[12px] text-brand-muted font-light">{fotos.length >= 10 ? 'Remova alguma para continuar' : 'Pode selecionar várias de uma vez'}</span>
             </button>
             <input ref={fileInputRef} type="file" accept="image/*" multiple capture="environment" className="hidden" onChange={(e) => handleFotosSelecionadas(e.target.files)} disabled={fotos.length >= 10} />
+            {/* Marca d'agua toggle */}
+            <div className={`mt-4 rounded-[14px] border p-4 flex flex-col gap-3 transition-colors ${watermarkEnabled ? 'border-brand-gold/30 bg-brand-gold/[0.04]' : 'border-brand-light/10 bg-white/[0.02]'}`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <Layers size={14} className={watermarkEnabled ? 'text-brand-gold' : 'text-brand-muted'} />
+                  <div>
+                    <p className={`text-[13px] font-light tracking-wide ${watermarkEnabled ? 'text-brand-light' : 'text-brand-muted'}`}>Marca d'água</p>
+                    <p className="text-[11px] text-brand-muted/70 font-light">Aplicada no upload • PNG em /public/</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWatermarkEnabled((w) => !w)}
+                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ${watermarkEnabled ? 'bg-brand-gold' : 'bg-brand-light/15'}`}
+                  aria-label="toggle marca dagua"
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${watermarkEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+              {watermarkEnabled && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] text-brand-muted font-light shrink-0">Arquivo:</span>
+                  <input
+                    type="text"
+                    value={watermarkFile}
+                    onChange={(e) => setWatermarkFile(e.target.value)}
+                    placeholder="/watermark.png"
+                    className="flex-1 h-8 px-3 rounded-[8px] border border-brand-light/10 bg-brand-bg/60 text-brand-light text-[12px] font-mono focus:outline-none focus:border-brand-gold transition placeholder:text-brand-muted/40"
+                  />
+                </div>
+              )}
+              {watermarkEnabled && (
+                <p className="text-[11px] text-brand-muted/60 font-light leading-relaxed">
+                  Coloque o PNG em <span className="font-mono text-brand-gold/80">public/</span> — transparencia preservada, centralizada na foto
+                </p>
+              )}
+            </div>
             {fotos.length > 0 && (
               <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mt-5">
-                {fotos.map((f) => (
-                  <div key={f.id} className="relative group aspect-square rounded-[12px] overflow-hidden bg-black/20 border border-brand-light/10">
-                    <img src={f.preview} alt="foto" className="w-full h-full object-cover" />
+                {fotos.map((f, idx) => (
+                  <div
+                    key={f.id}
+                    draggable
+                    onDragStart={() => handleDragStart(idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    className={`relative group aspect-square rounded-[12px] overflow-hidden bg-black/20 border transition-all duration-150 cursor-grab active:cursor-grabbing select-none ${dragOverIndex === idx ? 'border-brand-gold scale-[1.04] shadow-[0_0_20px_rgba(212,163,115,0.4)]' : 'border-brand-light/10'}`}
+                  >
+                    <img src={f.preview} alt="foto" className="w-full h-full object-cover pointer-events-none" draggable={false} />
+                    {/* drag handle hint */}
+                    <div className="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/50 backdrop-blur flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      <GripVertical size={11} className="text-white" />
+                    </div>
                     <button type="button" onClick={() => removerFoto(f.id)} className="absolute top-1.5 right-1.5 w-8 h-8 rounded-full bg-red-600/90 backdrop-blur text-white flex items-center justify-center shadow-md active:scale-90 hover:bg-red-600 transition" aria-label="Remover foto">
                       <X size={14} />
                     </button>
-                    {!f.isNew && <span className="absolute bottom-1 left-1 bg-emerald-500/90 backdrop-blur text-white text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full">salva</span>}
+                    {idx === 0 && (
+                      <span className="absolute bottom-1 left-1 bg-brand-gold text-brand-bg text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full font-semibold shadow-sm">
+                        capa
+                      </span>
+                    )}
+                    {idx !== 0 && !f.isNew && (
+                      <span className="absolute bottom-1 left-1 bg-emerald-500/90 backdrop-blur text-white text-[9px] tracking-widest uppercase px-1.5 py-0.5 rounded-full">salva</span>
+                    )}
+                    {watermarkEnabled && f.isNew && (
+                      <div className="absolute bottom-1 right-1 bg-brand-gold/85 backdrop-blur text-brand-bg text-[8px] tracking-widest uppercase px-1.5 py-0.5 rounded-full font-bold pointer-events-none">WM</div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
-            <p className={`text-[12px] mt-3 font-light ${fotos.length >= 10 ? 'text-amber-300' : 'text-brand-muted/70'}`}>{fotos.length}/10 foto(s) • {fotos.length >= 10 ? 'limite atingido' : 'a primeira será a capa • máximo 10'}</p>
+            <p className={`text-[12px] mt-3 font-light ${fotos.length >= 10 ? 'text-amber-300' : 'text-brand-muted/70'}`}>
+              {fotos.length}/10 foto(s) • {fotos.length >= 10 ? 'limite atingido' : 'arraste para reordenar • 1ª = capa • máximo 10'}
+            </p>
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
@@ -586,18 +787,81 @@ export const AdminPage: React.FC = () => {
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><MapPin size={14} /> 4. Região *</label>
-            <div className="grid grid-cols-1 gap-2.5">
-              {REGIOES.map((r) => (
-                <button key={r} type="button" onClick={() => setRegiao(r)} className={`h-[48px] rounded-full border text-[13px] font-medium tracking-wide transition active:scale-[0.98] flex items-center justify-center gap-2 ${regiao === r ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]' : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light'}`}>
-                  <MapPin size={12} className={regiao === r ? 'text-brand-bg' : 'text-brand-gold'} /> {r}
-                </button>
-              ))}
+            <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
+              <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light">
+                <MapPin size={14} /> 4. Localização por CEP & Região *
+              </label>
+              {bairroDetectado && (
+                <span className="bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-[11px] px-2.5 py-0.5 rounded-full font-medium flex items-center gap-1">
+                  <MapPin size={10} /> Bairro: {bairroDetectado}
+                </span>
+              )}
+            </div>
+            <p className={isLight ? 'text-[13px] text-zinc-600 font-light mb-4' : 'text-[13px] text-brand-muted font-light mb-4'}>
+              Digite o CEP da rua para preencher o endereço e definir automaticamente o <strong className={isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium'}>Bairro</strong> e a <strong className={isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium'}>Região</strong>.
+            </p>
+
+            {/* Campo de CEP com busca */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={cep}
+                  onChange={(e) => handleCepChange(e.target.value)}
+                  placeholder="Digite o CEP — ex: 05501-000"
+                  className={isLight ? 'w-full h-[50px] px-4 rounded-[12px] border text-[15px] font-mono focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[50px] px-4 rounded-[12px] border text-[15px] font-mono focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => executarBuscaCep()}
+                disabled={buscandoCep || cep.replace(/\D/g, '').length < 8}
+                className="h-[50px] px-5 rounded-[12px] bg-brand-gold hover:bg-[#e0b48a] text-brand-bg text-[13px] font-semibold tracking-wide flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition shrink-0 shadow-[0_4px_16px_rgba(212,163,115,0.25)]"
+              >
+                {buscandoCep ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                {buscandoCep ? 'Buscando...' : 'Buscar CEP'}
+              </button>
+            </div>
+
+            {/* Aviso de Bairro e Cidade detectados pelo CEP */}
+            {(bairroDetectado || cidadeDetectada) && (
+              <div className="mb-4 p-3.5 rounded-[14px] bg-brand-gold/[0.06] border border-brand-gold/25 flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2 text-[13px] text-brand-light font-light">
+                  <MapPin size={14} className="text-brand-gold shrink-0" />
+                  <span className={isLight ? 'text-zinc-700' : 'text-brand-light'}>
+                    Bairro: <strong className="text-brand-gold font-medium">{bairroDetectado}</strong>
+                    {cidadeDetectada ? ` • ${cidadeDetectada}` : ''}
+                  </span>
+                </div>
+                <span className={isLight ? 'text-[11px] text-zinc-500 font-light' : 'text-[11px] text-brand-muted/80 font-light'}>
+                  Região definida: <span className={isLight ? 'text-[#1d0a12] font-semibold' : 'text-brand-light font-semibold'}>{regiao}</span>
+                </span>
+              </div>
+            )}
+
+            {/* Botões de Região (caso queira confirmar ou alternar manualmente) */}
+            <div>
+              <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                Região selecionada {regiao ? `(${regiao})` : '*'}
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                {REGIOES.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRegiao(r)}
+                    className={`h-[44px] rounded-full border text-[13px] font-medium tracking-wide transition active:scale-[0.98] flex items-center justify-center gap-2 ${regiao === r ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light'}`}
+                  >
+                    <MapPin size={12} className={regiao === r ? 'text-brand-bg' : 'text-brand-gold'} /> {r}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Home size={14} /> 5. Endereço * <span className="text-[10px] tracking-normal normal-case text-brand-muted/60 font-light">— aparece no mapa do anúncio</span></label>
+            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Home size={14} /> 5. Endereço / Rua do Imóvel * <span className="text-[10px] tracking-normal normal-case text-brand-muted/60 font-light">— preenchido via CEP ou digite rua e número</span></label>
             <div className="relative">
               <input type="text" value={endereco} onChange={(e) => handleEnderecoChange(e.target.value)} onFocus={() => { if (sugestoes.length > 0) setShowSugestoes(true); }} onBlur={() => setTimeout(() => setShowSugestoes(false), 200)} placeholder="Rua, número e bairro — ex: Rua Alvarenga, 1450, Butantã" className={isLight ? 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400 focus:bg-white' : 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'} />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted">
@@ -702,14 +966,10 @@ export const AdminPage: React.FC = () => {
                   {descricaoExpandida ? <Minimize2 size={12} aria-hidden="true" /> : <Maximize2 size={12} aria-hidden="true" />}
                   {descricaoExpandida ? 'Recolher' : 'Expandir'}
                 </button>
-                <button type="button" onClick={handleGerarDescricao} disabled={gerandoDescricao} className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition active:scale-95">
-                  {gerandoDescricao ? <span className="w-3.5 h-3.5 border-2 border-brand-gold/30 border-t-brand-gold rounded-full animate-spin" aria-hidden="true" /> : <Sparkles size={12} aria-hidden="true" />}
-                  {gerandoDescricao ? 'Gerando...' : '✨ Gerar com IA'}
-                </button>
               </div>
             </div>
-            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional) — ou clique em Gerar com IA" rows={14} className={isLight ? 'w-full min-h-[420px] p-4 rounded-[12px] border text-[14px] leading-relaxed focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full min-h-[420px] p-4 rounded-[12px] border text-[14px] leading-relaxed focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'} />
-            <p className={isLight ? 'text-[11px] font-light mt-2 leading-relaxed text-zinc-500' : 'text-[11px] font-light mt-2 leading-relaxed text-brand-muted/60'}>IA exclusiva para descrições — usa título, tipo, região, área e quartos. Só gera descrição, nada mais. Você revisa antes de salvar. Dica: clique em Expandir para ver o texto grande sem rolar.</p>
+            <textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Conte um pouco sobre o imóvel (opcional)" rows={14} className={isLight ? 'w-full min-h-[420px] p-4 rounded-[12px] border text-[14px] leading-relaxed focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full min-h-[420px] p-4 rounded-[12px] border text-[14px] leading-relaxed focus:outline-none focus:border-brand-gold transition resize-y overflow-y-auto whitespace-pre-wrap bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'} />
+            <p className={isLight ? 'text-[11px] font-light mt-2 leading-relaxed text-zinc-500' : 'text-[11px] font-light mt-2 leading-relaxed text-brand-muted/60'}>Dica: clique em Expandir para editar o texto com mais conforto.</p>
           </div>
 
           {/* Modal expandido - tela cheia para editar com conforto */}
