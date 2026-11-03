@@ -11,8 +11,22 @@ export default async function handler(req: any, res: any) {
 
     // Tenta buscar todos (incluindo pausados) se tiver token; senão só publicados
     const query = hasToken
-      ? `*[_type == "imovel"] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude }`
-      : `*[_type == "imovel" && publicado == true] | order(_createdAt desc){ _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude }`;
+      ? `*[_type == "imovel"] | order(_createdAt desc){
+          _id, _createdAt, titulo, slug, tipo, categoriaUso, andar, regiao,
+          endereco, rua, numero, complemento, bairro, cidade, cep, mostrarEndereco,
+          valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado,
+          isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude,
+          caracteristicasImovel, sobreCondominio, caracteristicasCondominio,
+          outrasCaracteristicasImovel, outrasCaracteristicasCondominio
+        }`
+      : `*[_type == "imovel" && publicado == true] | order(_createdAt desc){
+          _id, _createdAt, titulo, slug, tipo, categoriaUso, andar, regiao,
+          endereco, rua, numero, complemento, bairro, cidade, cep, mostrarEndereco,
+          valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado,
+          isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude,
+          caracteristicasImovel, sobreCondominio, caracteristicasCondominio,
+          outrasCaracteristicasImovel, outrasCaracteristicasCondominio
+        }`;
 
     const imoveis = await client.fetch(query);
     return res.status(200).json({ imoveis: imoveis || [] });

@@ -38,13 +38,77 @@ function getSessionHeaderFromSnapshot(snapshot: string | null): Record<string, s
   return { 'x-admin-auth': snapshot, ...(token ? { 'x-sanity-token': 'present' } : {}), Authorization: `Bearer ${ADMIN_PASSWORD}` };
 }
 
-const TIPOS = [
+const TIPOS_RESIDENCIAIS = [
   { label: 'Apartamento', value: 'Apartamento' },
   { label: 'Casa', value: 'Casa' },
-  { label: 'Terreno', value: 'Terreno' },
-  { label: 'Comercial', value: 'Comercial' },
-  { label: 'Studio', value: 'Studio/Kitnet' },
+  { label: 'Sobrado', value: 'Sobrado' },
+  { label: 'Casa de Condomínio', value: 'Casa de Condomínio' },
+  { label: 'Cobertura', value: 'Cobertura' },
+  { label: 'Studio / Kitnet', value: 'Studio/Kitnet' },
+  { label: 'Prédio Residencial', value: 'Prédio Residencial' },
+  { label: 'Fazenda / Sítio / Chácara', value: 'Fazenda / Sítio / Chácara' },
+  { label: 'Terreno / Lote', value: 'Terreno' },
 ] as const;
+
+const TIPOS_COMERCIAIS = [
+  { label: 'Sala Comercial / Consultório', value: 'Sala Comercial' },
+  { label: 'Prédio Comercial', value: 'Prédio Comercial' },
+  { label: 'Galpão / Depósito', value: 'Galpão / Depósito' },
+  { label: 'Loja / Ponto Comercial', value: 'Loja / Ponto Comercial' },
+  { label: 'Terreno Comercial', value: 'Terreno Comercial' },
+  { label: 'Comercial Geral', value: 'Comercial' },
+] as const;
+
+const DIFERENCIAIS_IMOVEL = [
+  'Aceita animais',
+  'Ar-condicionado',
+  'Closet',
+  'Cozinha americana',
+  'Lareira',
+  'Mobiliado',
+  'Varanda gourmet',
+] as const;
+
+const LAZER_ESPORTE_CONDOMINIO = [
+  'Academia',
+  'Churrasqueira',
+  'Cinema',
+  'Espaço gourmet',
+  'Jardim',
+  'Piscina',
+  'Playground',
+  'Quadra de squash',
+  'Quadra de tênis',
+  'Quadra poliesportiva',
+  'Salão de festas',
+  'Salão de jogos',
+] as const;
+
+const COMODIDADES_SERVICOS_CONDOMINIO = [
+  'Acesso para deficientes',
+  'Bicicletário',
+  'Coworking',
+  'Elevador',
+  'Estacionamento',
+  'Lavanderia',
+  'Sauna',
+  'Spa',
+] as const;
+
+const SEGURANCA_CONDOMINIO = [
+  'Condomínio fechado',
+  'Portão eletrônico',
+  'Portaria 24h',
+] as const;
+
+const OPCOES_ANDARES = [
+  'Não informado', 'Térreo', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+  '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '25', '30', '35', '40', '50+'
+];
+
+const OPCOES_UNIDADES_POR_ANDAR = [
+  'Não informado', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '14', '16', '20+'
+];
 const REGIOES = ['Butantã', 'Taboão da Serra', 'Morumbi'] as const;
 const FINALIDADES = ['Venda', 'Aluguel'] as const;
 
@@ -177,6 +241,24 @@ export const AdminPage: React.FC = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [bairroDetectado, setBairroDetectado] = useState('');
   const [cidadeDetectada, setCidadeDetectada] = useState('');
+  const [categoriaUso, setCategoriaUso] = useState<'Residencial' | 'Comercial'>('Residencial');
+  const [andar, setAndar] = useState('');
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [complemento, setComplemento] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [mostrarEndereco, setMostrarEndereco] = useState<'completo' | 'rua' | 'bairro'>('completo');
+  const [caracteristicasImovel, setCaracteristicasImovel] = useState<string[]>([]);
+  const [novaCaractImovel, setNovaCaractImovel] = useState('');
+  const [outrasCaractImovel, setOutrasCaractImovel] = useState<string[]>([]);
+  const [numeroAndares, setNumeroAndares] = useState('');
+  const [unidadesPorAndar, setUnidadesPorAndar] = useState('');
+  const [numeroTorres, setNumeroTorres] = useState('');
+  const [anoConstrucao, setAnoConstrucao] = useState('');
+  const [caracteristicasCondominio, setCaracteristicasCondominio] = useState<string[]>([]);
+  const [novaCaractCondominio, setNovaCaractCondominio] = useState('');
+  const [outrasCaractCondominio, setOutrasCaractCondominio] = useState<string[]>([]);
   // geocoding / mapa
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
@@ -287,7 +369,10 @@ export const AdminPage: React.FC = () => {
       setBairroDetectado(data.bairro || '');
       setCidadeDetectada(data.localidade || '');
 
-      // Monta o endereço com logradouro e bairro
+      // Preenche dados estruturados de endereço
+      if (data.logradouro) setRua(data.logradouro);
+      if (data.bairro) setBairro(data.bairro);
+      if (data.localidade) setCidade(data.localidade);
       const partes = [data.logradouro, data.bairro].filter(Boolean);
       const enderecoSugerido = partes.join(', ');
       setEndereco(enderecoSugerido);
@@ -383,10 +468,84 @@ export const AdminPage: React.FC = () => {
     else setErroSenha('Senha incorreta. Tenta de novo.');
   };
   const handleSair = () => { localStorage.removeItem(LS_KEY); setAutenticado(false); setSenhaInput(''); setErroSenha(''); };
-  const limparForm = () => { setFotos([]); setTitulo(''); setTipo(''); setRegiao(''); setEndereco(''); setCep(''); setBairroDetectado(''); setCidadeDetectada(''); setLatitude(null); setLongitude(null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(''); setFinalidade('Venda'); setArea(70); setQuartos(2); setBanheiros(1); setVagas(1); setDescricao(''); setIsPetFriendly(true); setHasSwimmingPool(false); setHasGarden(false); setEditId(null); };
+  const limparForm = () => {
+    setFotos([]);
+    setTitulo('');
+    setCategoriaUso('Residencial');
+    setTipo('Apartamento');
+    setAndar('');
+    setRegiao('');
+    setEndereco('');
+    setRua('');
+    setNumero('');
+    setComplemento('');
+    setBairro('');
+    setCidade('');
+    setCep('');
+    setBairroDetectado('');
+    setCidadeDetectada('');
+    setMostrarEndereco('completo');
+    setLatitude(null);
+    setLongitude(null);
+    setSugestoes([]);
+    setShowSugestoes(false);
+    setGeocodingStatus(null);
+    setValor('');
+    setFinalidade('Venda');
+    setArea(70);
+    setQuartos(2);
+    setBanheiros(1);
+    setVagas(1);
+    setDescricao('');
+    setIsPetFriendly(true);
+    setHasSwimmingPool(false);
+    setHasGarden(false);
+    setCaracteristicasImovel([]);
+    setNovaCaractImovel('');
+    setOutrasCaractImovel([]);
+    setNumeroAndares('');
+    setUnidadesPorAndar('');
+    setNumeroTorres('');
+    setAnoConstrucao('');
+    setCaracteristicasCondominio([]);
+    setNovaCaractCondominio('');
+    setOutrasCaractCondominio([]);
+    setEditId(null);
+  };
   const abrirNovo = () => { limparForm(); setModoForm('novo'); window.scrollTo(0, 0); };
   const abrirEditar = (im: SanityImovel) => {
-    setEditId(im._id); setTitulo(im.titulo || ''); setTipo(im.tipo || ''); setRegiao(im.regiao || ''); setEndereco(im.endereco || ''); setCep(''); setBairroDetectado(''); setCidadeDetectada(''); setLatitude((im as any).latitude ?? null); setLongitude((im as any).longitude ?? null); setSugestoes([]); setShowSugestoes(false); setGeocodingStatus(null); setValor(String(im.valor || '')); setFinalidade(im.finalidade || 'Venda');
+    setEditId(im._id);
+    setTitulo(im.titulo || '');
+    setCategoriaUso((im as any).categoriaUso || 'Residencial');
+    setTipo(im.tipo || 'Apartamento');
+    setAndar((im as any).andar || '');
+    setRegiao(im.regiao || '');
+    setEndereco(im.endereco || '');
+    setRua((im as any).rua || (im.endereco || '').split(',')[0] || '');
+    setNumero((im as any).numero || '');
+    setComplemento((im as any).complemento || '');
+    setBairro((im as any).bairro || '');
+    setCidade((im as any).cidade || '');
+    setCep((im as any).cep || '');
+    setBairroDetectado((im as any).bairro || '');
+    setCidadeDetectada((im as any).cidade || '');
+    setMostrarEndereco((im as any).mostrarEndereco || 'completo');
+    setLatitude((im as any).latitude ?? null);
+    setLongitude((im as any).longitude ?? null);
+    setSugestoes([]);
+    setShowSugestoes(false);
+    setGeocodingStatus(null);
+    setValor(String(im.valor || ''));
+    setFinalidade(im.finalidade || 'Venda');
+    setCaracteristicasImovel(Array.isArray((im as any).caracteristicasImovel) ? (im as any).caracteristicasImovel : []);
+    setOutrasCaractImovel(Array.isArray((im as any).outrasCaracteristicasImovel) ? (im as any).outrasCaracteristicasImovel : []);
+    const cond = (im as any).sobreCondominio || {};
+    setNumeroAndares(cond.numeroAndares || '');
+    setUnidadesPorAndar(cond.unidadesPorAndar || '');
+    setNumeroTorres(cond.numeroTorres || '');
+    setAnoConstrucao(cond.anoConstrucao || '');
+    setCaracteristicasCondominio(Array.isArray((im as any).caracteristicasCondominio) ? (im as any).caracteristicasCondominio : []);
+    setOutrasCaractCondominio(Array.isArray((im as any).outrasCaracteristicasCondominio) ? (im as any).outrasCaracteristicasCondominio : []);
     setArea(Number(im.area) || 0); setQuartos(Number(im.quartos) || 0); setBanheiros(Number(im.banheiros) || 0); setVagas(Number(im.vagas) || 0);
     setIsPetFriendly((im as any).isPetFriendly !== undefined ? !!(im as any).isPetFriendly : true);
     setHasSwimmingPool(!!(im as any).hasSwimmingPool);
@@ -580,7 +739,55 @@ export const AdminPage: React.FC = () => {
           else { setGeocodingStatus('Endereço não geocodificado — mapa usará busca por texto'); }
         } catch (e) { console.warn('[geocode auto] falhou', e); }
       }
-      const payload: any = { titulo: titulo.trim(), tipo, regiao, endereco: endereco.trim(), valor: valorNum, finalidade, area: Number(area), quartos: Number(quartos), banheiros: Number(banheiros), vagas: Number(vagas), descricao: descricao.trim(), fotos: fotosParaEnviar, isPetFriendly, hasSwimmingPool, hasGarden };
+      // Monta endereço completo ou consolidado
+      const ruaEfetiva = rua.trim() || endereco.trim();
+      const bairroEfetivo = bairro.trim() || bairroDetectado.trim();
+      const cidadeEfetiva = cidade.trim() || cidadeDetectada.trim();
+      const partesConsolidadas = [
+        ruaEfetiva,
+        numero.trim() ? `nº ${numero.trim()}` : '',
+        complemento.trim(),
+        bairroEfetivo,
+        cidadeEfetiva || regiao
+      ].filter(Boolean);
+      const enderecoSalvo = partesConsolidadas.length > 0 ? partesConsolidadas.join(', ') : endereco.trim();
+
+      const payload: any = {
+        titulo: titulo.trim(),
+        tipo,
+        categoriaUso,
+        andar: andar.trim(),
+        regiao,
+        endereco: enderecoSalvo,
+        rua: ruaEfetiva,
+        numero: numero.trim(),
+        complemento: complemento.trim(),
+        bairro: bairroEfetivo,
+        cidade: cidadeEfetiva,
+        cep: cep.trim(),
+        mostrarEndereco,
+        valor: valorNum,
+        finalidade,
+        area: Number(area),
+        quartos: Number(quartos),
+        banheiros: Number(banheiros),
+        vagas: Number(vagas),
+        descricao: descricao.trim(),
+        fotos: fotosParaEnviar,
+        isPetFriendly: caracteristicasImovel.includes('Aceita animais') || isPetFriendly,
+        hasSwimmingPool: caracteristicasCondominio.includes('Piscina') || hasSwimmingPool,
+        hasGarden: caracteristicasCondominio.includes('Jardim') || hasGarden,
+        caracteristicasImovel,
+        sobreCondominio: {
+          numeroAndares: numeroAndares.trim(),
+          unidadesPorAndar: unidadesPorAndar.trim(),
+          numeroTorres: numeroTorres.trim(),
+          anoConstrucao: anoConstrucao.trim(),
+        },
+        caracteristicasCondominio,
+        outrasCaracteristicasImovel,
+        outrasCaracteristicasCondominio,
+      };
       if (latToSave != null && lngToSave != null) { payload.latitude = latToSave; payload.longitude = lngToSave; }
       if (modoForm === 'editar' && editId) {
         await fetchJson('/api/editar-imovel', { method: 'POST', headers: { 'Content-Type': 'application/json', ...headersSnapshot }, body: JSON.stringify({ id: editId, ...payload }) }, 120000);
@@ -775,15 +982,93 @@ export const AdminPage: React.FC = () => {
             <input type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex: Casa 3 quartos com quintal no Butantã" className={isLight ? 'w-full h-[52px] px-4 rounded-[12px] border text-[15px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400 focus:bg-white' : 'w-full h-[52px] px-4 rounded-[12px] border text-[15px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'} />
           </div>
 
+          {/* 3. Finalidade de Uso & Tipo de Imóvel */}
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Building2 size={14} /> 3. Tipo de imóvel *</label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {TIPOS.map((t) => (
-                <button key={t.value} type="button" onClick={() => setTipo(t.value)} className={`h-[48px] rounded-full border text-[13px] font-medium tracking-wide transition active:scale-[0.98] ${tipo === t.value ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]' : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light hover:bg-white/[0.06]'}`}>
-                  {t.label}
+            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3">
+              <Building2 size={14} /> 3. Finalidade de Uso & Tipo de Imóvel *
+            </label>
+
+            {/* Categoria: Residencial vs Comercial */}
+            <div className="mb-4">
+              <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                Uso do imóvel *
+              </span>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoriaUso('Residencial');
+                    if (TIPOS_COMERCIAIS.some(t => t.value === tipo)) setTipo('Apartamento');
+                  }}
+                  className={`h-[46px] rounded-full border text-[13px] font-medium tracking-wide transition active:scale-[0.98] flex items-center justify-center gap-2 ${
+                    categoriaUso === 'Residencial'
+                      ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]'
+                      : isLight
+                      ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                      : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light'
+                  }`}
+                >
+                  <Home size={14} /> Imóvel Residencial
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategoriaUso('Comercial');
+                    if (TIPOS_RESIDENCIAIS.some(t => t.value === tipo)) setTipo('Sala Comercial');
+                  }}
+                  className={`h-[46px] rounded-full border text-[13px] font-medium tracking-wide transition active:scale-[0.98] flex items-center justify-center gap-2 ${
+                    categoriaUso === 'Comercial'
+                      ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]'
+                      : isLight
+                      ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                      : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light'
+                  }`}
+                >
+                  <Building2 size={14} /> Imóvel Comercial
+                </button>
+              </div>
             </div>
+
+            {/* Tipos disponíveis de acordo com a categoria */}
+            <div className="mb-4">
+              <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                Tipo de Imóvel (${categoriaUso}) *
+              </span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                {(categoriaUso === 'Residencial' ? TIPOS_RESIDENCIAIS : TIPOS_COMERCIAIS).map((t) => (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setTipo(t.value)}
+                    className={`h-[44px] px-3 rounded-full border text-[12px] font-medium tracking-wide transition active:scale-[0.98] truncate ${
+                      tipo === t.value
+                        ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_4px_16px_rgba(212,163,115,0.3)]'
+                        : isLight
+                        ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50 hover:border-brand-gold/30'
+                        : 'bg-white/[0.03] text-brand-muted border-brand-light/10 hover:border-brand-gold/30 hover:text-brand-light'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Campo Andar caso seja Prédio / Apartamento / Cobertura / Studio / Comercial */}
+            {['Apartamento', 'Cobertura', 'Studio/Kitnet', 'Prédio Residencial', 'Prédio Comercial', 'Sala Comercial'].includes(tipo) && (
+              <div className="pt-3 border-t border-brand-light/5">
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                  Andar da unidade (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={andar}
+                  onChange={(e) => setAndar(e.target.value)}
+                  placeholder="Ex: 5º andar, Cobertura, Térreo"
+                  className={isLight ? 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+              </div>
+            )}
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
@@ -860,17 +1145,43 @@ export const AdminPage: React.FC = () => {
             </div>
           </div>
 
+          {/* 5. Endereço exato do imóvel */}
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-3"><Home size={14} /> 5. Endereço / Rua do Imóvel * <span className="text-[10px] tracking-normal normal-case text-brand-muted/60 font-light">— preenchido via CEP ou digite rua e número</span></label>
-            <div className="relative">
-              <input type="text" value={endereco} onChange={(e) => handleEnderecoChange(e.target.value)} onFocus={() => { if (sugestoes.length > 0) setShowSugestoes(true); }} onBlur={() => setTimeout(() => setShowSugestoes(false), 200)} placeholder="Rua, número e bairro — ex: Rua Alvarenga, 1450, Butantã" className={isLight ? 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400 focus:bg-white' : 'w-full h-[52px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'} />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted">
+            <label className="flex items-center gap-2 text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-2">
+              <Home size={14} /> 5. Endereço Exato do Imóvel *
+            </label>
+            <p className={isLight ? 'text-[13px] text-zinc-600 font-light mb-4' : 'text-[13px] text-brand-muted font-light mb-4'}>
+              Informe o logradouro e os dados completos. Você pode escolher como o endereço aparecerá publicamente no anúncio.
+            </p>
+
+            {/* Rua / Logradouro */}
+            <div className="relative mb-3">
+              <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                Rua / Logradouro *
+              </label>
+              <input
+                type="text"
+                value={endereco}
+                onChange={(e) => {
+                  setEndereco(e.target.value);
+                  setRua(e.target.value);
+                  handleEnderecoChange(e.target.value);
+                }}
+                onFocus={() => { if (sugestoes.length > 0) setShowSugestoes(true); }}
+                onBlur={() => setTimeout(() => setShowSugestoes(false), 200)}
+                placeholder="Ex: Rua Alvarenga ou Avenida Morumbi"
+                className={isLight ? 'w-full h-[50px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[50px] pl-4 pr-12 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40 focus:bg-brand-bg'}
+              />
+              <span className="absolute right-3 top-9 text-brand-muted">
                 {buscandoEndereco ? <Loader2 size={16} className="animate-spin text-brand-gold" /> : <Search size={16} className="text-brand-gold/40" />}
               </span>
               {showSugestoes && sugestoes.length > 0 && (
-                <div className={isLight ? 'absolute z-20 top-[56px] left-0 right-0 bg-white border border-zinc-200 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12)] overflow-hidden max-h-[220px] overflow-y-auto' : 'absolute z-20 top-[56px] left-0 right-0 bg-[#1d0a12] border border-brand-light/10 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.4)] overflow-hidden max-h-[220px] overflow-y-auto'}>
+                <div className={isLight ? 'absolute z-20 top-[76px] left-0 right-0 bg-white border border-zinc-200 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.12)] overflow-hidden max-h-[220px] overflow-y-auto' : 'absolute z-20 top-[76px] left-0 right-0 bg-[#1d0a12] border border-brand-light/10 rounded-[12px] shadow-[0_12px_32px_rgba(0,0,0,0.4)] overflow-hidden max-h-[220px] overflow-y-auto'}>
                   {sugestoes.map((s, idx) => (
-                    <button key={idx} type="button" onClick={() => selecionarSugestao(s)} className={isLight ? 'w-full text-left px-4 py-3 hover:bg-zinc-50 border-b last:border-0 border-zinc-100 flex items-start gap-2.5 transition' : 'w-full text-left px-4 py-3 hover:bg-white/[0.04] border-b last:border-0 border-brand-light/5 flex items-start gap-2.5 transition'}>
+                    <button key={idx} type="button" onClick={() => {
+                      selecionarSugestao(s);
+                      setRua(s.displayName.split(',')[0] || '');
+                    }} className={isLight ? 'w-full text-left px-4 py-3 hover:bg-zinc-50 border-b last:border-0 border-zinc-100 flex items-start gap-2.5 transition' : 'w-full text-left px-4 py-3 hover:bg-white/[0.04] border-b last:border-0 border-brand-light/5 flex items-start gap-2.5 transition'}>
                       <MapPin size={14} className="text-brand-gold mt-0.5 shrink-0" />
                       <span className={isLight ? 'text-[13px] leading-snug text-zinc-700 line-clamp-2' : 'text-[13px] leading-snug text-brand-light line-clamp-2'}>{s.displayName}</span>
                     </button>
@@ -878,7 +1189,72 @@ export const AdminPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="flex gap-2 mt-3">
+
+            {/* Número e Complemento */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Número *
+                </label>
+                <input
+                  type="text"
+                  value={numero}
+                  onChange={(e) => setNumero(e.target.value)}
+                  placeholder="Ex: 1450 ou S/N"
+                  className={isLight ? 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+              </div>
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Complemento (opcional)
+                </label>
+                <input
+                  type="text"
+                  value={complemento}
+                  onChange={(e) => setComplemento(e.target.value)}
+                  placeholder="Ex: Casa A, Apto 42, Bloco 2"
+                  className={isLight ? 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[48px] px-4 rounded-[12px] border text-[14px] focus:outline-none focus:border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+              </div>
+            </div>
+
+            {/* Opção de Exibição / Privacidade do Endereço */}
+            <div className="mb-4 pt-3 border-t border-brand-light/5">
+              <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                Como exibir o endereço no site? (Privacidade) *
+              </span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                {[
+                  { value: 'completo', label: 'Endereço Completo', desc: 'Rua, nº e complemento' },
+                  { value: 'rua', label: 'Somente Rua', desc: 'Oculta número e complemento' },
+                  { value: 'bairro', label: 'Somente Bairro', desc: 'Apenas bairro e região' },
+                ].map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setMostrarEndereco(opt.value as any)}
+                    className={`p-3 rounded-[14px] border text-left transition active:scale-[0.98] ${
+                      mostrarEndereco === opt.value
+                        ? 'bg-brand-gold/15 border-brand-gold text-brand-light shadow-[0_2px_12px_rgba(212,163,115,0.2)]'
+                        : isLight
+                        ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+                        : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:border-brand-gold/30 hover:text-brand-light'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${mostrarEndereco === opt.value ? 'border-brand-gold bg-brand-gold' : 'border-brand-muted/40'}`}>
+                        {mostrarEndereco === opt.value && <span className="w-1.5 h-1.5 rounded-full bg-brand-bg" />}
+                      </span>
+                      <span className="text-[12px] font-medium">${opt.label}</span>
+                    </div>
+                    <p className="text-[10px] text-brand-muted/70 font-light mt-1 pl-5.5">${opt.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Ações de Mapa e Geocoding */}
+            <div className="flex gap-2 mt-3 flex-wrap">
               <button type="button" onClick={handleGeocodeClick} disabled={buscandoEndereco || !endereco.trim()} className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg hover:border-brand-gold disabled:opacity-40 disabled:cursor-not-allowed transition active:scale-95">
                 {buscandoEndereco ? <Loader2 size={12} className="animate-spin" /> : <Navigation size={12} />}
                 {buscandoEndereco ? 'Buscando...' : latitude && longitude ? 'Atualizar no mapa' : 'Confirmar no mapa'}
@@ -890,7 +1266,7 @@ export const AdminPage: React.FC = () => {
               )}
             </div>
             {geocodingStatus && <p className={`text-[12px] mt-2 font-light ${geocodingStatus.includes('✓') ? 'text-emerald-400' : 'text-brand-muted'}`}>{geocodingStatus}</p>}
-            <p className={isLight ? 'text-[11px] font-light mt-2 leading-relaxed text-zinc-500' : 'text-[11px] font-light mt-2 leading-relaxed text-brand-muted/60'}>Digite rua + número e selecione na lista. O pin será salvo e aparece logo abaixo do anúncio.</p>
+
             {/* preview do mapa no admin */}
             {(latitude && longitude) || endereco.trim().length >= 6 ? (
               <div className="mt-4">
@@ -929,33 +1305,325 @@ export const AdminPage: React.FC = () => {
             <Stepper label="Vagas" value={vagas} onChange={setVagas} min={0} />
           </div>
 
+                    {/* ═══════════════════════════════════════════════════════════════ */}
+          {/* CARACTERÍSTICAS DO IMÓVEL E CONDOMÍNIO                          */}
+          {/* ═══════════════════════════════════════════════════════════════ */}
+
+          {/* 1. CARACTERÍSTICAS DO IMÓVEL (opcional) */}
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
-            <label className="text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-1 block">8.1 Comodidades que aparecem no filtro *</label>
-            <p className={`text-[12px] font-light mb-4 ${isLight ? 'text-zinc-500' : 'text-brand-muted/70'}`}>Marque o que o imóvel tem — cliente filtra por isso no site. Deixe ligado só se tiver.</p>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between gap-3 py-3 border-b border-brand-light/5 last:border-0">
-                <span className={`text-[14px] font-light tracking-wide ${isLight ? 'text-[#1d0a12]' : 'text-brand-light'}`}>🐾 Aceita PET</span>
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setIsPetFriendly(true)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${isPetFriendly ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_2px_10px_rgba(212,163,115,0.3)]' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Sim</button>
-                  <button type="button" onClick={() => setIsPetFriendly(false)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${!isPetFriendly ? 'bg-zinc-800 text-white border-zinc-700' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Não</button>
-                </div>
+            <label className="text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-1 block">
+              Características do imóvel (opcional)
+            </label>
+            <p className={isLight ? 'text-[12px] text-zinc-500 font-light mb-4' : 'text-[12px] text-brand-muted/70 font-light mb-4'}>
+              Diferenciais:
+            </p>
+
+            {/* Checkboxes Diferenciais */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-4">
+              {DIFERENCIAIS_IMOVEL.map((item) => {
+                const ativo = caracteristicasImovel.includes(item);
+                return (
+                  <label key={item} className="flex items-center gap-2.5 text-[13px] font-light cursor-pointer select-none py-1 group">
+                    <input
+                      type="checkbox"
+                      checked={ativo}
+                      onChange={() => {
+                        setCaracteristicasImovel((prev) =>
+                          ativo ? prev.filter((i) => i !== item) : [...prev, item]
+                        );
+                        if (item === 'Aceita animais') setIsPetFriendly(!ativo);
+                      }}
+                      className="w-4 h-4 rounded border border-brand-light/20 bg-brand-bg/60 text-brand-gold accent-brand-gold focus:ring-brand-gold/30 cursor-pointer"
+                    />
+                    <span className={ativo ? (isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium') : (isLight ? 'text-zinc-600 group-hover:text-zinc-900' : 'text-brand-muted group-hover:text-brand-light transition')}>
+                      {item}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+
+            {/* Adicionar outras características */}
+            <div className="pt-3 border-t border-brand-light/5">
+              <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                Adicionar outras características:
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={novaCaractImovel}
+                  onChange={(e) => setNovaCaractImovel(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (novaCaractImovel.trim()) {
+                        setOutrasCaractImovel((p) => [...p, novaCaractImovel.trim()]);
+                        setNovaCaractImovel('');
+                      }
+                    }
+                  }}
+                  placeholder="Digite uma característica"
+                  className={isLight ? 'flex-1 h-[44px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'flex-1 h-[44px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (novaCaractImovel.trim()) {
+                      setOutrasCaractImovel((p) => [...p, novaCaractImovel.trim()]);
+                      setNovaCaractImovel('');
+                    }
+                  }}
+                  className="h-[44px] px-4 rounded-[12px] bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg transition active:scale-95 shrink-0"
+                >
+                  Adicionar
+                </button>
               </div>
-              <div className="flex items-center justify-between gap-3 py-3 border-b border-brand-light/5 last:border-0">
-                <span className={`text-[14px] font-light tracking-wide ${isLight ? 'text-[#1d0a12]' : 'text-brand-light'}`}>🏊 Piscina / Lazer completo</span>
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setHasSwimmingPool(true)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${hasSwimmingPool ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_2px_10px_rgba(212,163,115,0.3)]' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Sim</button>
-                  <button type="button" onClick={() => setHasSwimmingPool(false)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${!hasSwimmingPool ? 'bg-zinc-800 text-white border-zinc-700' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Não</button>
+              {outrasCaractImovel.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {outrasCaractImovel.map((tag, idx) => (
+                    <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] bg-brand-gold/10 border border-brand-gold/25 text-brand-light">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => setOutrasCaractImovel((p) => p.filter((_, i) => i !== idx))}
+                        className="hover:text-red-400 text-brand-muted transition"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* 2. SOBRE O CONDOMÍNIO (opcional) */}
+          <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
+            <label className="text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-4 block">
+              Sobre o condomínio (opcional)
+            </label>
+
+            {/* Duas colunas proporcionais */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Linha 1 - Coluna 1 */}
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Nº de andares
+                </label>
+                <select
+                  value={numeroAndares}
+                  onChange={(e) => setNumeroAndares(e.target.value)}
+                  className={isLight ? 'w-full h-[48px] px-3.5 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12]' : 'w-full h-[48px] px-3.5 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light'}
+                >
+                  {OPCOES_ANDARES.map((op) => (
+                    <option key={op} value={op === 'Não informado' ? '' : op} className="bg-[#1d0a12] text-white">
+                      {op}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <div className="flex items-center justify-between gap-3 py-3 border-b border-brand-light/5 last:border-0">
-                <span className={`text-[14px] font-light tracking-wide ${isLight ? 'text-[#1d0a12]' : 'text-brand-light'}`}>🌳 Quintal / Jardim</span>
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setHasGarden(true)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${hasGarden ? 'bg-brand-gold text-brand-bg border-brand-gold shadow-[0_2px_10px_rgba(212,163,115,0.3)]' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Sim</button>
-                  <button type="button" onClick={() => setHasGarden(false)} className={`h-9 px-5 rounded-full border text-[13px] font-medium transition active:scale-95 ${!hasGarden ? 'bg-zinc-800 text-white border-zinc-700' : isLight ? 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50' : 'bg-white/[0.03] border-brand-light/10 text-brand-muted hover:bg-white/[0.06] hover:text-brand-light'}`}>Não</button>
-                </div>
+
+              {/* Linha 1 - Coluna 2 */}
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Nº de unidades por andar
+                </label>
+                <select
+                  value={unidadesPorAndar}
+                  onChange={(e) => setUnidadesPorAndar(e.target.value)}
+                  className={isLight ? 'w-full h-[48px] px-3.5 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12]' : 'w-full h-[48px] px-3.5 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light'}
+                >
+                  {OPCOES_UNIDADES_POR_ANDAR.map((op) => (
+                    <option key={op} value={op === 'Não informado' ? '' : op} className="bg-[#1d0a12] text-white">
+                      {op}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Linha 2 - Coluna 1 */}
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Nº de torres
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={numeroTorres}
+                  onChange={(e) => setNumeroTorres(e.target.value)}
+                  placeholder="Ex: 2"
+                  className={isLight ? 'w-full h-[48px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[48px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
+              </div>
+
+              {/* Linha 2 - Coluna 2 */}
+              <div>
+                <label className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-1.5' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-1.5'}>
+                  Ano de construção
+                </label>
+                <input
+                  type="number"
+                  min="1900"
+                  max="2035"
+                  value={anoConstrucao}
+                  onChange={(e) => setAnoConstrucao(e.target.value)}
+                  placeholder="0000"
+                  className={isLight ? 'w-full h-[48px] px-4 rounded-[12px] border text-[13px] font-mono focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'w-full h-[48px] px-4 rounded-[12px] border text-[13px] font-mono focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                />
               </div>
             </div>
-            <p className={`text-[11px] font-light mt-3 ${isLight ? 'text-zinc-400' : 'text-brand-muted/60'}`}>Dica: Taboão casa com quintal e Butantã que aceita PET filtram muito. Deixe marcado que aparece no filtro do site.</p>
+          </div>
+
+          {/* 3. CARACTERÍSTICAS DO CONDOMÍNIO (opcional) & 4. SEGURANÇA */}
+          <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>
+            <label className="text-[12px] tracking-[0.16em] text-brand-gold uppercase font-light mb-4 block">
+              Características do condomínio (opcional)
+            </label>
+
+            {/* Categorias divididas */}
+            <div className="space-y-6">
+              {/* LAZER E ESPORTE */}
+              <div>
+                <h4 className={isLight ? 'text-[11px] font-medium tracking-[0.18em] text-zinc-500 uppercase mb-3 pb-1 border-b border-zinc-200' : 'text-[11px] font-medium tracking-[0.18em] text-brand-gold/80 uppercase mb-3 pb-1 border-b border-brand-light/10'}>
+                  Lazer e Esporte
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {LAZER_ESPORTE_CONDOMINIO.map((item) => {
+                    const ativo = caracteristicasCondominio.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-2.5 text-[13px] font-light cursor-pointer select-none py-1 group">
+                        <input
+                          type="checkbox"
+                          checked={ativo}
+                          onChange={() => {
+                            setCaracteristicasCondominio((prev) =>
+                              ativo ? prev.filter((i) => i !== item) : [...prev, item]
+                            );
+                            if (item === 'Piscina') setHasSwimmingPool(!ativo);
+                            if (item === 'Jardim') setHasGarden(!ativo);
+                          }}
+                          className="w-4 h-4 rounded border border-brand-light/20 bg-brand-bg/60 text-brand-gold accent-brand-gold focus:ring-brand-gold/30 cursor-pointer"
+                        />
+                        <span className={ativo ? (isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium') : (isLight ? 'text-zinc-600 group-hover:text-zinc-900' : 'text-brand-muted group-hover:text-brand-light transition')}>
+                          {item}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* COMODIDADES E SERVIÇOS */}
+              <div>
+                <h4 className={isLight ? 'text-[11px] font-medium tracking-[0.18em] text-zinc-500 uppercase mb-3 pb-1 border-b border-zinc-200' : 'text-[11px] font-medium tracking-[0.18em] text-brand-gold/80 uppercase mb-3 pb-1 border-b border-brand-light/10'}>
+                  Comodidades e Serviços
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {COMODIDADES_SERVICOS_CONDOMINIO.map((item) => {
+                    const ativo = caracteristicasCondominio.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-2.5 text-[13px] font-light cursor-pointer select-none py-1 group">
+                        <input
+                          type="checkbox"
+                          checked={ativo}
+                          onChange={() => {
+                            setCaracteristicasCondominio((prev) =>
+                              ativo ? prev.filter((i) => i !== item) : [...prev, item]
+                            );
+                          }}
+                          className="w-4 h-4 rounded border border-brand-light/20 bg-brand-bg/60 text-brand-gold accent-brand-gold focus:ring-brand-gold/30 cursor-pointer"
+                        />
+                        <span className={ativo ? (isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium') : (isLight ? 'text-zinc-600 group-hover:text-zinc-900' : 'text-brand-muted group-hover:text-brand-light transition')}>
+                          {item}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 4. SEGURANÇA */}
+              <div>
+                <h4 className={isLight ? 'text-[11px] font-medium tracking-[0.18em] text-zinc-500 uppercase mb-3 pb-1 border-b border-zinc-200' : 'text-[11px] font-medium tracking-[0.18em] text-brand-gold/80 uppercase mb-3 pb-1 border-b border-brand-light/10'}>
+                  Segurança
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {SEGURANCA_CONDOMINIO.map((item) => {
+                    const ativo = caracteristicasCondominio.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-2.5 text-[13px] font-light cursor-pointer select-none py-1 group">
+                        <input
+                          type="checkbox"
+                          checked={ativo}
+                          onChange={() => {
+                            setCaracteristicasCondominio((prev) =>
+                              ativo ? prev.filter((i) => i !== item) : [...prev, item]
+                            );
+                          }}
+                          className="w-4 h-4 rounded border border-brand-light/20 bg-brand-bg/60 text-brand-gold accent-brand-gold focus:ring-brand-gold/30 cursor-pointer"
+                        />
+                        <span className={ativo ? (isLight ? 'text-[#1d0a12] font-medium' : 'text-brand-light font-medium') : (isLight ? 'text-zinc-600 group-hover:text-zinc-900' : 'text-brand-muted group-hover:text-brand-light transition')}>
+                          {item}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 5. ADICIONAR OUTRAS CARACTERÍSTICAS (Condomínio) */}
+              <div className="pt-3 border-t border-brand-light/5">
+                <span className={isLight ? 'block text-[11px] tracking-[0.16em] uppercase font-light text-zinc-500 mb-2' : 'block text-[11px] tracking-[0.16em] uppercase font-light text-brand-muted mb-2'}>
+                  Adicionar outras características do condomínio:
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={novaCaractCondominio}
+                    onChange={(e) => setNovaCaractCondominio(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (novaCaractCondominio.trim()) {
+                          setOutrasCaractCondominio((p) => [...p, novaCaractCondominio.trim()]);
+                          setNovaCaractCondominio('');
+                        }
+                      }
+                    }}
+                    placeholder="Digite uma característica"
+                    className={isLight ? 'flex-1 h-[44px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-white border-zinc-200 text-[#1d0a12] placeholder:text-zinc-400' : 'flex-1 h-[44px] px-4 rounded-[12px] border text-[13px] focus:outline-none focus:border-brand-gold transition bg-brand-bg/60 border-brand-light/10 text-brand-light placeholder:text-brand-muted/40'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (novaCaractCondominio.trim()) {
+                        setOutrasCaractCondominio((p) => [...p, novaCaractCondominio.trim()]);
+                        setNovaCaractCondominio('');
+                      }
+                    }}
+                    className="h-[44px] px-4 rounded-[12px] bg-brand-gold/15 border border-brand-gold/30 text-brand-gold text-[12px] font-medium hover:bg-brand-gold hover:text-brand-bg transition active:scale-95 shrink-0"
+                  >
+                    Adicionar
+                  </button>
+                </div>
+                {outrasCaractCondominio.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {outrasCaractCondominio.map((tag, idx) => (
+                      <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] bg-brand-gold/10 border border-brand-gold/25 text-brand-light">
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => setOutrasCaractCondominio((p) => p.filter((_, i) => i !== idx))}
+                          className="hover:text-red-400 text-brand-muted transition"
+                        >
+                          <X size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className={isLight ? 'bg-white border border-zinc-200 rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)]' : 'bg-[#1d0a12]/60 backdrop-blur-xl rounded-[20px] p-5 md:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-brand-light/10'}>

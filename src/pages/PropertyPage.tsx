@@ -13,7 +13,7 @@ import { REGIONS } from '../data/regions';
 import { sanityClient, sanityToProperty } from '../lib/sanity';
 import { Property } from '../types';
 import logoSrc from '../assets/images/logo_transparente.webp';
-import { MapPin, Heart, Maximize2, Bed, Bath, Car, Calendar, Award, ShieldCheck, ArrowRight, Check } from 'lucide-react';
+import { MapPin, Heart, Maximize2, Bed, Bath, Car, Calendar, Award, ShieldCheck, ArrowRight, Check, Building2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { MiniMap } from '../components/MiniMap';
 
@@ -49,7 +49,14 @@ export const PropertyPage: React.FC = () => {
     setLoadingSanity(true);
     // Busca por slug.current exato, ou fallback por _id no final do slug
     const idSuffix = slug.split('-').pop() || '';
-    const q = `*[_type == "imovel" && (slug.current == $slug || _id == $slug || _id match $idSuffix)][0]{ _id, _createdAt, titulo, slug, tipo, regiao, endereco, latitude, longitude, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado }`;
+    const q = `*[_type == "imovel" && (slug.current == $slug || _id == $slug || _id match $idSuffix)][0]{
+      _id, _createdAt, titulo, slug, tipo, categoriaUso, andar, regiao,
+      endereco, rua, numero, complemento, bairro, cidade, cep, mostrarEndereco,
+      latitude, longitude, valor, finalidade, area, quartos, banheiros, vagas,
+      descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView,
+      caracteristicasImovel, sobreCondominio, caracteristicasCondominio,
+      outrasCaracteristicasImovel, outrasCaracteristicasCondominio
+    }`;
     sanityClient.fetch(q, { slug, idSuffix: `*${idSuffix}*` })
       .then((doc: any) => {
         if (!alive) return;
@@ -287,6 +294,68 @@ export const PropertyPage: React.FC = () => {
                 {property.architect && <p className="text-xs text-brand-muted mt-3">Arquiteto: <span className="text-brand-light">{property.architect}</span></p>}
                 <p className="text-xs text-brand-gold mt-2 italic">{property.tagline}</p>
               </div>
+
+              {/* Características do Imóvel & Diferenciais */}
+              {(((property as any).caracteristicasImovel && (property as any).caracteristicasImovel.length > 0) || ((property as any).outrasCaracteristicasImovel && (property as any).outrasCaracteristicasImovel.length > 0)) && (
+                <div className="bg-brand-light/[0.02] border border-brand-light/5 rounded-2xl p-5 md:p-6 space-y-3">
+                  <h3 className="font-serif text-sm tracking-[0.18em] uppercase text-brand-light font-medium flex items-center gap-2">
+                    <Check size={14} className="text-brand-gold" /> Características do Imóvel & Diferenciais
+                  </h3>
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {[...((property as any).caracteristicasImovel || []), ...((property as any).outrasCaracteristicasImovel || [])].map((item: string, i: number) => (
+                      <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-brand-gold/10 border border-brand-gold/25 text-brand-light font-light">
+                        <Check size={12} className="text-brand-gold" /> {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Características do Condomínio & Lazer */}
+              {(((property as any).caracteristicasCondominio && (property as any).caracteristicasCondominio.length > 0) || ((property as any).outrasCaracteristicasCondominio && (property as any).outrasCaracteristicasCondominio.length > 0) || ((property as any).sobreCondominio && ((property as any).sobreCondominio.numeroTorres || (property as any).sobreCondominio.numeroAndares || (property as any).sobreCondominio.anoConstrucao))) && (
+                <div className="bg-brand-light/[0.02] border border-brand-light/5 rounded-2xl p-5 md:p-6 space-y-4">
+                  <h3 className="font-serif text-sm tracking-[0.18em] uppercase text-brand-light font-medium flex items-center gap-2">
+                    <Building2 size={14} className="text-brand-gold" /> Sobre o Condomínio & Lazer
+                  </h3>
+                  {(property as any).sobreCondominio && ((property as any).sobreCondominio.numeroTorres || (property as any).sobreCondominio.numeroAndares || (property as any).sobreCondominio.unidadesPorAndar || (property as any).sobreCondominio.anoConstrucao) && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                      {(property as any).sobreCondominio.numeroAndares && (
+                        <div className="p-2.5 rounded-xl bg-brand-bg/40 border border-brand-light/5">
+                          <span className="text-[10px] text-brand-muted uppercase block">Andares</span>
+                          <span className="text-brand-light font-medium">{(property as any).sobreCondominio.numeroAndares}</span>
+                        </div>
+                      )}
+                      {(property as any).sobreCondominio.unidadesPorAndar && (
+                        <div className="p-2.5 rounded-xl bg-brand-bg/40 border border-brand-light/5">
+                          <span className="text-[10px] text-brand-muted uppercase block">Unidades/Andar</span>
+                          <span className="text-brand-light font-medium">{(property as any).sobreCondominio.unidadesPorAndar}</span>
+                        </div>
+                      )}
+                      {(property as any).sobreCondominio.numeroTorres && (
+                        <div className="p-2.5 rounded-xl bg-brand-bg/40 border border-brand-light/5">
+                          <span className="text-[10px] text-brand-muted uppercase block">Torres</span>
+                          <span className="text-brand-light font-medium">{(property as any).sobreCondominio.numeroTorres}</span>
+                        </div>
+                      )}
+                      {(property as any).sobreCondominio.anoConstrucao && (
+                        <div className="p-2.5 rounded-xl bg-brand-bg/40 border border-brand-light/5">
+                          <span className="text-[10px] text-brand-muted uppercase block">Ano Construção</span>
+                          <span className="text-brand-light font-medium">{(property as any).sobreCondominio.anoConstrucao}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {(((property as any).caracteristicasCondominio && (property as any).caracteristicasCondominio.length > 0) || ((property as any).outrasCaracteristicasCondominio && (property as any).outrasCaracteristicasCondominio.length > 0)) && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {[...((property as any).caracteristicasCondominio || []), ...((property as any).outrasCaracteristicasCondominio || [])].map((item: string, i: number) => (
+                        <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs bg-brand-bg/60 border border-brand-light/10 text-brand-light font-light">
+                          <Check size={12} className="text-brand-gold" /> {item}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Localização — mapa real OSM + link Google Maps */}
               <div className="border border-brand-light/10 rounded-2xl p-5 md:p-6 bg-[#1a080f]/40 space-y-3">

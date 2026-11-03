@@ -10,8 +10,6 @@ export const sanityClient = createClient({
 })
 
 // Cliente de ESCRITA para o painel /admin — OBRIGATÓRIO: useCdn:false + token permanente com permissão de ESCRITA
-// Usa VITE_SANITY_API_WRITE_TOKEN / VITE_SANITY_WRITE_TOKEN (Vite) — fallback para build local
-// Em produção o ideal é manter o token apenas no servidor (via /api/*) e não expor no bundle; este client serve como fallback/guarda para client.assets.upload('image', file)
 const adminToken =
   ((import.meta as any).env?.VITE_SANITY_API_WRITE_TOKEN as string | undefined) ||
   ((import.meta as any).env?.VITE_SANITY_WRITE_TOKEN as string | undefined) ||
@@ -38,22 +36,30 @@ export function getAdminToken(): string | undefined {
 }
 
 const builder = imageUrlBuilder(sanityClient)
-// Builder também para admin (mesma URL)
 export const adminBuilder = sanityAdminClient ? imageUrlBuilder(sanityAdminClient) : builder
 
 export function urlFor(source: any) {
   return builder.image(source)
 }
 
-// Tipo que vem do Sanity (conforme schema imovel) - inclui comodidades para filtro
+// Tipo completo que vem do Sanity
 export interface SanityImovel {
   _id: string
   _createdAt: string
   titulo: string
   slug: {current: string}
-  tipo: 'Apartamento' | 'Casa' | 'Terreno' | 'Comercial' | 'Studio/Kitnet'
+  tipo: string
+  categoriaUso?: 'Residencial' | 'Comercial'
+  andar?: string
   regiao: 'Butantã' | 'Taboão da Serra' | 'Morumbi'
   endereco: string
+  rua?: string
+  numero?: string
+  complemento?: string
+  bairro?: string
+  cidade?: string
+  cep?: string
+  mostrarEndereco?: 'completo' | 'rua' | 'bairro'
   valor: number
   finalidade: 'Venda' | 'Aluguel'
   area: number
@@ -69,13 +75,30 @@ export interface SanityImovel {
   hasOceanView?: boolean
   latitude?: number
   longitude?: number
+  caracteristicasImovel?: string[]
+  sobreCondominio?: {
+    numeroAndares?: string
+    unidadesPorAndar?: string
+    numeroTorres?: string
+    anoConstrucao?: string
+  }
+  caracteristicasCondominio?: string[]
+  outrasCaracteristicasImovel?: string[]
+  outrasCaracteristicasCondominio?: string[]
 }
+
+const PROJECAO_CAMPOS = `{
+  _id, _createdAt, titulo, slug, tipo, categoriaUso, andar, regiao,
+  endereco, rua, numero, complemento, bairro, cidade, cep, mostrarEndereco,
+  valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado,
+  isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude,
+  caracteristicasImovel, sobreCondominio, caracteristicasCondominio,
+  outrasCaracteristicasImovel, outrasCaracteristicasCondominio
+}`
 
 // Busca todos os imóveis publicados, mais recentes primeiro
 export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
-  const query = `*[_type == "imovel" && publicado == true] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude
-  }`
+  const query = `*[_type == "imovel" && publicado == true] | order(_createdAt desc) ${PROJECAO_CAMPOS}`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query)
     return data || []
@@ -87,9 +110,7 @@ export async function fetchImoveisPublicados(): Promise<SanityImovel[]> {
 
 // Busca por região específica
 export async function fetchImoveisPorRegiao(regiao: string): Promise<SanityImovel[]> {
-  const query = `*[_type == "imovel" && publicado == true && regiao == $regiao] | order(_createdAt desc){
-    _id, _createdAt, titulo, slug, tipo, regiao, endereco, valor, finalidade, area, quartos, banheiros, vagas, descricao, fotos, publicado, isPetFriendly, hasSwimmingPool, hasGarden, hasOceanView, latitude, longitude
-  }`
+  const query = `*[_type == "imovel" && publicado == true && regiao == $regiao] | order(_createdAt desc) ${PROJECAO_CAMPOS}`
   try {
     const data = await sanityClient.fetch<SanityImovel[]>(query, {regiao})
     return data || []
@@ -99,8 +120,7 @@ export async function fetchImoveisPorRegiao(regiao: string): Promise<SanityImove
   }
 }
 
-// Converte SanityImovel para formato usado pelo site (compatível com PropertyCard)
-// Mantém campos essenciais para exibir com CDN do Sanity já otimizado
+// Converte SanityImovel para formato usado pelo site
 export function sanityToProperty(imovel: SanityImovel) {
   const primeiraFoto = imovel.fotos?.[0] ? urlFor(imovel.fotos[0]).width(800).height(500).fit('crop').auto('format').url() : ''
   const galeria = (imovel.fotos || []).map((f: any) => urlFor(f).width(1200).height(750).fit('crop').auto('format').url())
@@ -116,12 +136,26 @@ export function sanityToProperty(imovel: SanityImovel) {
       .join('\n\n')
   }
 
+  // Formata a localização pública respeitando mostrarEndereco
+  const mostrar = imovel.mostrarEndereco || 'completo'
+  let locationPublica = ''
+  if (mostrar === 'bairro') {
+    locationPublica = imovel.bairro ? `${imovel.bairro} — ${imovel.regiao}, São Paulo` : `${imovel.regiao}, São Paulo`
+  } else if (mostrar === 'rua') {
+    const parteRua = imovel.rua || imovel.endereco?.split(',')[0] || ''
+    locationPublica = parteRua ? `${parteRua}, ${imovel.bairro || imovel.regiao} — São Paulo` : `${imovel.regiao}, São Paulo`
+  } else {
+    // completo
+    locationPublica = imovel.endereco ? `${imovel.endereco} — ${imovel.regiao}, São Paulo` : `${imovel.regiao}, São Paulo`
+  }
+
   return {
     id: imovel._id,
     title: imovel.titulo,
     type: imovel.tipo as any,
-    location: imovel.endereco ? `${imovel.endereco} — ${imovel.regiao}, São Paulo` : `${imovel.regiao}, São Paulo`,
-    // Para filtros numéricos, mantemos valor original (em reais) mas também calculamos em milhões para compatibilidade antiga
+    categoriaUso: imovel.categoriaUso || 'Residencial',
+    andar: imovel.andar || '',
+    location: locationPublica,
     price: imovel.valor / 1000000,
     formattedPrice,
     valorRaw: imovel.valor,
@@ -133,8 +167,15 @@ export function sanityToProperty(imovel: SanityImovel) {
     areaRaw: imovel.area,
     image: primeiraFoto,
     gallery: galeria.length ? galeria : [primeiraFoto],
-    description: descricaoTexto || `Imóvel ${imovel.tipo} em ${imovel.regiao} - ${imovel.endereco}`,
+    description: descricaoTexto || `Imóvel ${imovel.tipo} em ${imovel.regiao} - ${locationPublica}`,
     endereco: imovel.endereco,
+    rua: imovel.rua,
+    numero: imovel.numero,
+    complemento: imovel.complemento,
+    bairro: imovel.bairro,
+    cidade: imovel.cidade,
+    cep: imovel.cep,
+    mostrarEndereco: imovel.mostrarEndereco || 'completo',
     latitude: (imovel as any).latitude as number | undefined,
     longitude: (imovel as any).longitude as number | undefined,
     features: [imovel.tipo, imovel.finalidade, `${imovel.area}m²`],
@@ -142,6 +183,11 @@ export function sanityToProperty(imovel: SanityImovel) {
     hasGarden: !!(imovel as any).hasGarden,
     hasOceanView: !!(imovel as any).hasOceanView,
     isPetFriendly: (imovel as any).isPetFriendly !== undefined ? !!(imovel as any).isPetFriendly : true,
+    caracteristicasImovel: imovel.caracteristicasImovel || [],
+    sobreCondominio: imovel.sobreCondominio || {},
+    caracteristicasCondominio: imovel.caracteristicasCondominio || [],
+    outrasCaracteristicasImovel: imovel.outrasCaracteristicasImovel || [],
+    outrasCaracteristicasCondominio: imovel.outrasCaracteristicasCondominio || [],
     tagline: `${imovel.tipo} em ${imovel.regiao} • ${formattedPrice}`,
     slug: imovel.slug?.current || '',
     _createdAt: imovel._createdAt,
